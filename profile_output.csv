@@ -1,0 +1,1409 @@
+Filename;Line Number;Function Name;Call Count;Cumulative Time;Internal Time
+~;0;<pandas._libs.lib.is_all_arraylike>;4;9.84e-06;9.84e-06
+<frozen codecs>;260;__init__;1;9.7e-07;9.7e-07
+construction.py;482;<listcomp>;1;9.55e-07;7,51E+08
+generic.py;6674;fillna;1;9.33e-05;9,82E+09
+pathlib.py;536;__str__;1;8.74e-07;8.74e-07
+~;0;<method 'is_integer' of 'float' objects>;4;8.16e-07;8.16e-07
+multiarray.py;668;result_type;4;8.01e-07;8.01e-07
+base.py;3209;_validate_sort_keyword;2;8.01e-07;8.01e-07
+dtypes.py;1185;construct_from_string;2;7.99e-06;5,66E+09
+dataclasses.py;1256;is_dataclass;2;7.77e-06;3,50E-03
+array_ops.py;514;_bool_arith_check;3;7.76e-06;2,55E-03
+~;0;<built-in method _codecs.lookup_error>;1;7.37e-07;7.37e-07
+~;0;<method 'disable' of '_lsprof.Profiler' objects>;1;7.37e-07;7.37e-07
+readers.py;2132;_extract_dialect;1;7.37e-07;6,04E+08
+base_parser.py;209;<setcomp>;1;7.23e-07;7.23e-07
+~;0;<method '_set_freq' of 'pandas._libs.tslibs.timestamps._Timestamp' objects>;2;7.13e-07;7.13e-07
+concat.py;109;<setcomp>;8;7.13e-06;6,76E-03
+groupby.py;1092;_reset_group_selection;1;7.08e-07;7.08e-07
+rolling.py;196;_validate;1;6.6e-06;2,97E-03
+~;0;<built-in method sys.getfilesystemencoding>;1;6.64e-07;6.64e-07
+base.py;204;_selected_obj;1;6.15e-07;6.15e-07
+~;0;<built-in method gc.get_referents>;1;6.13e-07;6.13e-07
+shape_base.py;19;_atleast_1d_dispatcher;3;5.67e-07;5.67e-07
+generic.py;1721;<genexpr>;2;5.64e-07;5.64e-07
+~;0;<method 'encode' of 'str' objects>;1;5.06e-07;5.06e-07
+readers.py;517;validate_integer;2;4.96e-07;4.96e-07
+~;0;<method 'toordinal' of 'datetime.date' objects>;2;4.93e-07;4.93e-07
+base_parser.py;924;_validate_usecols_arg;1;4.92e-07;4.92e-07
+common.py;178;not_none;4;4.92e-06;4.92e-06
+api.py;281;<listcomp>;2;3.94e-07;3.94e-07
+fromnumeric.py;1888;_nonzero_dispatcher;1;3.92e-07;3.92e-07
+range.py;378;inferred_type;1;3.47e-07;3.47e-07
+fromnumeric.py;2950;_prod_dispatcher;1;3.32e-07;3.32e-07
+base.py;728;_constructor;6;3.27e-06;3.27e-06
+contextlib.py;754;__enter__;1;2.68e-07;2.68e-07
+objects.py;46;__init__;1;2.42e-06;2,02E+10
+~;0;<built-in method builtins.ord>;1;2.33e-07;2.33e-07
+~;0;<method 'weekday' of 'datetime.date' objects>;1;2.28e-07;2.28e-07
+numeric.py;216;_should_fallback_to_positional;1;2.28e-07;2.28e-07
+series.py;1274;_clear_item_cache;11;1.9e-06;1.9e-06
+readers.py;1812;__enter__;1;1.98e-07;1.98e-07
+fromnumeric.py;2183;_sum_dispatcher;1;1.91e-07;1.91e-07
+numeric.py;418;_engine_type;1;1.52e-06;1.52e-06
+base_parser.py;229;_has_complex_date_col;1;1.24e-06;9,83E+08
+base.py;588;_dtype_to_subclass;65507;0.988282885;0.272704616
+generic.py;3908;xs;65457;0.984582562;0.162908517
+utils.py;127;check_setitem_lengths;261824;0.962929969;0.446935214
+~;0;<method 'nonzero' of 'numpy.ndarray' objects>;65484;0.958229549;0.958229549
+series.py;966;__getitem__;131670;0.941941514;0.25808187600000004
+_ufunc_config.py;132;geterr;396242;0.9045474330000001;0.8405884320000001
+managers.py;1917;from_blocks;196397;0.8968604910000001;0.47549589600000003
+numeric.py;2407;array_equal;65457;0.8794248520000001;0.363002942
+common.py;1556;get_dtype;787504;0.8576885670000001;0.49210770200000004
+numeric.py;132;_ensure_array;65472;0.837162391;0.311231237
+blocks.py;2186;check_ndim;261930;0.812990753;0.45638321400000004
+missing.py;699;is_valid_na_for_dtype;130994;0.8091570490000001;0.354611659
+base.py;58;_validate_set_axis;261941;0.79572111;0.27569930000000004
+generic.py;5888;__getattr__;655598;0.792198811;0.7917595310000001
+common.py;1154;needs_i8_conversion;330013;0.776159585;0.302872119
+utils.py;66;is_list_like_indexer;458196;0.7602245040000001;0.294744489
+datetimes.py;541;tzinfo;458195;0.7477887910000001;0.24110275900000003
+common.py;1097;is_datetimelike_v_numeric;65457;0.737138244;0.11085104300000001
+~;0;<method 'view' of 'numpy.ndarray' objects>;720084;0.7162437460000001;0.7162437460000001
+datetimes.py;495;dtype;3273803;0.66015743;0.66015743
+blocks.py;2120;get_block_type;261983;0.647402401;0.5221646010000001
+algorithms.py;1484;take;130940;0.6427862510000001;0.23160671400000002
+blocks.py;2091;maybe_coerce_values;261981;0.641758279;0.38715173900000005
+config.py;597;_get_root;261936;0.640330531;0.487792506
+base.py;5254;__contains__;328311;0.64011393;0.596590405
+blocks.py;236;make_block_same_class;130970;0.636591535;0.461164344
+construction.py;861;is_empty_data;261931;0.621935498;0.26104255000000004
+base.py;690;_simple_new;198178;0.6190986780000001;0.39750388600000003
+datetimes.py;449;_unbox_scalar;130920;0.593132634;0.50282959
+numeric.py;1348;normalize_axis_tuple;130960;0.568949443;0.36098470800000004
+datetimelike.py;295;asi8;392755;0.568495959;0.25258592900000004
+config.py;650;_warn_if_deprecated;261933;0.568295585;0.16903263300000002
+range.py;946;__len__;851255;0.549186084;0.387568098
+base.py;742;__iter__;65467;0.546549148;0.22909629
+config.py;611;_get_deprecated_option;523869;0.5404633670000001;0.5404633670000001
+_mixins.py;283;__getitem__;198101;0.532021198;0.37395591300000003
+construction.py;676;_sanitize_ndim;196465;0.500966757;0.21858306000000002
+common.py;566;require_length_match;196456;0.49112164300000005;0.16284330300000002
+~;0;<method 'all' of 'numpy.ndarray' objects>;65466;0.487371331;0.064015904
+construction.py;461;ensure_wrapped_if_datetimelike;589370;0.47803209100000005;0.368790895
+construction.py;744;_try_cast;131000;0.47175761800000005;0.31644155700000004
+dispatch.py;13;should_extension_dispatch;196406;0.466751937;0.100538791
+_decorators.py;323;wrapper;24;0.46477992900000004;0.000155427
+<ipython-input-131-21af78044bcb>;194;process_data;1;0.462502254;0.00351592
+common.py;1246;is_float_dtype;132777;0.458993382;0.195072082
+common.py;99;_maybe_match_name;130930;0.43848364700000003;0.21903324700000001
+common.py;585;is_dtype_equal;131015;0.43566667600000003;0.223913134
+flags.py;49;__init__;526455;0.43357963600000005;0.43357963600000005
+base.py;925;__len__;720390;0.429720682;0.32098012200000003
+~;0;<pandas._libs.lib.is_scalar>;1642670;0.428298279;0.428298279
+common.py;362;apply_if_callable;788078;0.42438575700000003;0.314967449
+_methods.py;61;_all;65466;0.423355427;0.050135808000000004
+_mixins.py;154;take;65472;0.422416883;0.101890112
+series.py;1072;_get_value;131666;0.413188535;0.10580109600000001
+base.py;54;shape;65508;0.40977609200000004;0.15978698100000002
+blocks.py;2250;extend_blocks;196442;0.39507590600000003;0.28840733500000004
+<__array_function__ internals>;177;empty_like;130920;0.387729097;0.168771101
+indexing.py;2629;is_label_like;130912;0.38259279900000004;0.132422291
+generic.py;550;_get_axis_number;1114624;0.37908677100000004;0.37908677100000004
+common.py;1433;is_extension_array_dtype;261894;0.37687009400000004;0.26098988700000003
+~;0;<built-in method numpy.seterrobj>;396242;0.376204965;0.376204965
+flags.py;85;allows_duplicate_labels;460950;0.367437687;0.367437687
+indexing.py;2247;<genexpr>;196368;0.36523400100000003;0.09725657
+inference.py;363;is_sequence;196369;0.36324015200000004;0.24020564200000002
+blocks.py;2266;ensure_block_shape;65489;0.36217321;0.141553293
+datetimes.py;265;_simple_new;65460;0.361368381;0.26536337600000004
+datetimelike.py;560;copy;65469;0.358667137;0.1542085
+accessor.py;121;wrapper;5;0.355745497;1,27E-01
+base.py;3754;get_loc;131860;0.35471865;0.208679738
+object_array.py;39;_str_map;5;0.354440547;6,24E-01
+inference.py;266;is_dict_like;65526;0.34837127100000004;0.175251404
+~;0;<pandas._libs.lib.map_infer_mask>;5;0.34117952;0.086056692
+indexing.py;881;_is_nested_tuple_indexer;65456;0.33075332300000004;0.096344859
+~;0;<built-in method builtins.hash>;1967878;0.32388846200000004;0.32388846200000004
+series.py;4661;apply;1;0.31984205400000004;5,25E-03
+apply.py;1108;apply;1;0.319831448;0.003093597
+apply.py;1159;apply_standard;1;0.31673152800000004;3,05E+11
+common.py;148;<lambda>;525664;0.31466393000000004;0.217654228
+series.py;846;__array__;130924;0.312107213;0.12741280200000002
+base.py;7277;ensure_index;458406;0.30900465800000004;0.22766123000000002
+groupby.py;1511;apply;1;0.305638261;3,19E-01
+groupby.py;1592;_python_apply_general;1;0.305542661;0.002405182
+ops.py;822;apply;1;0.30276800600000003;0.005807991
+common.py;1751;pandas_dtype;261881;0.29871553500000003;0.20320949300000002
+<__array_function__ internals>;177;ndim;65460;0.27516729900000003;0.08169982
+base.py;2752;_is_all_dates;65476;0.26980133700000003;0.15547686200000002
+indexing.py;770;_ensure_listlike_indexer;65456;0.269743891;0.175127799
+managers.py;2433;_using_copy_on_write;787399;0.26836111300000004;0.26836111300000004
+config.py;638;_translate_key;261936;0.26445380700000004;0.123253392
+datetimelike.py;2012;_reso;261834;0.262901708;0.181146782
+~;0;<method 'split' of 'str' objects>;327767;0.258488616;0.258488616
+series.py;1267;_set_as_cached;66371;0.256390965;0.069282705
+~;0;<method '_from_backing_data' of 'pandas._libs.arrays.NDArrayBacked' objects>;394488;0.25217828600000003;0.25217828600000003
+base.py;56;<genexpr>;196523;0.249989111;0.08227986600000001
+series.py;764;__len__;65467;0.249036362;0.033251999000000004
+construction.py;733;_maybe_repeat;196465;0.245179679;0.140977886
+common.py;1420;is_1d_only_ea_dtype;392934;0.244138921;0.177781565
+~;0;<built-in method builtins.issubclass>;1448238;0.241031547;0.24102673100000002
+blocks.py;504;astype;4;0.238052911;2,66E+11
+astype.py;239;astype_array_safe;4;0.23792642300000003;2,45E+11
+generic.py;6076;astype;2;0.23790206800000002;1,56E-01
+astype.py;192;astype_array;4;0.237876941;2,80E-01
+managers.py;447;astype;2;0.237748974;5,26E+09
+base.py;324;ndim;1571221;0.23491519300000002;0.23491519300000002
+common.py;736;is_signed_integer_dtype;65491;0.234425563;0.078672804
+datetimes.py;599;astype;1;0.232845821;8,20E+09
+datetimelike.py;425;astype;1;0.232821345;1,08E-01
+~;0;<pandas._libs.tslibs.vectorized.ints_to_pydatetime>;1;0.23279850600000002;0.23279850600000002
+indexing.py;1130;_is_scalar_access;65456;0.23039587600000003;0.16948917300000002
+datetimelike.py;726;_validate_listlike;327282;0.22919645200000002;0.191199649
+~;0;<built-in method numpy.geterrobj>;792484;0.229056643;0.229056643
+range.py;541;equals;261866;0.221554626;0.19204271
+~;0;<pandas._libs.lib.item_from_zerodim>;982884;0.216310938;0.216310938
+<ipython-input-131-21af78044bcb>;233;<lambda>;860;0.212623148;0.004284777
+<frozen importlib._bootstrap>;1207;_handle_fromlist;131005;0.21132314700000002;0.158415502
+frame.py;4271;_clear_item_cache;65480;0.20897952600000003;0.060234432000000004
+common.py;790;is_unsigned_integer_dtype;65491;0.20801345400000001;0.07944841700000001
+frame.py;874;shape;65462;0.204276378;0.061003026
+indexing.py;2661;<genexpr>;392736;0.20069751900000002;0.151191963
+~;0;<pandas._libs.lib.maybe_convert_objects>;82;0.198438947;0.19764393500000002
+indexing.py;1064;<genexpr>;196368;0.19066359300000002;0.119585252
+~;0;<method 'take' of 'numpy.ndarray' objects>;130938;0.19023397900000003;0.19023397900000003
+indexing.py;811;<genexpr>;196368;0.18639662;0.11702113500000001
+~;0;<function DatetimeLikeArrayMixin.copy at 0x11259d800>;65469;0.184088473;0.184088473
+base.py;5934;_get_values_for_loc;131666;0.18190757200000002;0.087803005
+numeric.py;1398;<listcomp>;130960;0.18156995;0.11715599500000001
+common.py;1487;is_ea_or_datetimelike_dtype;131030;0.17936697000000001;0.129394693
+generic.py;353;flags;921903;0.177215651;0.177215651
+managers.py;2009;_block;525511;0.17720745400000001;0.17720745400000001
+common.py;146;classes;525664;0.17669187900000002;0.17669187900000002
+indexing.py;842;_expand_ellipsis;65456;0.17572511000000002;0.059715081
+indexing.py;2230;<listcomp>;65456;0.173228711;0.100713463
+indexing.py;2225;ravel;130912;0.172105942;0.099513526
+common.py;1500;is_complex_dtype;65458;0.17204296000000002;0.068384997
+base.py;46;__len__;65477;0.17158399500000002;0.062874944
+~;0;<pandas._libs.lib.is_integer>;990292;0.167181945;0.167181945
+~;0;<method 'reshape' of 'pandas._libs.arrays.NDArrayBacked' objects>;65463;0.167033979;0.167033979
+frame.py;857;axes;262709;0.16623896200000002;0.16623896200000002
+indexing.py;2672;<genexpr>;392736;0.163758812;0.12626019400000002
+accessor.py;1127;contains;3;0.162751859;2,92E+11
+object_array.py;117;_str_contains;3;0.162021832;3,61E+11
+common.py;313;is_null_slice;261824;0.16103436200000001;0.119810175
+config.py;579;_select_options;261936;0.155728729;0.155728729
+generic.py;332;attrs;460953;0.151984279;0.151984279
+~;0;<method 'clear' of 'dict' objects>;65480;0.14874509400000002;0.14874509400000002
+~;0;<method 'append' of 'list' objects>;1012687;0.14721440300000002;0.14721440300000002
+accessor.py;780;split;1;0.146663008;9,30E-03
+object_array.py;309;_str_split;1;0.146408791;7.64e-06
+frame.py;1498;__len__;65494;0.145650946;0.055720876
+frame.py;609;__init__;884;0.144144934;0.0018302370000000002
+~;0;<built-in method pandas._libs.missing.checknull>;196478;0.14306205600000002;0.14306205600000002
+~;0;<built-in method builtins.callable>;984512;0.14192145;0.14192145
+cast.py;120;maybe_convert_platform;3;0.139730771;0.00044110300000000004
+typing.py;2246;cast;920147;0.139398254;0.139398254
+~;0;<pandas._libs.lib.is_iterator>;786437;0.13841139400000002;0.13841139400000002
+array_ops.py;445;maybe_prepare_scalar_for_op;65462;0.13791757300000002;0.114113606
+blocks.py;500;dtype;196520;0.137771282;0.11006853500000001
+construction.py;496;nested_data_to_arrays;2;0.132412787;0.001674087
+construction.py;790;to_arrays;2;0.130689115;0.000254022
+managers.py;222;_normalize_axis;130920;0.12855328400000002;0.10334095700000001
+object_array.py;340;<lambda>;65830;0.126387576;0.020438216000000002
+_decorators.py;170;wrapper;2;0.125644575;1,40E-01
+range.py;385;get_loc;131666;0.125479867;0.089464625
+readers.py;854;read_csv;1;0.124770189;2,39E+11
+readers.py;571;_read;1;0.12473117;0.0016578690000000002
+__init__.py;152;align_method_SERIES;65475;0.12390886200000001;0.037134566
+~;0;<method 'get_loc' of 'pandas._libs.index.IndexEngine' objects>;131860;0.123845541;0.123845541
+readers.py;1762;read;1;0.11861405500000001;2,14E-01
+construction.py;713;_sanitize_str_dtypes;131002;0.11847982300000001;0.09156987800000001
+inference.py;292;<genexpr>;196609;0.117485767;0.08566346300000001
+common.py;156;<lambda>;132831;0.11602939500000001;0.087556146
+c_parser_wrapper.py;218;read;1;0.11485479300000001;0.000118041
+cast.py;1422;sanitize_to_nanoseconds;130989;0.11225453;0.112189653
+~;0;<method 'read_low_memory' of 'pandas._libs.parsers.TextReader' objects>;1;0.11183456000000001;0.110804895
+flags.py;53;allows_duplicate_labels;460953;0.11176318800000001;0.11176318800000001
+indexing.py;888;<genexpr>;196368;0.10931958700000001;0.081230277
+generic.py;11777;sum;860;0.10876313400000001;0.001036244
+generic.py;11492;sum;860;0.10772689;0.001412962
+base.py;870;_reset_identity;198202;0.107068334;0.107068334
+generic.py;11443;_min_count_stat_function;860;0.106313928;0.002744405
+indexing.py;1063;<genexpr>;196368;0.104457454;0.079041411
+series.py;4773;_reduce;864;0.10310419700000001;0.004952539000000001
+object_array.py;124;<lambda>;212822;0.100697036;0.062272126000000004
+series.py;546;_constructor;393701;0.10011278600000001;0.10011278600000001
+indexing.py;899;_validate_key_length;130912;0.099786413;0.077489229
+indexing.py;810;<genexpr>;196368;0.09816830300000001;0.074194086
+~;0;<built-in method builtins.iter>;261830;0.09605137600000001;0.09605137600000001
+common.py;151;cast_scalar_indexer;132742;0.09401978100000001;0.07007957000000001
+datetimes.py;705;to_datetime;1;0.0923808;1,34E-02
+base.py;839;is_;130981;0.091079991;0.07639353
+datetimes.py;194;_maybe_cache;1;0.087942039;3,02E+11
+managers.py;172;blknos;262798;0.087839024;0.087703368
+~;0;<method 'join' of 'str' objects>;552605;0.08768539700000001;0.08768539700000001
+~;0;<built-in method pandas._libs.tslibs.timedeltas.delta_to_nanoseconds>;65458;0.08564231300000001;0.08564231300000001
+datetimelike.py;926;freq;261866;0.084843658;0.084843658
+datetimelike.py;2082;_maybe_clear_freq;196368;0.08416910500000001;0.08416910500000001
+nanops.py;83;_f;862;0.084010506;0.004813651
+blocks.py;323;should_store;65456;0.083487065;0.069970141
+numeric.py;1234;<dictcomp>;130920;0.083076388;0.083076388
+ops.py;1321;__iter__;861;0.08276465400000001;0.001644103
+~;0;<built-in method __new__ of type object at 0x102d6eda8>;198204;0.082699322;0.082699322
+~;0;<pandas._libs.tslibs.np_datetime.py_get_unit_from_dtype>;261834;0.081754926;0.081754926
+indexing.py;278;loc;130914;0.08107016;0.08107016
+datetimes.py;325;_convert_listlike_datetimes;1;0.080358555;1,35E-01
+datetimes.py;506;_to_datetime_with_format;1;0.080230461;5,88E-02
+datetimes.py;458;_array_strptime_with_fallback;1;0.080171691;7.63e-06
+~;0;<pandas._libs.tslibs.strptime.array_strptime>;1;0.08000968700000001;0.079996589
+missing.py;309;_isna_string_dtype;7;0.079631163;2,22E+11
+managers.py;188;blklocs;262785;0.07947881200000001;0.07947881200000001
+managers.py;1864;_consolidate_inplace;11;0.077559178;0.002943256
+generic.py;3873;_take;9;0.077162616;7,49E+10
+frame.py;6424;dropna;1;0.076848045;0.000120544
+~;0;<built-in method numpy.array>;65531;0.075964129;0.07593188000000001
+ops.py;1351;_chop;860;0.07510683500000001;0.0031360800000000003
+managers.py;2319;_consolidate;4;0.074340363;0.000105439
+~;0;<pandas._libs.lib.map_infer>;1;0.07390542600000001;0.016332537
+managers.py;2361;_merge_blocks;20;0.07364487700000001;0.039658562
+function_base.py;346;iterable;65460;0.072958778;0.055895650000000005
+generic.py;3894;_take_with_is_copy;8;0.071826702;4,00E-01
+missing.py;357;notna;5;0.071591719;1,36E+11
+blocks.py;345;apply;15;0.070878412;4,20E+11
+frame.py;6377;isna;1;0.06948059300000001;7,60E-03
+base.py;141;isna;1;0.069445877;2,82E+10
+indexing.py;2185;_ensure_iterable_column_indexer;65456;0.067937078;0.049876553000000004
+_ufunc_config.py;426;__init__;198121;0.06758549400000001;0.06758549400000001
+~;0;<pandas._libs.missing.isnaobj2d>;1;0.066651369;0.066651369
+frame.py;3832;_getitem_bool_array;6;0.06654441;4,10E-01
+indexing.py;1108;_validate_key;65457;0.066076497;0.050501444000000006
+base.py;986;dtype;196429;0.065505511;0.065505511
+base.py;931;__array__;65456;0.065501759;0.041626316000000003
+base.py;5090;_values;262078;0.06516361500000001;0.064903314
+generic.py;6258;copy;15;0.064842281;8,71E-01
+~;0;<built-in method numpy.core._multiarray_umath.normalize_axis_index>;130981;0.06442267;0.06442267
+managers.py;616;copy;15;0.064348132;8,29E+10
+construction.py;958;_finalize_columns_and_data;2;0.06313062400000001;3,58E+11
+construction.py;1038;_convert_object_array;2;0.063082946;5,33E-03
+construction.py;1060;<listcomp>;2;0.063077619;1,80E-01
+construction.py;1054;convert;12;0.063059577;5,48E+11
+nanops.py;403;new_func;862;0.062869572;0.002184582
+~;0;<method 'get_slice' of 'pandas._libs.internals.BlockManager' objects>;860;0.0617991;0.010488808
+take.py;57;take_nd;72;0.060690673;0.00036786800000000004
+nanops.py;469;newfunc;860;0.060432990000000006;0.00136038
+~;0;<method 'get' of 'dict' objects>;328326;0.059571747;0.059571747
+managers.py;689;reindex_indexer;13;0.059180332;0.000128887
+nanops.py;588;nansum;860;0.059072610000000005;0.002788472
+construction.py;921;_list_of_dict_to_arrays;1;0.058325117;2,12E+11
+indexing.py;848;<genexpr>;196368;0.057956789;0.057956789
+blocks.py;861;take_nd;45;0.057940603;0.00023533600000000002
+<ipython-input-134-80e15ba39301>;70;<lambda>;65830;0.057543652;0.036107354
+managers.py;233;is_single_block;65465;0.057284263;0.045046009000000005
+managers.py;330;<dictcomp>;196402;0.056977164000000004;0.056977164000000004
+~;0;<method 'ravel' of 'numpy.ndarray' objects>;65510;0.055448451;0.055448451
+~;0;<built-in method _simple_new>;65468;0.052660674000000005;0.052660674000000005
+indexing.py;1592;_getitem_axis;865;0.05029074;0.0012203020000000001
+frame.py;6128;reset_index;3;0.049957392;2,37E-01
+managers.py;944;take;10;0.049273944;0.00012116500000000001
+multiarray.py;1130;putmask;196374;0.048639322000000006;0.048639322000000006
+nanops.py;261;_get_values;869;0.048219679;0.005488515
+indexing.py;1629;_get_slice_axis;862;0.047301295;0.002173003
+generic.py;664;ndim;130930;0.047218051000000004;0.047218051000000004
+contextlib.py;428;__init__;130912;0.046748818000000004;0.046748818000000004
+arraylike.py;40;__eq__;11;0.046343315;1,82E-01
+accessor.py;1994;strip;1;0.046317968;7,64E+09
+object_array.py;427;_str_strip;1;0.04606565;6.15e-06
+take.py;120;_take_nd_ndarray;70;0.046065312000000004;0.000487103
+managers.py;751;<listcomp>;9;0.045988491;0.00012134000000000001
+~;0;<pandas._libs.lib.fast_unique_multiple_list_gen>;1;0.045908905;0.010280103
+generic.py;5973;_consolidate_inplace;21;0.045382061;2,87E+11
+generic.py;5959;_protect_consolidate;21;0.045353316000000005;5,65E+11
+<__array_function__ internals>;177;concatenate;82;0.044564929;0.000150089
+array_ops.py;60;comp_method_OBJECT_ARRAY;5;0.043637020000000006;2,84E-01
+~;0;<pandas._libs.ops.scalar_compare>;5;0.043582;0.043582
+~;0;<built-in method numpy.asanyarray>;131053;0.042031963000000006;0.042018737
+stride_tricks.py;345;<genexpr>;130918;0.041859406;0.041859406
+indexing.py;139;iloc;66321;0.041631458;0.041631458
+generic.py;5977;f;21;0.041459657000000004;3,83E+11
+managers.py;673;consolidate;21;0.041207453000000005;3,69E+11
+series.py;961;_slice;863;0.040684558;0.0005996560000000001
+series.py;1068;_get_values;865;0.040531527000000005;0.0024820270000000004
+common.py;151;classes_and_not_datetimelike;132831;0.039002691;0.039002691
+~;0;<method 'search' of 're.Pattern' objects>;212824;0.03842616;0.03842616
+indexing.py;2612;is_nested_tuple;65456;0.037905730000000006;0.029254054
+~;0;<pandas._libs.lib.is_float>;199074;0.037584228000000004;0.037584228000000004
+base.py;1734;name;131027;0.037249061;0.037249061
+common.py;333;is_full_slice;65456;0.037051374000000005;0.027225871000000002
+stride_tricks.py;25;_maybe_view_as_subclass;65459;0.036551517000000006;0.036551517000000006
+construction.py;945;<genexpr>;64706;0.035628802;0.029213387
+~;0;<pandas._libs.algos.ensure_platform_int>;131053;0.035345167000000004;0.035345167000000004
+contextlib.py;434;__exit__;130912;0.034071588;0.034071588
+~;0;<method 'copy' of 'numpy.ndarray' objects>;83;0.033636034;0.033636034
+<__array_function__ internals>;177;vstack;8;0.033470972;1,82E+11
+datetimes.py;194;_scalar_type;130927;0.033445165;0.033445165
+shape_base.py;223;vstack;8;0.033411672;3,64E-01
+function.py;56;__call__;66322;0.030492856000000002;0.030485779
+~;0;<built-in method builtins.sum>;65484;0.030318262000000002;0.030195561000000003
+managers.py;238;items;65503;0.029607265;0.029607265
+numeric.py;1143;_roll_dispatcher;130920;0.029356801000000002;0.029356801000000002
+~;0;<method 'items' of 'dict' objects>;130952;0.028305543000000002;0.028305543000000002
+object_array.py;428;<lambda>;65830;0.027885195;0.018459723
+frame.py;3955;__setitem__;33;0.027803778;0.00018662500000000002
+blocks.py;544;copy;28;0.027390494;0.000103002
+frame.py;4164;_set_item;33;0.027236942;0.000119054
+~;0;<built-in method _operator.index>;130960;0.026381763000000003;0.026381763000000003
+multiarray.py;84;empty_like;130920;0.026114897;0.026114897
+frame.py;6862;sort_values;1;0.025236626;0.00034615400000000005
+managers.py;1882;ndim;130963;0.025221234000000002;0.025221234000000002
+~;0;<method 'index' of 'range' objects>;131666;0.023104553;0.023104553
+concat.py;146;concat;3;0.023102805;2,39E-01
+base.py;6569;_maybe_cast_indexer;131860;0.022193371;0.022193371
+contextlib.py;431;__enter__;130912;0.021822920000000003;0.021822920000000003
+concat.py;565;get_result;3;0.021223305;6,47E-01
+base.py;1194;_maybe_disallow_fill;65468;0.020930883;0.020930883
+concat.py;176;concatenate_managers;3;0.020879296000000002;0.000384469
+~;0;<method '__exit__' of 'numpy.nditer' objects>;65459;0.020701964;0.020701964
+~;0;<pandas._libs.tslibs.np_datetime.is_unitless>;65468;0.020286432;0.020286432
+fromnumeric.py;3152;ndim;65460;0.019909985;0.019907323
+cast.py;527;maybe_promote;93;0.019548929;0.019044961000000003
+nanops.py;217;_maybe_get_mask;869;0.01888818;0.001597031
+numeric.py;192;_ensure_dtype;65472;0.018728026000000002;0.018728026000000002
+frame.py;4892;_sanitize_column;33;0.016269396000000002;0.000358974
+frame.py;5251;drop;1;0.016049393000000002;4,00E-03
+generic.py;4475;drop;1;0.01603997;1,15E-01
+<ipython-input-134-80e15ba39301>;129;<listcomp>;1;0.015845796000000002;0.015845796000000002
+numeric.py;181;_validate_dtype;65473;0.015522198000000001;0.015522198000000001
+numeric.py;2403;_array_equal_dispatcher;65457;0.015243154000000002;0.015243154000000002
+base.py;241;disallow_kwargs;65507;0.015097942000000001;0.015097942000000001
+stride_tricks.py;363;_broadcast_to_dispatcher;65459;0.015010467000000001;0.015010467000000001
+fromnumeric.py;3148;_ndim_dispatcher;65460;0.014467641000000002;0.014467641000000002
+~;0;<built-in method combine>;65830;0.014137103000000002;0.014137103000000002
+managers.py;2023;getitem_mgr;865;0.013838904;0.0059378930000000005
+generic.py;4512;_drop_axis;1;0.013038826000000002;1,80E-01
+~;0;<built-in method pandas._libs.missing.isnaobj>;6;0.012957555;0.012957555
+managers.py;774;_slice_take_blocks_ax0;4;0.012902704000000001;0.00018112100000000002
+indexing.py;1127;_has_valid_setitem_indexer;65456;0.012738800000000002;0.012738800000000002
+blocks.py;815;_unwrap_setitem_indexer;65456;0.011853848;0.011853848
+concat.py;527;_concatenate_join_units;6;0.011551777000000001;4,07E+11
+generic.py;443;transform;9;0.01078693;3,81E-01
+groupby.py;1827;_transform;9;0.010748828;0.000110958
+frame.py;4139;_set_item_mgr;33;0.010701446;0.00022704200000000003
+blocks.py;809;_maybe_squeeze_arg;65458;0.010382846000000001;0.010382846000000001
+cast.py;1178;maybe_infer_to_datetimelike;8;0.009568252000000001;4,56E-01
+~;0;<method 'strip' of 'str' objects>;65830;0.009425472;0.009425472
+~;0;<pandas._libs.algos.take_2d_axis1_float64_float64>;7;0.009292927000000001;0.009292927000000001
+construction.py;952;<listcomp>;1;0.009260455;0.009260455
+construction.py;879;_list_to_arrays;1;0.008967178000000001;3,50E-03
+~;0;<pandas._libs.lib.to_object_array>;1;0.008963562000000001;0.008963562000000001
+concat.py;71;concat_compat;8;0.00873352;7,13E-01
+~;0;<pandas._libs.algos.take_2d_axis0_float64_float64>;4;0.008623984000000001;0.008623984000000001
+~;0;<pandas._libs.algos.take_2d_axis1_object_object>;8;0.008128522000000001;0.008128522000000001
+take.py;554;_take_preprocess_indexer_and_fill_value;70;0.007530288;0.000198905
+~;0;<method 'time' of 'datetime.datetime' objects>;65830;0.0072991950000000005;0.0072991950000000005
+sorting.py;378;nargsort;1;0.006974743;0.002091679
+groupby.py;1759;_cython_agg_general;10;0.006828262000000001;7,63E-01
+datetimes.py;1980;_sequence_to_dt64ns;3;0.006759567;4,71E+11
+cast.py;1211;try_datetime;1;0.0066522890000000005;1,32E-01
+datetimes.py;1965;sequence_to_datetimes;1;0.006636436000000001;6,79E+10
+common.py;684;is_integer_dtype;1810;0.00652195;0.00256651
+~;0;<method 'keys' of 'dict' objects>;64711;0.006417695;0.006417695
+groupby.py;2103;mean;9;0.006278379000000001;4,83E+11
+base.py;192;grouped_reduce;10;0.006196294000000001;4,30E+11
+base.py;708;_with_infer;46;0.006185261;0.000461552
+datetimes.py;2129;objects_to_datetime64ns;1;0.005916849;1,29E+11
+~;0;<built-in method pandas._libs.tslib.array_to_datetime>;1;0.005881997000000001;0.005881997000000001
+groupby.py;1789;array_func;10;0.005868873;3,11E-01
+ops.py;1334;sorted_data;1;0.005847866;4,85E+09
+ops.py;1020;_cython_operation;10;0.0058359430000000006;8,53E-01
+generic.py;3778;take;1;0.005731107;3,86E+10
+~;0;<pandas._libs.lib.infer_dtype>;28;0.005666209;0.005448517
+managers.py;1394;insert;20;0.005607157000000001;0.000216581
+~;0;<method 'astype' of 'numpy.ndarray' objects>;62;0.005461042;0.005461042
+algorithms.py;315;unique;1;0.005125043;5,80E+09
+algorithms.py;412;unique_with_mask;1;0.005119244;1,57E-01
+cast.py;1763;construct_1d_object_array_from_listlike;12;0.005104424000000001;0.004961538000000001
+~;0;<built-in method numpy.empty>;240;0.004972493000000001;0.004972493000000001
+~;0;<built-in method builtins.min>;9;0.004949974;0.00493942
+astype.py;68;astype_nansafe;3;0.004947061;4,28E-01
+base.py;3888;get_indexer;7;0.004916246;7,37E-01
+~;0;<built-in method builtins.max>;20;0.00486327;0.004855715
+nanops.py;86;<genexpr>;3446;0.004595668000000001;0.00225698
+ops.py;944;group_info;11;0.004579846;2,25E-01
+ops.py;966;_get_compressed_codes;11;0.004553163000000001;6,02E-01
+~;0;<method 'unique' of 'pandas._libs.hashtable.StringHashTable' objects>;1;0.004486993;0.004486993
+construction.py;100;arrays_to_mgr;4;0.004445008;1,91E-01
+~;0;<method 'argsort' of 'numpy.ndarray' objects>;31;0.004419807;0.004419807
+series.py;4460;map;1;0.004413272;1,01E-01
+readers.py;1395;__init__;1;0.004408607;1,63E-01
+readers.py;1703;_make_engine;1;0.0043170990000000005;2,70E-01
+base.py;796;_map_values;1;0.004286288;1,01E-01
+construction.py;423;dict_to_mgr;2;0.004263211;3,36E-01
+groupby.py;1876;_wrap_transform_fast_result;9;0.004192035;7,14E-01
+base.py;5356;_getitem_slice;860;0.004126587;0.001728762
+ops.py;936;has_dropped_na;10;0.00411125;0.00011009500000000001
+frame.py;4132;_iset_item_mgr;13;0.004080211;5,48E-01
+base.py;6844;insert;20;0.004053318;0.000211441
+managers.py;2182;create_block_manager_from_column_arrays;4;0.0039159500000000005;2,95E-01
+accessor.py;178;__get__;7;0.00390665;2,05E+11
+~;0;<pandas._libs.algos.take_2d_axis0_int64_int64>;16;0.003896211;0.003896211
+managers.py;2253;_form_blocks;4;0.0038427;0.000125553
+accessor.py;178;__init__;4;0.0037563460000000003;5,73E+11
+accessor.py;197;_validate;4;0.003589001;1,42E+11
+c_parser_wrapper.py;49;__init__;1;0.0035810150000000003;0.003271233
+managers.py;2305;_stack_arrays;6;0.003570637;0.0032743950000000003
+grouper.py;615;codes;11;0.003474294;1,99E+11
+grouper.py;658;_codes_and_uniques;11;0.003454402;3,07E-01
+algorithms.py;593;factorize;11;0.0034208380000000003;0.00031645800000000004
+series.py;6247;_logical_method;13;0.0031450560000000002;9,65E-01
+take.py;350;wrapper;14;0.0029981910000000003;9,76E-01
+generic.py;4598;_update_inplace;1;0.00298628;9,66E-03
+base.py;3975;_get_indexer;6;0.002942277;2,15E+11
+~;0;<method 'get_indexer' of 'pandas._libs.index.IndexEngine' objects>;6;0.0028894890000000003;0.0028894890000000003
+~;0;<pandas._libs.lib.infer_datetimelike_array>;8;0.002860731;0.002860731
+c_parser_wrapper.py;351;_concatenate_chunks;1;0.002857678;0.0010972690000000001
+~;0;<pandas._libs.lib.dicts_to_array>;1;0.002846209;0.002846209
+~;0;<pandas._libs.algos.take_2d_axis0_object_object>;2;0.0027374390000000004;0.0027374390000000004
+base.py;4205;_validate_positional_slice;862;0.002710058;0.001219028
+rolling.py;2009;sum;1;0.0026251620000000003;7,11E+09
+rolling.py;1453;sum;1;0.00261393;6,71E+09
+rolling.py;606;_apply;1;0.002605032;4,87E-03
+rolling.py;491;_apply_blockwise;1;0.0025936450000000003;5,96E-03
+rolling.py;471;_apply_series;1;0.0025795510000000002;1,28E-01
+concat.py;542;<listcomp>;6;0.002407221;1,30E-01
+arraylike.py;70;__and__;10;0.0024022270000000003;1,51E-01
+concat.py;444;get_reindexed_values;12;0.002394212;5,22E-01
+nanops.py;79;check;2584;0.0023386880000000002;0.0016053600000000001
+rolling.py;639;homogeneous_func;1;0.002283687;1,02E-02
+rolling.py;645;calc;1;0.0022547020000000004;8.97e-06
+~;0;<method 'fill' of 'numpy.ndarray' objects>;16;0.0022222780000000003;0.0022222780000000003
+blocks.py;1920;delete;10;0.0019029140000000001;4,47E-01
+<__array_function__ internals>;177;delete;21;0.00186092;3,66E-01
+base.py;721;tolist;5;0.001856603;1,73E-01
+concat.py;389;__init__;3;0.001855644;8,75E+10
+base.py;2381;is_unique;29;0.0018550040000000002;0.001554227
+algorithms.py;530;factorize_array;11;0.0018501400000000001;0.00010330400000000001
+blocks.py;1278;shift;7;0.001846177;5,08E-02
+~;0;<method 'tolist' of 'numpy.ndarray' objects>;5;0.001830442;0.001830442
+frame.py;8267;groupby;11;0.001793826;0.00010058400000000001
+generic.py;1516;__invert__;5;0.0017871290000000001;3,50E-01
+function_base.py;5054;delete;21;0.001782378;0.001535387
+groupby.py;922;__init__;21;0.001731392;0.000139743
+~;0;<pandas._libs.window.aggregations.roll_sum>;1;0.0017067100000000002;0.0017067100000000002
+grouper.py;702;get_grouper;11;0.0015785;0.00026739
+accessor.py;93;f;3;0.001537113;1,09E-02
+accessors.py;120;_delegate_method;3;0.001526173;3,72E-01
+nanops.py;350;_na_ok_dtype;869;0.001508171;0.000844057
+base.py;6582;_validate_indexer;2589;0.001492356;0.001167098
+<__array_function__ internals>;177;copyto;94;0.0014101930000000001;0.000170185
+array_ops.py;336;logical_op;13;0.0013438360000000002;0.00011068800000000001
+~;0;<built-in method _operator.invert>;9;0.0013124760000000001;0.0013124760000000001
+frame.py;12012;_reindex_for_setitem;31;0.0012797140000000002;7,59E-01
+base.py;6056;_get_indexer_strict;2;0.0012229250000000001;2,41E-01
+base.py;7396;_maybe_cast_data_without_dtype;34;0.001221113;0.000164069
+ops.py;668;cython_operation;10;0.0012092280000000001;5,48E+11
+algorithms.py;269;_get_hashtable_algo;12;0.0011795640000000001;2,40E-01
+accessor.py;255;_wrap_result;5;0.001106182;9,55E-01
+nanops.py;1453;_maybe_null_out;860;0.001099609;0.00080643
+numeric.py;290;full;89;0.0010988570000000002;0.000259472
+series.py;5077;reindex;11;0.001086946;5,22E-01
+~;0;<method 'factorize' of 'pandas._libs.hashtable.Float64HashTable' objects>;11;0.0010599650000000002;0.0010599650000000002
+ops.py;493;_cython_op_ndim_compat;10;0.001050672;5,57E+11
+<frozen codecs>;319;decode;31;0.001038691;7,51E-01
+generic.py;5044;reindex;11;0.00102611;9,45E-01
+arraylike.py;108;__sub__;3;0.001006568;5,64E-03
+<__array_function__ internals>;177;select;1;0.001004553;2,06E+10
+ops.py;537;_call_cython_op;10;0.0009949750000000002;0.000543432
+function_base.py;766;select;1;0.00099043;2,10E+11
+generic.py;11108;_logical_func;3;0.000982189;2,80E+11
+array_ops.py;136;_na_arithmetic_op;16;0.0009810300000000001;6,62E+10
+concat.py;631;_get_new_axes;3;0.000979578;3,66E-01
+common.py;537;is_string_or_object_np_dtype;878;0.000972945;0.000972945
+~;0;<built-in method _codecs.utf_8_decode>;31;0.0009635430000000001;0.0009635430000000001
+concat.py;338;_concat_datetime;2;0.0009598110000000001;1,49E-01
+grouper.py;649;group_index;11;0.0009526970000000001;3,35E-01
+algorithms.py;1795;safe_sort;11;0.0009464950000000001;8,57E-01
+concat.py;633;<listcomp>;3;0.000939286;1,68E-01
+series.py;486;_init_dict;2;0.0009379190000000001;1,10E-01
+<__array_function__ internals>;177;insert;20;0.0009170020000000001;3,39E+11
+series.py;2818;diff;2;0.000913741;1,44E+11
+base.py;6285;_should_compare;7;0.0009069550000000001;2,02E-02
+series.py;1009;_get_with;2;0.000898944;9,80E-03
+expressions.py;225;evaluate;16;0.0008852860000000001;2,53E+11
+generic.py;11618;all;2;0.0008848440000000001;5,76E+09
+common.py;235;asarray_tuplesafe;46;0.000880703;0.000285462
+generic.py;11178;all;2;0.0008790860000000001;7,12E+09
+expressions.py;93;_evaluate_numexpr;16;0.000859995;3,34E+11
+series.py;6183;mask;1;0.000855921;2,73E+10
+generic.py;10012;mask;1;0.000848277;7,68E-03
+~;0;<built-in method numpy.arange>;38;0.0008397410000000001;0.0008397410000000001
+frame.py;6586;drop_duplicates;1;0.000839146;9,54E-03
+function_base.py;5250;insert;20;0.000833796;0.000309543
+blocks.py;836;_slice;875;0.0008207010000000001;0.0007831170000000001
+expressions.py;64;_evaluate_standard;16;0.000815005;2,60E+11
+_dtype.py;344;_name_get;93;0.000814383;0.000314483
+construction.py;881;create_series_with_explicit_dtype;3;0.000814259;1,78E+11
+groupby.py;2435;sum;1;0.000803133;8,73E-03
+base.py;2421;is_boolean;14;0.0007942190000000001;1,75E+11
+datetimelike.py;533;_concat_same_type;2;0.000787438;8,02E-03
+base.py;6032;get_indexer_for;3;0.000781849;7,74E-03
+groupby.py;1699;_agg_general;1;0.000777606;6,68E+10
+algorithms.py;287;_check_object_for_strings;12;0.0007751230000000001;6,08E-01
+base.py;2745;inferred_type;10;0.0007749230000000001;9,62E-03
+_mixins.py;214;_concat_same_type;2;0.0007610500000000001;9,97E-03
+series.py;6117;where;1;0.0007508440000000001;2,02E-03
+arraylike.py;60;__ge__;3;0.000750084;4,74E+10
+generic.py;9788;where;1;0.0007438880000000001;6,87E-03
+frame.py;10917;_reduce_axis1;1;0.000741819;9,39E+10
+generic.py;9614;_where;1;0.00073633;2,14E+11
+warnings.py;130;filterwarnings;46;0.0007340430000000001;0.000219897
+array_ops.py;354;fill_bool;25;0.000729004;3,90E-01
+_validators.py;226;validate_bool_kwarg;878;0.000728089;0.000521
+indexing.py;1213;_getitem_iterable;1;0.0007240710000000001;6,03E-03
+generic.py;1402;__getitem__;10;0.000723546;2,90E-01
+common.py;645;get_handle;1;0.000708017;2,36E-01
+base.py;231;__getitem__;10;0.000692999;5,15E-01
+ops.py;792;_get_splitter;1;0.000689375;3.8e-06
+arraylike.py;52;__le__;3;0.000678709;3,64E+10
+series.py;5725;notnull;2;0.000654314;4,18E-03
+managers.py;1455;_insert_update_blklocs_and_blknos;20;0.0006538630000000001;8,79E+10
+extension.py;95;method;3;0.000653858;2,27E-01
+generic.py;7895;notnull;2;0.000650139;1,39E+11
+blocks.py;2161;new_block_2d;47;0.000582901;0.000134021
+indexing.py;1406;_get_listlike_indexer;1;0.000580084;4,45E-03
+~;0;<built-in method builtins.print>;5;0.0005751420000000001;5,14E+11
+<__array_function__ internals>;177;append;40;0.0005539060000000001;4,13E-02
+utils.py;243;maybe_convert_indices;10;0.00055187;0.000383415
+~;0;<built-in method io.open>;1;0.000548836;0.000545091
+missing.py;645;na_value_for_dtype;85;0.000540398;0.00018987700000000003
+algorithms.py;1679;diff;2;0.000540248;0.00032794700000000004
+nanops.py;542;nanall;6;0.000539241;1,58E+11
+objects.py;77;get_window_bounds;1;0.0005356940000000001;0.000134725
+~;0;<built-in method builtins.sorted>;27;0.000525449;6,26E+10
+iostream.py;526;write;18;0.000523763;9,28E+10
+generic.py;4137;_check_setitem_copy;34;0.000517706;7,54E+10
+managers.py;2324;<lambda>;100;0.000505605;8,15E-02
+base.py;6576;_maybe_cast_listlike_indexer;7;0.0005031570000000001;5,30E-03
+timedeltas.py;714;total_seconds;3;0.0004897440000000001;0.00022155000000000002
+common.py;501;is_categorical_dtype;69;0.000486542;8,75E-01
+cast.py;574;_maybe_promote;39;0.00048383100000000005;0.000110643
+~;0;<built-in method _operator.sub>;3;0.000478899;1,40E-01
+~;0;<pandas._libs.algos.take_1d_int64_int64>;19;0.00047433100000000004;0.00047433100000000004
+function_base.py;5444;append;40;0.00047013;9,37E+10
+concat.py;638;_get_comb_axis;3;0.00046721;8,44E-03
+arraylike.py;78;__or__;2;0.000464073;4,59E-03
+construction.py;588;_homogenize;4;0.000457658;4,41E-01
+concat.py;648;_get_concat_axis;3;0.000455238;1,23E+11
+api.py;78;get_objs_combined_axis;3;0.00045420100000000005;7,75E-03
+~;0;<pandas._libs.algos.take_2d_axis1_int64_int64>;5;0.00045264700000000003;0.00045264700000000003
+ops.py;990;result_index;11;0.000449695;4.99e-05
+utils.py;191;validate_indices;14;0.00044459100000000004;5,33E+11
+datetimelike.py;1487;__sub__;2;0.000443288;1,69E-01
+<__array_function__ internals>;177;moveaxis;20;0.00044005600000000003;2,52E-01
+api.py;122;_get_combined_index;3;0.00043404900000000005;1,72E+11
+base.py;4318;reindex;2;0.00043185;1,22E-01
+indexing.py;2643;need_slice;862;0.00042798300000000005;0.00042798300000000005
+ops.py;979;ngroups;10;0.00042548600000000004;1,35E+11
+blocks.py;160;_consolidate_key;44;0.000424155;8,28E+10
+concat.py;708;_concat_indexes;2;0.000420846;4,92E-03
+blocks.py;200;fill_value;36;0.000420671;5,06E-01
+algorithms.py;117;_ensure_data;13;0.00041656;6,59E-01
+generic.py;11829;mean;2;0.000416174;4,28E-03
+base.py;5377;append;2;0.00041592800000000003;1,03E+11
+~;0;<built-in method _operator.eq>;6;0.000414939;0.000414939
+generic.py;11393;mean;2;0.000411891;5,52E-03
+blocks.py;221;make_block;26;0.000408859;5,46E-01
+fromnumeric.py;51;_wrapfunc;11;0.00040646100000000005;2,41E-01
+generic.py;11309;_stat_function;2;0.000406372;1,23E-01
+warnings.py;181;_add_filter;86;0.0003998;0.00022437200000000003
+accessors.py;64;_get_values;3;0.000396818;1,59E-01
+timedeltas.py;845;sequence_to_td64ns;7;0.000387227;8,05E-01
+iostream.py;456;_schedule_flush;18;0.000386768;1,51E+11
+base.py;881;_engine;29;0.00038658800000000005;0.000196729
+numeric.py;1411;moveaxis;20;0.000384923;0.00013614
+base.py;5407;_concat;2;0.00038486900000000003;9,79E+09
+concat.py;605;_get_empty_dtype;6;0.000379879;2,66E+11
+blocks.py;439;coerce_to_target_dtype;2;0.00037939200000000004;5,52E+09
+frame.py;6684;duplicated;1;0.000379052;1,50E+11
+iostream.py;202;schedule;4;0.000371647;3,32E+11
+base.py;6901;drop;1;0.00036890500000000005;1,29E+11
+generic.py;1015;_wrap_applied_output;1;0.00036868400000000004;2,17E+11
+_dtype.py;330;_name_includes_bit_suffix;93;0.00035917100000000003;9,28E+10
+base.py;1963;rename;11;0.00035785200000000003;1,84E-01
+managers.py;365;where;1;0.000351374;2,63E-03
+timedeltas.py;118;__new__;3;0.000350933;1,67E-01
+timedeltas.py;146;dtype;988;0.00034407100000000005;0.00034407100000000005
+array_ops.py;295;na_logical_op;13;0.000343438;3,42E+11
+<__array_function__ internals>;177;clip;2;0.00033379700000000004;3,54E-03
+fromnumeric.py;2111;clip;2;0.000326827;4,10E-03
+api.py;204;union_indexes;4;0.000320894;2,67E+11
+~;0;<method 'clip' of 'numpy.ndarray' objects>;2;0.00031629200000000003;3,65E+10
+timedeltas.py;205;_from_sequence_not_strict;3;0.00031357300000000004;2,01E-01
+_methods.py;127;_clip;2;0.00031264600000000003;1,02E-01
+base.py;1852;set_names;11;0.000310197;5,29E-02
+socket.py;543;send;4;0.000301614;0.000301614
+arraylike.py;74;__rand__;1;0.000300172;1,74E+10
+nanops.py;1492;check_below_min_count;860;0.000293179;0.000293179
+managers.py;997;__init__;888;0.00029067300000000003;0.00018678300000000002
+grouper.py;467;__init__;11;0.000284178;8,36E+10
+fromnumeric.py;69;_wrapreduction;8;0.00028361200000000004;4,40E-02
+numerictypes.py;356;issubdtype;74;0.000283263;0.000126153
+nanops.py;119;f;2;0.00028242800000000004;9,86E+09
+managers.py;2054;index;865;0.00027814500000000004;0.00027814500000000004
+concat.py;625;<listcomp>;6;0.000275763;2,73E+11
+blocks.py;376;_split_op_result;15;0.000272995;3,54E-01
+~;0;<method '_rebuild_blknos_and_blklocs' of 'pandas._libs.internals.BlockManager' objects>;13;0.000272303;0.00015888300000000002
+managers.py;1445;_insert_update_mgr_locs;20;0.000270569;0.000112069
+indexing.py;2488;convert_to_index_sliceable;40;0.000270156;9,87E+10
+<__array_function__ internals>;177;all;6;0.000268317;1,39E-01
+frame.py;600;_constructor;881;0.000266964;0.000266964
+generic.py;179;_wrap_agged_manager;10;0.000266292;4,24E+11
+~;0;<built-in method _operator.and_>;11;0.000266038;0.000266038
+_methods.py;108;_clip_dep_invoke_with_casting;2;0.000262583;0.000262583
+range.py;195;_data;4;0.000260301;1,75E+11
+datetimelike.py;1159;_sub_datetimelike_scalar;1;0.000259375;1,06E-01
+cast.py;1291;maybe_cast_to_datetime;12;0.000257454;0.00014680000000000002
+datetimelike.py;896;_maybe_mask_results;3;0.000254236;1,63E-01
+nanops.py;656;nanmean;2;0.000252;1,55E-01
+timedeltas.py;193;_from_sequence;4;0.000247188;2,24E-02
+concat.py;199;<listcomp>;3;0.000244475;7,23E+10
+__init__.py;225;compile;52;0.000243402;4,09E-01
+managers.py;1846;is_consolidated;20;0.000242708;2,55E+11
+~;0;<method 'min' of 'numpy.ndarray' objects>;14;0.00024169500000000002;2,10E+11
+~;0;<method 'max' of 'numpy.ndarray' objects>;23;0.00024064500000000002;2,83E+11
+cast.py;566;_maybe_promote_cached;18;0.00024029400000000003;2,01E-01
+fromnumeric.py;2432;all;6;0.000239515;1,61E+11
+concat.py;278;_get_mgr_concatenation_plan;6;0.00023724800000000002;0.000141155
+series.py;2352;duplicated;1;0.00023494500000000002;6,18E-03
+datetimelike.py;637;_validate_scalar;14;0.00022446500000000003;6,28E-01
+_methods.py;43;_amin;14;0.000220647;1,48E+11
+arraylike.py;124;__truediv__;1;0.00022001600000000002;1,36E-03
+managers.py;1854;_consolidate_check;17;0.00021720200000000003;6,07E-01
+_methods.py;39;_amax;23;0.00021233000000000002;2,05E+11
+~;0;<pandas._libs.lib.is_bool>;884;0.00020885900000000001;0.00020885900000000001
+concat.py;415;is_na;16;0.00020437800000000001;4,02E+11
+warnings.py;165;simplefilter;40;0.000202677;5,43E+11
+__init__.py;272;_compile;52;0.000202544;0.000126135
+base.py;5116;_get_engine_target;35;0.00019264500000000002;7,73E+10
+warnings.py;466;__enter__;86;0.00019225600000000002;0.000174763
+generic.py;1799;_get_label_or_level_values;1;0.00018858700000000002;1,55E-01
+~;0;<method 'delete' of 'pandas._libs.internals.BlockPlacement' objects>;10;0.000186552;2,63E+11
+algorithms.py;197;_reconstruct_data;23;0.00018434000000000001;6,83E-01
+datetimes.py;290;_from_sequence_not_strict;2;0.000182353;1,57E-01
+nanops.py;195;_get_fill_value;869;0.00018191300000000002;0.00018191300000000002
+<__array_function__ internals>;177;ravel;40;0.000180401;3,69E+11
+arraylike.py;116;__mul__;1;0.00017980100000000002;1,55E+10
+generic.py;5277;<genexpr>;22;0.00017675200000000002;2,44E-01
+rolling.py;390;_prep_values;1;0.000176567;8,38E-01
+concat.py;705;_combine_concat_plans;20;0.000173907;0.00010116400000000001
+~;0;<method 'values' of 'dict' objects>;870;0.00017227;0.00017227
+common.py;1204;is_numeric_dtype;39;0.00016746;5,93E-02
+concat.py;246;_maybe_reindex_columns_na_proxy;3;0.00016651800000000002;7,17E+09
+ops.py;343;_ea_wrap_cython_operation;1;0.000162237;6.35e-06
+datetimelike.py;525;view;4;0.00016058900000000002;6,32E-03
+~;0;<built-in method _operator.ge>;3;0.000160234;0.000160234
+generic.py;1997;__contains__;21;0.00015815000000000002;2,82E+11
+datetimes.py;241;_box_as_indexlike;1;0.000154374;6,33E-03
+_mixins.py;121;view;4;0.00015426800000000002;1,50E+11
+concat.py;354;<listcomp>;2;0.000153033;2,14E-03
+series.py;5707;isna;1;0.000150265;1,72E-03
+managers.py;2398;_fast_count_smallints;20;0.000150161;6,67E+10
+api.py;230;_unique_indices;1;0.000149449;5,02E-03
+common.py;1403;is_1d_only_ea_obj;16;0.00014858500000000001;6,64E-01
+generic.py;7765;isna;1;0.00014855;2,09E-03
+numerictypes.py;282;issubclass_;148;0.000148335;0.00010040300000000001
+managers.py;1860;<listcomp>;13;0.000147641;0.000117762
+~;0;<built-in method _operator.le>;3;0.00014241000000000001;0.00014241000000000001
+datetimelike.py;2138;ensure_arraylike_for_datetimelike;10;0.000140836;3,16E-01
+generic.py;5332;_reindex_with_indexers;1;0.00013639700000000002;1,08E-01
+~;0;<method 'remove' of 'list' objects>;86;0.000136178;0.000136178
+ops.py;1311;slabels;1;0.00013562600000000002;1,57E+10
+blocks.py;206;_standardize_fill_value;9;0.00013199700000000002;3,63E+11
+base.py;494;find;9;0.00013193000000000002;5,39E-01
+<__array_function__ internals>;177;argsort;8;0.000131852;2,08E-01
+base.py;5551;identical;11;0.000131661;2,70E+11
+blocks.py;1436;where;1;0.00013149800000000002;1,88E+11
+datetimes.py;313;__new__;1;0.00012989700000000002;7,23E-03
+accessors.py;482;__new__;3;0.000129772;2,18E-01
+take.py;326;_get_take_nd_function;70;0.000129309;0.000129309
+common.py;393;is_timedelta64_dtype;58;0.000126181;7,26E-01
+base.py;4020;_check_indexing_method;7;0.00012480300000000002;1,69E-01
+<frozen abc>;117;__instancecheck__;69;0.000122476;4,83E-01
+datetimelike.py;889;_hasna;3;0.00012172700000000001;3,24E-01
+warnings.py;487;__exit__;86;0.00012034300000000001;0.000108467
+concat.py;635;_is_uniform_join_units;8;0.00011685900000000001;4,65E-01
+series.py;4843;align;2;0.00011667300000000001;4,62E+09
+generic.py;11598;any;1;0.000115669;1,82E+10
+generic.py;11166;any;1;0.000113851;3,63E-03
+datetimes.py;2215;maybe_convert_dtype;4;0.00011373500000000001;1,89E-01
+base.py;5363;_can_hold_identifiers_and_holds_name;5;0.000112102;1,04E-01
+generic.py;9273;align;2;0.000112058;8,31E-03
+ops.py;1316;_sort_idx;1;0.00011191300000000001;2,06E-03
+api.py;384;default_index;17;0.00011002900000000001;4,66E+11
+sorting.py;639;get_group_index_sorter;1;0.00010985600000000001;1,52E+11
+base.py;1310;_duplicated;1;0.000109636;2,85E-03
+fromnumeric.py;1781;ravel;40;0.00010917500000000001;5.33e-05
+generic.py;1754;_check_label_or_level_ambiguity;12;0.00010704700000000001;6,51E-01
+algorithms.py;1041;duplicated;1;0.000103455;6,74E-01
+common.py;280;_get_filepath_or_buffer;1;0.00010334500000000001;1,32E-01
+base.py;821;_view;20;0.00010231300000000001;3,71E+11
+generic.py;5844;__finalize__;460950;54.932.312.130.000.000;26.027.245.810.000.000
+generic.py;40;_check;8396720;45.847.086.290.000.000;3.365.312.841
+indexing.py;806;__setitem__;65456;41.931.941.816.000.000;0.504005967
+algorithms.py;1166;checked_add_with_arr;65459;37.197.180.230.000.000;1.348.423.267
+base.py;5464;equals;130981;36.372.854.140.000.000;0.377767727
+construction.py;493;sanitize_array;196465;36.065.455.490.000.000;1.102.879.474
+frame.py;3703;_ixs;66371;35.698.073.380.000.000;0.23699577100000002
+datetimelike.py;785;_validate_setitem_value;196369;35.615.894.330.000.000;0.281338909
+base.py;430;__new__;65507;35.196.005.560.000.000;0.781336562
+indexing.py;1658;_setitem_with_indexer;65456;34.334.098.647.000.000;0.7127559050000001
+~;0;<built-in method builtins.getattr>;12327471;33.708.160.840.000.000;24.598.340.060.000.000
+common.py;96;is_bool_indexer;327298;33.488.315.500.000.000;0.72322213
+common.py;427;is_period_dtype;394475;31.692.033.470.000.000;0.46035167800000004
+utils.py;294;length_of_indexer;196368;30.783.912.780.000.000;0.43781152900000003
+~;0;<built-in method builtins.len>;5907365;30.499.853.700.000.000;21.599.887.030.000.000
+config.py;262;__call__;261933;30.315.852.110.000.000;0.256056977
+<string>;1;<module>;1;27.974.203.290.500.000;0.048597533000000005
+array_ops.py;231;comparison_op;130931;26.765.022.689.000.000;0.5458066060000001
+missing.py;460;array_equivalent;65477;26.743.965.050.000.000;0.40532072700000005
+series.py;342;__init__;525568;26.157.716.058.000.000;33.283.267.390.000.000
+construction.py;399;extract_array;395501;23.736.097.970.000.000;0.38170686600000003
+~;0;<method 'sum' of 'numpy.ndarray' objects>;66322;23.595.790.240.000.000;0.080033692
+generic.py;12068;_inplace_method;65456;22.970.361.146.000.000;0.36188209400000004
+blocks.py;843;set_inplace;65456;21.696.092.030.000.000;0.06486436000000001
+indexing.py;2656;check_deprecated_indexers;788042;20.617.009.740.000.000;1.039.153.642
+series.py;5428;shift;130920;19.369.412.491.000.000;0.23979767500000002
+_methods.py;55;_any;328193;19.034.629.260.000.000;0.21383368200000002
+common.py;162;is_object_dtype;327415;18.870.798.620.000.000;0.45990109500000004
+base.py;1316;_arith_method;65462;18.067.495.617.000.000;0.596776858
+~;0;<pandas._libs.lib.is_list_like>;2489581;17.507.203.770.000.000;1.558.341.502
+_ufunc_config.py;430;__enter__;198121;16.691.732.860.000.000;0.30384523
+~;0;<built-in method numpy.asarray>;720433;16.609.725.050.000.000;10.761.243.870.000.000
+managers.py;1143;iget_values;65456;14.393.028.650.000.000;0.18879925900000002
+common.py;1744;<genexpr>;1967738;14.051.870.430.000.000;0.786019067
+~;0;<built-in method numpy.core._multiarray_umath.implement_array_function>;523925;13.218.044.031.000.000;4.435.075.343
+frame.py;4257;_box_col_values;66371;12.112.677.820.000.000;0.20927325300000002
+base.py;7372;maybe_extract_name;327449;11.816.398.830.000.000;0.42583034200000003
+inference.py;188;is_array_like;523713;11.080.919.930.000.000;0.336789548
+managers.py;2058;dtype;1112887;10.835.749.940.000.000;0.9022826110000001
+indexing.py;1258;_get_label;65456;10.656.557.070.000.000;0.081183031
+generic.py;1392;<genexpr>;392742;10.579.499.410.000.000;0.375285851
+indexing.py;1087;_getbool_axis;65457;9.761.328.325.000.000;0.205084009
+<__array_function__ internals>;177;roll;130920;7.668.283.977.000.000;0.24147041200000002
+~;0;<built-in method _operator.add>;65457;7.398.860.256.000.000;0.069152771
+numeric.py;1147;roll;130920;6.932.395.057.000.000;5.822.619.315.000.000
+datetimelike.py;1428;__add__;65457;6.666.916.335.000.000;0.17025092900000002
+datetimes.py;458;_check_compatible_with;589115;5.910.166.467.000.000;0.438818184
+generic.py;5904;__setattr__;722944;5.689.023.323.000.000;1.539.635.714
+missing.py;108;isna;328267;4.424.619.182.000.000;0.248394414
+dtypes.py;1247;is_dtype;8;6,06E+11;1,45E+11
+base.py;5204;_validate_fill_value;20;5,98E+11;3,92E-01
+contextlib.py;132;__enter__;20;5,89E+11;1,80E+11
+contextlib.py;287;helper;20;5,88E+11;2,27E+11
+contextlib.py;141;__exit__;20;5,83E+11;2,57E-01
+generic.py;687;size;1;5,54E+11;4,45E-03
+range.py;458;copy;2;5,54E+11;7,19E+09
+~;0;<pandas._libs.algos.take_1d_float64_float64>;9;5,53E+11;5,53E+11
+base.py;7456;unpack_nested_dtype;7;5,18E+11;6,81E+09
+base.py;1268;copy;2;4,94E+11;7,77E-03
+concat.py;110;<genexpr>;17;4,92E+11;4,52E-01
+base.py;6205;_maybe_promote;7;4,89E+11;1,51E-01
+generic.py;445;_validate_dtype;9;4,87E+11;1,59E-01
+pathlib.py;484;_parse_args;1;4,58E+11;6.25e-06
+_dtype.py;24;_kind_name;93;4,55E+11;4,55E+11
+generic.py;518;_construct_axes_from_arguments;11;4,39E+11;2,76E+11
+common.py;546;temp_setattr;38;4,37E+11;2,96E+11
+base.py;4437;_wrap_reindex_result;2;4,19E+11;2,67E-03
+timedeltas.py;140;_box_func;2;4,18E+11;1,51E-01
+readers.py;1444;close;1;4,07E+11;5,26E-03
+base.py;356;size;8;4,03E+11;9,28E-03
+base.py;4441;_maybe_preserve_names;2;3,93E+11;7,95E-03
+managers.py;431;fillna;1;3,82E+11;2,44E-03
+base.py;216;_obj_with_exclusions;10;3,80E+11;1,47E+11
+contextlib.py;104;__init__;20;3,61E+11;3,04E-01
+timedeltas.py;279;_unbox_scalar;7;3,60E+11;3,09E+11
+base_parser.py;165;_validate_parse_dates_presence;1;3,59E+11;1,36E+11
+fromnumeric.py;2955;prod;1;3,59E+11;3,17E-03
+algorithms.py;235;_ensure_arraylike;12;3,46E+11;1,01E-01
+generic.py;570;_get_block_manager_axis;17;3,44E+11;2,39E-01
+grouper.py;569;name;11;3,43E+11;1,80E-01
+~;0;<method 'insert' of 'list' objects>;106;3,29E+11;3,29E+11
+readers.py;1527;_clean_options;1;3,27E+11;2,32E-01
+concat.py;582;_dtype_to_na_value;6;3,00E+11;2,91E-01
+range.py;118;__new__;1;2,99E+11;1,07E+11
+base.py;229;construct_from_string;22;2,94E+11;2,55E-01
+concat.py;442;<genexpr>;2;2,83E+11;2,02E-03
+~;0;<built-in method _operator.truediv>;1;2,82E+11;2,82E+11
+~;0;<built-in method builtins.exec>;1;279.742.064.039;3,11E+11
+<ipython-input-134-80e15ba39301>;5;read_egg_v3_lowerP;1;279.693.435.372;38.201.979.240.000.000
+_strptime.py;26;_getlang;2;2,76E+11;4,97E-03
+ops.py;283;_get_output_shape;10;2,74E+11;2,47E+11
+datetimelike.py;330;__array__;6;2,74E+11;7.23e-06
+blocks.py;1939;is_extension;13;2,74E+11;1,57E+11
+parse.py;374;urlparse;1;2,67E+11;2,27E+11
+inference.py;394;is_dataclass;2;2,61E+11;1,83E-01
+base.py;543;empty;4;2,55E+11;4,72E+09
+common.py;268;index_labels_to_array;1;2,54E+11;1,96E-03
+api.py;316;<genexpr>;2;2,49E+11;1,53E-03
+typing.py;1297;__instancecheck__;3;2,39E+11;6.79e-06
+multiarray.py;1079;copyto;94;2,36E+11;2,36E+11
+managers.py;918;_make_na_block;3;2,27E+11;6,19E-03
+locale.py;593;getlocale;2;2,26E+11;5,32E-03
+concat.py;660;<genexpr>;6;2,23E+11;5,32E-03
+common.py;529;infer_compression;1;2,23E+11;1,09E-01
+inference.py;430;is_inferred_bool_dtype;6;2,18E+11;1,75E-02
+base.py;830;_rename;4;2,09E+11;3,92E+09
+ops.py;742;__init__;11;1,94E+11;1,71E-01
+_asarray.py;112;<setcomp>;6;1,88E+11;1,65E-01
+grouper.py;804;<genexpr>;22;1,88E+11;1,53E-01
+shape_base.py;218;_vhstack_dispatcher;8;1,85E+11;9,74E-03
+concat.py;670;_is_uniform_reindex;6;1,81E+11;7.59e-06
+base.py;574;_ensure_array;35;1,80E+11;1,80E+11
+generic.py;4114;_set_is_copy;7;1,78E+11;9,92E+09
+~;0;<method 'transpose' of 'numpy.ndarray' objects>;20;1,75E+11;1,75E+11
+c_parser_wrapper.py;197;_set_noconvert_columns;1;1,74E+11;5,57E-03
+groupby.py;981;__getattr__;11;1,73E+11;1,73E+11
+grouper.py;840;is_in_axis;11;1,71E+11;7,91E+09
+api.py;108;_get_distinct_objs;3;1,71E+11;1,23E-01
+ops.py;762;groupings;69;1,67E+11;1,67E+11
+enum.py;1243;value;47;1,61E+11;1,61E+11
+<frozen codecs>;331;getstate;31;1,57E+11;1,57E+11
+blocks.py;165;_can_hold_na;11;1,52E+11;1,11E+11
+generic.py;1485;blk_func;1;1,49E+11;3,86E-03
+~;0;<built-in method pandas._libs.lib.is_datetime_array>;3;1,49E+11;1,49E+11
+frozen.py;70;__getitem__;4;1,45E+11;1,30E-01
+~;0;<pandas._libs.internals.get_blkno_placements>;17;1,44E+11;1,44E+11
+~;0;<built-in method _from_value_and_reso>;2;1,43E+11;1,43E+11
+~;0;<method 'item' of 'numpy.ndarray' objects>;40;1,42E+11;1,42E+11
+nanops.py;162;_bn_ok_dtype;2;1,41E+11;3,50E-03
+generic.py;2060;<genexpr>;6;1,40E+11;4.86e-06
+base.py;413;_engine_type;28;1,39E+11;1,39E+11
+base.py;7437;get_unanimous_names;1;1,33E+11;5,49E-03
+grouper.py;805;<genexpr>;22;1,30E+11;1,06E-01
+fromnumeric.py;1892;nonzero;1;1,28E+11;1,99E-03
+concat.py;117;<genexpr>;24;1,23E+11;9,27E+09
+common.py;494;get_compression_method;1;1,17E+11;1,00E-03
+~;0;<built-in method builtins.any>;524591;115.575.625.117;11.445.073.630.600.000
+concat.py;92;is_nonempty;16;1,14E+11;1,14E+11
+~;0;<built-in method time.time>;6;1,11E+11;1,11E+11
+shape_base.py;23;atleast_1d;3;1,06E+11;8,14E-03
+<__array_function__ internals>;177;atleast_2d;8;9,76E+10;1,14E+11
+managers.py;1061;from_blocks;18;9,72E+10;7,92E-01
+series.py;5287;fillna;1;9,53E+10;2,04E-03
+timedeltas.py;1008;_validate_td64_dtype;9;9,44E+10;3,13E-01
+fromnumeric.py;1038;argsort;8;9,43E+10;2,14E-01
+warnings.py;440;__init__;86;9,14E+10;9,14E+10
+base.py;6193;_index_as_unique;13;8,92E+10;8,29E-03
+roperator.py;53;rand_;1;8,76E+10;1,44E+10
+range.py;173;_simple_new;24;8,69E+10;5,70E+11
+concat.py;108;<setcomp>;8;8,67E+10;8,63E-01
+base.py;2783;_is_multi;36;8,65E+10;1,88E+11
+managers.py;645;<listcomp>;4;8,45E+10;7,16E-03
+_mixins.py;221;<setcomp>;2;8,18E+10;1,46E+11
+managers.py;642;copy_func;8;7,73E+10;1,30E-01
+_strptime.py;565;_strptime_datetime;1;7,54E+10;4,96E+09
+~;0;<method 'close' of 'pandas._libs.parsers.TextReader' objects>;1;7,53E+10;7,53E+10
+_methods.py;164;_mean;1;7,43E+10;9,77E+09
+_asarray.py;31;require;6;7,43E+10;3,38E-02
+~;0;<method 'update' of 'dict' objects>;12;7,28E+10;7,28E+10
+~;0;<built-in method numpy.datetime_data>;10;7,22E+10;7,22E+10
+nanops.py;1412;_get_counts;2;7,13E+10;5,62E-03
+_strptime.py;309;_strptime;1;7,05E+10;4,91E+11
+~;0;<method 'add' of 'set' objects>;23;6,97E+10;6,97E+10
+common.py;57;new_method;196406;68.802.314.648;11.224.286.220.000.000
+ops.py;403;_ea_to_cython_values;1;6,62E+10;1,81E+10
+base.py;1023;view;8;6,43E+10;1,65E-01
+nanops.py;496;nanany;1;6,29E+10;4,33E-03
+<__array_function__ internals>;177;bincount;20;6,25E+10;2,60E-02
+readers.py;547;_validate_names;1;6,24E+10;4,32E-03
+managers.py;2073;array_values;5;6,22E+10;5.4e-06
+base.py;6087;_raise_if_missing;2;6,20E+10;1,51E+11
+concat.py;385;_is_valid_na_for;12;5,98E+10;5,98E+10
+base_parser.py;1312;_validate_parse_dates_arg;1;5,79E+10;4,82E-03
+readers.py;1954;_refine_defaults_read;1;5,77E+10;5,77E+10
+datetimes.py;94;tz_to_dtype;3;5,75E+10;5,75E+10
+pathlib.py;868;__new__;1;5,64E+10;3,71E-03
+apply.py;1089;__init__;1;5,36E+10;3,02E-03
+~;0;<built-in method _operator.inv>;1;5,27E+10;5,27E+10
+arraylike.py;48;__lt__;130914;48.500.629.601;0.672868005
+generic.py;5876;<genexpr>;6;4,82E+10;4,00E+09
+multiarray.py;891;bincount;20;4,49E+10;4,49E+10
+_methods.py;103;_clip_dep_is_byte_swapped;4;4,27E+10;3,45E+10
+dtype.py;216;construct_from_string;2;3,80E+10;3,13E+10
+~;0;<built-in method _locale.setlocale>;2;3,80E+10;3,80E+10
+indexing.py;662;__call__;1;3,69E+10;3,05E-03
+~;0;<pandas._libs.lib.dtypes_all_equal>;7;3,66E+10;3,66E+10
+common.py;268;is_fsspec_url;1;3,60E+10;1,92E-03
+base_parser.py;1308;<genexpr>;4;3,57E+10;3,09E+10
+concat.py;685;<genexpr>;3;3,55E+10;1,08E-03
+~;0;<pandas._libs.lib.array_equivalent_object>;2;3,51E+10;3,51E+10
+common.py;183;validate_header_arg;1;3,46E+10;2,85E+10
+~;0;<method 'startswith' of 'str' objects>;9;3,46E+10;3,46E+10
+~;0;<method 'endswith' of 'str' objects>;11;3,43E+10;3,43E+10
+blocks.py;452;_maybe_downcast;1;3,29E+10;3,01E-03
+indexing.py;1799;_setitem_with_indexer_split_path;65456;32.217.966.062;1.025.929.904
+ops.py;899;levels;1;3,01E+10;1,84E+10
+ops.py;1297;__init__;1;2,98E+10;2,74E+10
+api.py;280;<listcomp>;2;2,97E+10;2,03E+10
+~;0;<pandas._libs.lib.fast_unique_multiple_list>;1;2,85E+10;2,85E+10
+~;0;<built-in method pandas._libs.tslibs.offsets.to_offset>;5;2,55E+10;2,55E+10
+~;0;<built-in method _operator.lt>;130914;25.304.059.187;35.300.682.340.000.000
+base.py;148;is_consolidated;12;2,46E+10;2,46E+10
+pathlib.py;546;__fspath__;1;2,39E+10;1.52e-06
+~;0;<built-in method _abc._abc_subclasscheck>;2;2,39E+10;2,39E+10
+~;0;<method 'upper' of 'str' objects>;6;2,38E+10;2,38E+10
+common.py;1102;_maybe_memory_map;1;2,36E+10;1,77E-03
+generic.py;12094;__iadd__;65456;23.235.450.397;0.265089251
+datetimelike.py;1048;_cmp_method;130913;23.191.302.726;2.809.675.834
+series.py;3194;_construct_result;196406;22.806.668.286;0.842356234
+generic.py;11147;<genexpr>;6;2,14E+10;2,14E+10
+_validators.py;128;_check_for_invalid_keys;1;2,03E+10;2,03E+10
+base_parser.py;1148;_process_date_conversion;1;2,01E+10;1,84E-03
+function_base.py;761;_select_dispatcher;7;1,96E+10;1,96E+10
+generic.py;10058;shift;130920;19.129.614.816;0.5948349150000001
+arraylike.py;100;__add__;65457;18.414.233.494;0.07961074800000001
+series.py;6257;_arith_method;65462;18.336.020.591;0.144670352
+base.py;7452;<genexpr>;2;1,83E+10;1.41e-06
+managers.py;301;apply;196402;18.199.638.349;1.184.967.354
+base.py;7336;ensure_has_len;2;1,74E+10;1,38E+10
+indexing.py;1059;__getitem__;66323;17.099.623.808;0.5149766920000001
+~;0;<built-in method builtins.isinstance>;31874699;16.519.088.874;7.948.665.650.000.000
+range.py;189;_constructor;4;1,65E+10;1,65E+10
+shape_base.py;77;_atleast_2d_dispatcher;8;1,63E+10;1,63E+10
+concat.py;663;<genexpr>;6;1,63E+10;1,63E+10
+indexing.py;1244;_getitem_tuple;65456;15.638.246.793;0.27712794900000004
+groupby.py;745;_selected_obj;1;1,54E+10;1,54E+10
+<string>;1;<lambda>;1;1,52E+10;8.6e-07
+indexing.py;931;_getitem_lowerdim;65456;15.131.452.702;0.6270774560000001
+c_parser_wrapper.py;209;<listcomp>;1;1,50E+10;1,50E+10
+base_parser.py;834;_check_data_length;1;1,45E+10;1,16E+10
+pathlib.py;622;name;1;1,45E+10;1,27E+10
+managers.py;424;shift;130920;14.379.384.758;0.345341981
+base.py;7451;<listcomp>;1;1,43E+10;1,43E+10
+function.py;335;validate_window_func;1;1,40E+10;1,29E-03
+common.py;887;is_datetime64_any_dtype;1;1,39E+10;1,10E-03
+indexing.py;1276;_getitem_axis;130914;13.207.150.859;0.513804661
+indexing.py;1957;_setitem_single_column;65456;13.003.480.527;0.569214634
+datetimes.py;2366;validate_tz_from_dtype;6;1,30E+10;1,30E+10
+concat.py;217;<listcomp>;2;1,22E+10;1,22E+10
+indexing.py;2202;_align_series;65456;12.128.903.577;0.9346134170000001
+blocks.py;1975;shift;130913;12.113.689.977;0.27590071800000004
+~;0;<method 'pop' of 'set' objects>;6;1,21E+10;1,21E+10
+construction.py;946;<genexpr>;2;1,17E+10;1,07E-03
+_mixins.py;251;shift;130913;11.201.376.566;0.36713516900000004
+utils.py;355;unpack_1tuple;1;1,11E+10;8,69E+08
+readers.py;1879;_clean_na_values;1;1,01E+10;1,01E+10
+managers.py;1368;column_setitem;65456;10.103.245.202;0.414604491
+concat.py;647;<genexpr>;24;9,97E+09;9,97E+09
+dtypes.py;1333;__init__;5;9,92E+09;9,07E-03
+pathlib.py;239;splitroot;12;9,78E+09;9,06E-03
+<frozen posixpath>;229;expanduser;3;9,63E+09;6,72E-03
+grouper.py;857;is_in_obj;11;9,36E+09;6,28E-03
+managers.py;262;_clear_reference_block;13;9,36E+09;9,36E+09
+c_parser_wrapper.py;363;<listcomp>;5;9,26E+09;7,35E+10
+grouper.py;927;_is_label_like;11;9,23E+09;7,45E-03
+~;0;<method 'add' of 'pandas._libs.internals.BlockPlacement' objects>;9;9,11E+09;9,11E+09
+transforms.py;10;shift;130920;8.843.226.305;1.174.942.328
+generic.py;45;_instancecheck;8396720;8.801.689.422;3.985.569.807
+api.py;256;_find_common_index_dtype;1;8,65E+09;1,87E-03
+ops.py;905;<listcomp>;11;8,35E+09;8,35E+09
+base_parser.py;612;_set_noconvert_dtype_columns;1;8,00E+09;6,42E+10
+concat.py;673;<genexpr>;12;7,99E+09;4.79e-06
+frame.py;3758;__getitem__;328225;7.751.358.541;159.954.054
+array_ops.py;185;arithmetic_op;65462;7.655.197.645;0.080597556
+concat.py;366;needs_filling;6;7,46E+09;6,04E-03
+datetimelike.py;398;__setitem__;196368;7.197.535.277;0.451737969
+ops.py;1281;_is_indexed_like;1;7,06E+09;6,55E-03
+numpy_.py;125;__array__;5;6,89E+09;4,91E-03
+function_base.py;818;<listcomp>;1;6,52E+09;2,00E+10
+datetimelike.py;1243;_add_timedeltalike_scalar;65458;6.460.151.906;0.6836162440000001
+indexing.py;672;_get_setitem_indexer;65456;6.233.597.266;0.46050715700000006
+common.py;929;is_datetime64_ns_dtype;2;6,14E+09;4,53E-03
+blocks.py;301;getitem_block_columns;2;6,02E+09;3,83E+09
+~;0;<method 'copy' of 'dict' objects>;24;6,01E+09;6,01E+09
+grouper.py;639;result_index;11;5,96E+09;5,96E+09
+indexing.py;2522;check_bool_indexer;130921;5.943.498.162;0.356578663
+dtype.py;125;construct_from_string;2;5,90E+09;4,65E-03
+_mixins.py;264;__setitem__;196368;5.790.407.825;1.486.271.044
+series.py;936;_take_with_is_copy;65456;5.491.164.838;0.07526764600000001
+datetimelike.py;793;_unbox;458195;5.449.877.988;0.5242887430000001
+series.py;916;take;65456;5.415.897.192;0.515490352
+datetimes.py;681;_assert_tzawareness_compat;458196;5.306.494.613;0.7921208550000001
+concat.py;116;<setcomp>;8;5,14E+09;4,74E+10
+datetimelike.py;882;_isnan;327292;4.985.178.085;45.496.530.790.000.000
+indexing.py;896;<listcomp>;65456;4.939.662.598;0.147021396
+series.py;6233;_cmp_method;130931;4.837.074.784;11.923.363.120.000.000
+indexing.py;1333;_convert_to_indexer;130912;4.792.641.202;0.46307074400000003
+base.py;2017;nlevels;2;4,72E+09;4,72E+09
+managers.py;1934;from_array;261904;4.562.160.857;0.562471437
+utils.py;430;check_array_indexer;329011;4.432.147.907;13.745.419.970.000.000
+series.py;661;name;983854;4.417.208.547;14.299.771.350.000.000
+base.py;286;is_dtype;852763;4.297.344.937;0.8463098010000001
+readers.py;1516;_check_file_or_buffer;1;4,29E+09;1.25e-06
+~;0;<method 'reduce' of 'numpy.ufunc' objects>;460026;4.290.430.489;4.290.430.489
+frame.py;4274;_get_item_cache;328218;4.255.569.805;0.43558147100000005
+missing.py;191;_isna;328267;4.176.231.562;0.555099197
+managers.py;379;setitem;65456;4.147.783.221;0.16294603100000002
+~;0;<method 'lstrip' of 'str' objects>;1;3,95E+09;3,95E+09
+managers.py;1183;iset;65469;3.917.813.305;0.5059765660000001
+~;0;<built-in method builtins.all>;1311274;3.887.141.181;0.9743099730000001
+~;0;<method '__exit__' of '_thread.lock' objects>;1;3,79E+09;3,79E+09
+<__array_function__ internals>;177;putmask;196374;3.754.169.645;0.290778535
+contextlib.py;757;__exit__;1;3,43E+09;3,43E+09
+stride_tricks.py;476;_broadcast_arrays_dispatcher;2;3,36E+09;3,36E+09
+blocks.py;827;iget;197283;3.304.832.429;0.171215279
+managers.py;1129;iget;131827;3.236.384.124;0.8030376290000001
+datetimelike.py;347;__getitem__;198101;3.180.823.719;0.663566925
+blocks.py;2172;new_block;261930;3.138.693.003;0.963781246
+blocks.py;1380;setitem;65456;3.121.220.886;0.22726185000000002
+fromnumeric.py;3340;_mean_dispatcher;1;3,09E+09;3,09E+09
+missing.py;268;_isna_array;131793;2.892.444.053;0.23365997500000002
+multiarray.py;345;where;1;2,88E+09;2,88E+09
+common.py;352;is_datetime64tz_dtype;458212;2.841.529.016;0.48387678500000003
+config.py;134;_get_option;261934;2.775.540.495;0.43910710700000005
+base_parser.py;221;<listcomp>;1;2,76E+09;2,76E+09
+base.py;5304;__getitem__;199060;2.720.308.787;16.674.629.740.000.000
+dtypes.py;977;is_dtype;394475;2.632.575.546;0.5643247060000001
+_ufunc_config.py;33;seterr;396242;2.519.814.756;1.073.964.716
+managers.py;1339;_iset_single;65459;2.506.685.592;0.21649594200000002
+datetimelike.py;570;_validate_comparison_value;130913;2.395.771.823;0.443845339
+copy.py;107;_copy_immutable;1;2,31E+09;2,31E+09
+_methods.py;47;_sum;66322;2.279.545.332;0.052483217000000006
+~;0;<method 'any' of 'numpy.ndarray' objects>;328193;2.205.328.711;0.301865785
+generic.py;259;__init__;526455;2.033.625.824;1.600.046.188
+parse.py;108;_noop;1;1,93E+09;1,93E+09
+common.py;1278;is_bool_dtype;394549;1.892.145.664;0.756871755
+datetimelike.py;606;_validate_shift_value;130913;1.886.447.302;0.256300468
+datetimelike.py;368;_get_getitem_freq;198097;1.878.002.656;0.244462328
+~;0;<method 'end' of 're.Match' objects>;1;1,86E+09;1,86E+09
+config.py;116;_get_single_key;261936;1.696.114.294;0.6273802620000001
+series.py;596;dtype;1112887;1.608.390.071;0.5248150770000001
+frame.py;3737;_get_column_array;65456;1.497.686.939;0.058384074
+generic.py;1390;_indexed_same;196371;1.434.397.455;0.219090621
+<__array_function__ internals>;177;broadcast_to;65459;1.328.402.987;0.09888500500000001
+indexing.py;705;_maybe_mask_setitem_value;65456;1.190.438.018;0.207698651
+generic.py;564;_get_axis;917309;1.159.793.708;0.860513842
+stride_tricks.py;367;broadcast_to;65459;1.140.093.822;0.081680004
+managers.py;1891;__init__;590993;1.122.418.605;0.91399828
+datetimes.py;520;tz;1112766;1.089.785.838;0.735716938
+base.py;1168;take;65468;1.086.190.577;0.39210359100000003
+common.py;77;get_op_result_name;196410;1.085.060.901;0.22231973200000002
+managers.py;2069;internal_values;1049085;1.077.255.321;0.965631271
+inference.py;325;is_hashable;1639567;1.076.053.868;0.79560312
+<__array_function__ internals>;177;array_equal;65457;1.070.800.156;0.09318973700000001
+stride_tricks.py;340;_broadcast_to;65459;1.058.413.818;0.7518603530000001
+~;0;<built-in method builtins.hasattr>;1705130;1.034.319.001;0.580206596
+managers.py;228;set_axis;261941;1.023.652.752;0.22793164200000002
+datetimes.py;2314;_validate_dt64_dtype;3;8,55E+08;8,55E+08
+ops.py;901;<listcomp>;1;8,44E+08;8,44E+08
+generic.py;1835;<listcomp>;1;8,37E+08;8,37E+08
+contextlib.py;751;__init__;1;8,34E+08;8,34E+08
+concat.py;701;_maybe_check_integrity;2;7,68E+08;7,68E+08
+~;0;<function FrozenList.__getitem__ at 0x112666ac0>;4;6,62E+08;6,62E+08
+fromnumeric.py;2107;_clip_dispatcher;2;6,07E+08;6,07E+08
+indexing.py;892;_convert_tuple;65456;513.944.286;0.149428166
+~;0;<method 'reverse' of 'list' objects>;2;4,80E+08;4,80E+08
+common.py;1725;validate_all_hashable;983869;298.728.249;0.8687444070000001
+range.py;956;__getitem__;65460;256.307.505;0.171384852
+datetimelike.py;879;isna;130915;253.146.389;0.10516678400000001
+series.py;565;_set_axis;261938;199.448.927;0.523015561
+common.py;1591;_is_dtype_type;658495;186.749.643;0.8496799500000001
+series.py;708;_values;1049085;164.493.671;0.567681389
+series.py;611;name;1769505;161.401.305;1.107.934.025
+_ufunc_config.py;435;__exit__;198121;151.216.923;0.35768253
+managers.py;1040;_verify_integrity;3;9,92E-01;3,12E+11
+cast.py;1931;np_can_hold_element;29;9,87E-01;7,36E+10
+managers.py;1435;<genexpr>;222;9,86E-01;8,17E-01
+generic.py;9530;_align_series;2;9,43E-01;1,44E+11
+~;0;<pandas._libs.algos.groupsort_indexer>;1;9,40E-01;9,40E-01
+cast.py;259;maybe_downcast_to_dtype;10;9,24E-01;4,77E-01
+generic.py;190;_get_data_to_aggregate;10;9,18E-01;3,85E-01
+_mixins.py;380;_where;1;8,88E-01;4,18E+09
+fromnumeric.py;3345;mean;1;8,21E-01;7,77E+09
+base.py;3241;union;2;8,13E-01;1,48E+11
+~;0;<built-in method strptime>;1;7,86E-01;3,19E+10
+~;0;<built-in method builtins.next>;56;7,79E-01;2,79E-01
+generic.py;1483;__neg__;1;7,77E-01;4,68E-03
+~;0;<pandas._libs.algos.ensure_float64>;2;7,75E-01;7,75E-01
+datetimes.py;286;_from_sequence;1;7,69E-01;1,60E+10
+grouper.py;931;_convert_grouper;11;7,63E-01;2,56E+11
+generic.py;640;_info_axis;80;7,62E-01;4,72E+11
+datetimes.py;134;should_cache;1;7,61E-01;5,64E+11
+base.py;1823;_set_names;11;7,60E-01;3,51E-01
+common.py;463;is_interval_dtype;8;7,55E-01;1,35E+11
+generic.py;1418;_gotitem;10;7,51E-01;3,01E+11
+common.py;319;is_datetime64_dtype;44;7,24E-01;4,20E-01
+frame.py;4234;_ensure_valid_index;33;7,19E-01;2,77E+11
+~;0;<pandas._libs.tslibs.parsing.format_is_iso>;1;6,95E-01;6,95E-01
+<__array_function__ internals>;177;broadcast_arrays;2;6,67E-01;2,61E+10
+cast.py;508;ensure_dtype_can_hold_na;45;6,67E-01;5,84E+11
+ops.py;302;_get_out_dtype;10;6,66E-01;2,75E-01
+series.py;743;array;5;6,64E-01;4,24E-03
+_dtype.py;34;__str__;4;6,63E-01;1,17E-01
+series.py;947;_ixs;3;6,17E-01;4,03E+10
+concat.py;375;dtype;6;6,11E-01;5,32E-01
+c_parser_wrapper.py;367;<setcomp>;5;6,04E-01;5,98E+09
+stride_tricks.py;480;broadcast_arrays;2;6,00E-01;7,96E-03
+managers.py;2372;<listcomp>;8;5,97E-01;5,02E-01
+<__array_function__ internals>;177;where;1;5,84E-01;2,18E-03
+blocks.py;1908;array_values;5;5,68E-01;1,02E-01
+~;0;<method 'format' of 'str' objects>;81;5,59E-01;5,59E-01
+base.py;1752;_validate_names;4;5,44E-01;3,01E+11
+pathlib.py;504;_from_parts;1;5,27E-01;6,29E+10
+timedeltas.py;179;_simple_new;8;5,05E-01;3,38E-02
+generic.py;1699;_is_label_reference;1;4,92E-01;6,32E+10
+managers.py;2237;_grouping_func;18;4,81E-01;1,97E+11
+ops.py;314;_get_result_dtype;10;4,78E-01;1,31E+11
+base.py;168;__setattr__;49;4,77E-01;3,88E+11
+common.py;1048;is_numeric_v_string_like;18;4,67E-01;3,99E+11
+numpy_.py;69;__init__;5;4,66E-01;2,36E+11
+algorithms.py;905;_re_wrap_factorize;11;4,59E-01;9,33E+09
+datetimes.py;483;_box_func;2;4,49E-01;1,56E-01
+readers.py;1815;__exit__;1;4,30E-01;2,24E-03
+<__array_function__ internals>;177;prod;1;4,26E-01;2,74E-03
+base_parser.py;88;__init__;1;4,16E-01;2,41E+11
+concat.py;678;_trim_join_unit;4;4,15E-01;2,01E-01
+~;0;<built-in method _warnings._filters_mutated>;258;4,10E-01;4,10E-01
+base.py;6303;_is_comparable_dtype;7;4,07E-01;8,40E-03
+construction.py;627;_extract_index;1;4,07E-01;3,59E-02
+generic.py;1726;<genexpr>;2;3,95E-01;3,57E+10
+pathlib.py;56;parse_parts;1;3,92E-01;2,59E+11
+generic.py;821;_set_axis;3;3,86E-01;8,10E-03
+range.py;353;dtype;25;3,70E-01;3,70E-01
+<__array_function__ internals>;177;sum;1;3,67E-01;2.56e-06
+missing.py;636;maybe_fill;10;3,62E-01;1,43E+11
+base.py;5564;<genexpr>;22;3,57E-01;1,44E+11
+_methods.py;93;_clip_dep_is_scalar_nan;4;3,56E-01;1,84E+11
+stride_tricks.py;538;<listcomp>;2;3,53E-01;3,77E-03
+readers.py;1449;_get_options_with_defaults;1;3,53E-01;3,00E-01
+common.py;303;maybe_iterable_to_list;5;3,44E-01;9,97E-03
+generic.py;11969;rolling;1;3,39E-01;6,55E-03
+base.py;2581;is_object;5;3,28E-01;6,93E-03
+blocks.py;213;mgr_locs;146;3,25E-01;3,25E-01
+base.py;1820;_get_names;22;3,17E-01;2,56E-01
+numeric.py;221;_convert_slice_indexer;1;3,15E-01;4,11E+09
+accessors.py;53;__init__;3;3,14E-01;1,14E-01
+config.py;142;_set_option;2;3,14E-01;1,56E-02
+fromnumeric.py;2188;sum;1;3,12E-01;3,39E+10
+config.py;441;__enter__;1;3,10E-01;3,63E+10
+concat.py;113;<genexpr>;18;3,05E-01;7,82E-03
+~;0;<pandas._libs.lib.generate_slices>;1;3,02E-01;3,02E-01
+common.py;136;is_url;1;3,00E-01;3,19E+10
+generic.py;3748;_maybe_update_cacher;1;2,97E-01;1,84E-03
+datetimelike.py;1939;__init__;1;2,96E-01;7,01E-03
+_dtype.py;178;_datetime_metadata_str;10;2,91E-01;1,65E+11
+threading.py;1185;is_alive;4;2,80E-01;1,31E-01
+ops.py;903;names;11;2,79E-01;1,75E-01
+numeric.py;150;ones;2;2,79E-01;5,58E+10
+base.py;2801;_na_value;9;2,78E-01;1,68E-01
+missing.py;910;clean_reindex_fill_method;18;2,73E-01;2,04E+11
+iostream.py;437;_is_master_process;18;2,73E-01;2,21E-01
+blocks.py;188;is_bool;6;2,72E-01;5,41E-03
+rolling.py;121;__init__;1;2,68E-01;7,06E-03
+base.py;163;array;10;2,66E-01;9.18e-06
+missing.py;750;isna_all;1;2,63E-01;5,25E-03
+~;0;<method 'pop' of 'dict' objects>;137;2,54E-01;2,54E-01
+common.py;112;close;1;2,46E-01;6,84E-03
+common.py;1147;_is_binary_mode;2;2,45E-01;1,11E+11
+common.py;224;stringify_path;2;2,38E-01;5,37E+10
+managers.py;275;arrays;13;2,36E-01;1,38E+11
+missing.py;140;dispatch_fill_zeros;16;2,31E-01;2,31E-01
+common.py;192;all_none;5;2,30E-01;9,97E-03
+base_parser.py;327;_maybe_dedup_names;1;2,28E-01;1,09E+11
+base.py;3737;_convert_can_do_setop;2;2,24E-01;3,13E+10
+config.py;447;__exit__;1;2,16E-01;3,45E-03
+base.py;4215;_convert_slice_indexer;1;2,14E-01;7.73e-06
+generic.py;12909;_align_as_utc;2;2,13E-01;3,28E-03
+blocks.py;1163;fillna;1;2,13E-01;6,76E-03
+<__array_function__ internals>;177;result_type;4;2,13E-01;6,18E+09
+cast.py;919;_maybe_infer_dtype_type;8;2,11E-01;7,55E-03
+cast.py;1487;find_result_type;2;2,10E-01;7,72E+09
+concat.py;103;<listcomp>;8;2,08E-01;9,45E+09
+managers.py;1042;<genexpr>;20;2,05E-01;1,30E+11
+base.py;3198;_get_reconciled_name_object;2;2,03E-01;5,39E+09
+groupby.py;1321;_resolve_numeric_only;19;2,03E-01;1,75E+11
+~;0;<method 'view' of 'numpy.generic' objects>;4;2,01E-01;2,01E-01
+blocks.py;279;getitem_block;8;2,01E-01;1,40E+11
+generic.py;2002;empty;2;1,97E-01;2,40E-03
+<__array_function__ internals>;177;atleast_1d;3;1,96E-01;4,36E+09
+rolling.py;1821;_validate;1;1,94E-01;5,27E-03
+<__array_function__ internals>;177;nonzero;1;1,93E-01;3,36E-03
+base.py;5402;<setcomp>;2;1,92E-01;3,85E-03
+c_parser_wrapper.py;416;ensure_dtype_objs;1;1,92E-01;2,47E-03
+missing.py;564;_array_equivalent_object;2;1,92E-01;1,09E+11
+missing.py;781;<genexpr>;2;1,91E-01;9,34E-03
+common.py;1532;_is_dtype;9;1,88E-01;8,61E-03
+multiarray.py;152;concatenate;82;1,83E-01;1,83E-01
+~;0;<method 'close' of '_io.TextIOWrapper' objects>;1;1,78E-01;1,78E-01
+concat.py;559;<genexpr>;18;1,77E-01;1,01E-01
+groupby.py;4116;_reindex_output;11;1,74E-01;1,31E-01
+common.py;192;is_sparse;3;1,74E-01;1,09E+11
+concat.py;650;<genexpr>;6;1,71E-01;5,96E+10
+typing.py;1572;__subclasscheck__;3;1,71E-01;7,32E-03
+grouper.py;806;<genexpr>;22;1,70E-01;1,45E-01
+timedeltas.py;171;_validate_dtype;1;1,70E-01;1,05E+10
+concat.py;623;<genexpr>;18;1,67E-01;1,50E-01
+base_parser.py;1283;_is_potential_multi_index;2;1,65E-01;9,61E+09
+generic.py;547;<dictcomp>;11;1,62E-01;1,25E+11
+blocks.py;823;shape;25;1,61E-01;1,61E-01
+putmask.py;98;validate_putmask;1;1,60E-01;2,73E-03
+cast.py;1589;find_common_type;7;1,58E-01;1,22E+11
+_validators.py;449;validate_ascending;1;1,58E-01;3,09E+10
+ops.py;204;_get_cython_vals;10;1,56E-01;8,89E-03
+~;0;<built-in method numpy.zeros>;10;1,54E-01;1,54E-01
+range.py;453;_view;3;1,51E-01;6.72e-06
+common.py;164;_expand_user;3;1,48E-01;4,81E+09
+indexing.py;1539;_validate_integer;3;1,46E-01;5,03E-03
+ops.py;241;_disallow_invalid_ops;10;1,44E-01;6,71E+09
+datetimelike.py;2243;maybe_infer_freq;5;1,43E-01;1,09E+11
+config.py;442;<listcomp>;1;1,41E-01;1,85E+10
+locale.py;479;_parse_localename;2;1,35E-01;3,73E-03
+threading.py;1118;_wait_for_tstate_lock;4;1,28E-01;7,89E+09
+concat.py;682;<listcomp>;3;1,26E-01;8,96E-03
+api.py;104;<listcomp>;3;1,24E-01;4,77E+09
+managers.py;2407;_preprocess_slice_or_indexer;4;1,21E-01;9,47E+09
+numba_.py;18;maybe_use_numba;20;1,20E-01;1,20E-01
+construction.py;980;_validate_or_indexify_columns;2;1,17E-01;5,01E+09
+expressions.py;73;_can_use_numexpr;16;1,15E-01;1,15E-01
+dtypes.py;754;construct_from_string;2;1,13E-01;7,28E+10
+generic.py;5881;<genexpr>;9;1,11E-01;8,26E+09
+fromnumeric.py;70;<dictcomp>;8;1,10E-01;1,10E-01
+concat.py;731;_next_or_none;14;1,10E-01;8,29E-03
+c_parser_wrapper.py;190;close;1;1,08E-01;3,29E+10
+~;0;<built-in method builtins.setattr>;38;1,07E-01;1,07E-01
+managers.py;655;<listcomp>;11;1,03E-01;1,03E-01
+<__array_function__ internals>;177;mean;1;8,85E-02;2,80E+10
+shape_base.py;81;atleast_2d;8;7,61E-02;4,02E-01
+~;0;<built-in method _abc._abc_instancecheck>;69;7,42E-02;7,42E-02
+enum.py;192;__get__;47;7,11E-02;5,50E+11
+~;0;<method 'reshape' of 'numpy.ndarray' objects>;48;6,50E-02;6,50E-02
+base.py;6804;delete;1;3,90E-02;5,71E+09
+cast.py;328;maybe_downcast_numeric;10;3,58E-02;2,37E-01
+common.py;544;is_string_dtype;9;3,08E-02;1,19E+11
+concat.py;476;<listcomp>;2;2,87E-02;6,29E+09
+~;0;<built-in method _operator.or_>;2;2,34E-02;2,34E-02
+stride_tricks.py;416;_broadcast_shape;2;9,98E-03;9,60E+09
+base.py;124;_reset_cache;1;9,92E-03;1,45E+10
+managers.py;287;<listcomp>;13;9,81E-03;9,81E-03
+locale.py;396;normalize;2;9,76E-03;7,47E+09
+api.py;328;_sanitize_and_check;3;9,73E-03;6,71E-03
+_methods.py;67;_count_reduce_items;1;9,52E-03;8,85E-03
+construction.py;525;treat_as_nested;2;9,31E-03;5,26E+10
+common.py;617;get_cython_func;9;9,23E-03;6,56E+09
+ops.py;425;_reconstruct_ea_result;1;9,21E-03;6,06E-03
+concat.py;354;__init__;25;9,07E-03;9,07E-03
+api.py;252;<listcomp>;1;9,05E-03;1,33E-03
+function_base.py;5440;_append_dispatcher;40;8,87E-03;8,87E-03
+base_parser.py;370;_make_index;1;8,85E-03;2,84E-03
+shape_base.py;207;_arrays_for_stack_dispatcher;8;8,80E-03;5,38E+10
+managers.py;2381;<listcomp>;8;8,71E-03;8,71E-03
+managers.py;1240;value_getitem;10;8,71E-03;8,71E-03
+~;0;<built-in method _operator.mul>;1;8,60E-03;8,60E-03
+numeric.py;1473;<listcomp>;20;8,44E-03;8,44E-03
+dtypes.py;913;construct_from_string;2;8,39E-03;6,03E+09
+algorithms.py;855;resolve_na_sentinel;11;8,37E-03;8,37E-03
+fromnumeric.py;1777;_ravel_dispatcher;40;8,11E-03;8,11E-03
+rolling.py;264;_validate_numeric_only;1;7,88E-03;5,10E-03
+missing.py;107;clean_fill_method;20;7,85E-03;7,85E-03
+~;0;<built-in method builtins.locals>;1;7,83E-03;7,83E-03
+api.py;246;conv;2;7,72E-03;2,78E-03
+iostream.py;90;_event_pipe;4;7,67E-03;7,67E-03
+blocks.py;275;__len__;10;7,58E-03;5,78E+09
+~;0;<method 'match' of 're.Pattern' objects>;4;7,54E-03;7,54E-03
+inference.py;298;is_named_tuple;2;7,18E-03;2,22E-03
+_validators.py;141;validate_kwargs;1;7,08E-03;2,74E+10
+construction.py;481;<listcomp>;1;6,55E-03;1,67E-03
+concat.py;539;<genexpr>;18;6,53E-03;6,53E-03
+ops.py;1362;get_splitter;1;6,53E-03;3,14E+10
+rolling.py;457;_get_window_indexer;1;6,52E-03;3,91E-03
+base.py;3731;_assert_can_do_setop;2;6,37E-03;1,19E-03
+inference.py;137;is_re;1;6,19E-03;5.64e-07
+ops.py;811;group_keys_seq;1;6,17E-03;2,67E-03
+c_parser_wrapper.py;365;<setcomp>;5;6,13E-03;6,13E-03
+~;0;<pandas._libs.algos.ensure_object>;17;5,96E-03;5,96E-03
+groupby.py;1105;_group_selection_context;2;5,82E-03;2,73E-03
+~;0;<method 'write' of '_io.StringIO' objects>;18;5,70E-03;5,70E-03
+timedeltas.py;118;_scalar_type;14;5,66E-03;5,66E-03
+base_parser.py;358;_maybe_make_multi_index_columns;1;5,65E-03;1,06E+10
+function_base.py;5246;_insert_dispatcher;20;5,57E-03;5,57E-03
+_validators.py;366;validate_fillna_kwargs;1;5,26E-03;4.66e-06
+base_parser.py;814;_do_date_conversions;1;5,25E-03;3,24E-03
+~;0;<built-in method posix.getpid>;18;5,21E-03;5,21E-03
+nanops.py;1612;_ensure_numeric;2;5,20E-03;2,63E-03
+common.py;573;condition;9;4,96E-03;4,96E-03
+~;0;<method '__exit__' of '_thread.RLock' objects>;18;4,93E-03;4,93E-03
+construction.py;231;mgr_to_mgr;4;4,91E-03;4,18E-03
+function_base.py;5050;_delete_dispatcher;21;4,91E-03;4,91E-03
+~;0;<method 'acquire' of '_thread.lock' objects>;4;4,88E-03;4,88E-03
+<frozen abc>;121;__subclasscheck__;2;4,82E-03;2,43E+10
+putmask.py;112;extract_bool_array;2;4,73E-03;3,03E+10
+ops.py;122;__init__;10;4,73E-03;4,73E-03
+common.py;196;<genexpr>;16;4,69E-03;4,69E-03
+dtypes.py;303;construct_from_string;2;4,68E-03;4,49E-03
+base.py;7450;<listcomp>;1;4,60E-03;2,17E-03
+generic.py;1775;<genexpr>;12;4,59E-03;4,59E-03
+config.py;433;__init__;1;4,48E-03;4,18E+09
+numeric.py;1407;_moveaxis_dispatcher;20;4,45E-03;4,45E-03
+inference.py;102;is_file_like;2;4,40E-03;3,11E+10
+~;0;<method 'lower' of 'str' objects>;13;4,33E-03;4,33E-03
+concat.py;356;<setcomp>;2;4,02E-03;3,07E-03
+base.py;161;_freeze;7;3,95E-03;3,95E-03
+grouper.py;587;_ilevel;11;3,94E-03;3,94E-03
+construction.py;488;<listcomp>;2;3,91E-03;3,08E+10
+base_parser.py;258;_extract_multi_indexer_columns;1;3,89E-03;3,18E-03
+<frozen codecs>;309;__init__;1;3,75E-03;2,78E-03
+rolling.py;254;_slice_axis_for_step;1;3,67E-03;1,53E-03
+concat.py;625;_get_result_dim;3;3,64E-03;2,87E+10
+common.py;182;<genexpr>;11;3,64E-03;3,64E-03
+base.py;5411;<listcomp>;2;3,64E-03;2,42E-03
+inspect.py;292;isclass;4;3,61E-03;2,95E-03
+string_.py;118;construct_from_string;2;3,59E-03;3,40E+10
+~;0;<built-in method pandas._libs.tslibs.timezones.maybe_get_tz>;4;3,54E-03;3,54E-03
+generic.py;558;_get_axis_name;2;3,35E-03;2.6e-06
+~;0;<built-in method pandas._libs.missing.is_matching_na>;6;3,20E-03;3,20E-03
+common.py;116;ensure_python_int;2;3,19E-03;2,13E-03
+stride_tricks.py;542;<genexpr>;9;3,06E-03;3,06E-03
+copy.py;66;copy;1;3,02E-03;2,24E-03
+base.py;555;<genexpr>;6;3,00E-03;2,52E+10
+fromnumeric.py;1034;_argsort_dispatcher;8;2,94E-03;2,94E-03
+~;0;<built-in method pandas._libs.lib.is_bool_array>;1;2,86E-03;2,86E-03
+~;0;<built-in method builtins.id>;12;2,84E-03;2,84E-03
+~;0;<built-in method pandas._libs.tslibs.dtypes.periods_per_second>;3;2,79E-03;2,79E-03
+base.py;1741;name;1;2,76E-03;1,54E-03
+<ipython-input-134-80e15ba39301>;172;<listcomp>;1;2,75E-03;2,75E-03
+range.py;270;stop;4;2,75E-03;2,75E-03
+api.py;349;<setcomp>;3;2,70E-03;2,70E-03
+rolling.py;239;_check_window_bounds;1;2,68E-03;2,19E-03
+~;0;<method 'append' of 'pandas._libs.internals.BlockPlacement' objects>;10;2,65E-03;2,65E-03
+datetimelike.py;2206;validate_inferred_freq;9;2,53E-03;2,53E-03
+range.py;247;start;4;2,52E-03;2,52E-03
+extension.py;70;fget;1;2,42E-03;7,51E+08
+groupby.py;1065;_set_group_selection;1;2,38E-03;1,95E-03
+apply.py;112;__init__;1;2,34E-03;2,34E-03
+parse.py;119;_coerce_args;1;2,30E-03;2,19E-03
+c_parser_wrapper.py;208;<dictcomp>;1;2,29E-03;2,29E-03
+api.py;268;<listcomp>;1;2,27E-03;2,00E-03
+threading.py;568;is_set;4;2,17E-03;2,17E-03
+function.py;350;validate_rolling_func;1;2,13E-03;2,01E-03
+~;0;<pandas._libs.lib.maybe_indices_to_slice>;2;2,11E-03;2,11E-03
+common.py;175;maybe_warn_args_and_kwargs;1;1,99E-03;1,54E+10
+rolling.py;347;__getattr__;1;1,93E-03;1,93E-03
+config.py;627;_get_registered_option;2;1,88E-03;1,25E-03
+c_parser_wrapper.py;318;<dictcomp>;1;1,85E-03;1,85E-03
+_validators.py;49;_check_for_default_values;1;1,84E-03;1,58E+10
+numeric.py;115;inferred_type;2;1,79E-03;1,79E-03
+fromnumeric.py;2427;_all_dispatcher;6;1,71E-03;1,71E-03
+~;0;<built-in method sys.intern>;11;1,57E-03;1,57E-03
+<string>;2;__init__;1;1,48E-03;1,48E-03
+~;0;<built-in method _codecs.lookup>;1;1,40E-03;1,40E-03
+common.py;624;is_builtin_func;1;1,37E-03;1,06E-03
+config.py;849;inner;2;1,36E-03;1,36E-03
+base.py;2457;is_integer;1;1,35E-03;1,00E-03
+timedeltas.py;288;_check_compatible_with;7;1,33E-03;1,33E-03
+_mixins.py;225;<listcomp>;2;1,27E-03;1,27E-03
+range.py;293;step;4;1,23E-03;1,23E-03
+c_parser_wrapper.py;314;<listcomp>;1;1,19E-03;1,19E-03
+~;0;<method 'append' of 'collections.deque' objects>;4;1,16E-03;1,16E-03
+generic.py;4255;_check_inplace_and_allows_duplicate_labels;3;1,15E-03;1,15E-03
+base_parser.py;1056;_make_date_converter;1;1,14E-03;1,14E-03
+~;0;<method 'groupdict' of 're.Match' objects>;1;1,10E-03;1,10E-03
+rolling.py;298;_create_data;1;1,09E-03;9,31E+08
+base.py;4233;is_int;3;1,09E-03;8,96E+08
+series.py;4818;_reindex_indexer;4;1,07E-03;1,07E-03
+base_parser.py;1334;is_index_col;3;1,04E-03;1,04E-03
+readers.py;2230;_validate_skipfooter;1;1,04E-03;8,85E+08
+~;0;<pandas._libs.lib.is_bool_list>;3;1,02E-03;1,02E-03
+~;0;<built-in method posix.fspath>;3;1,00E-03;1,00E-03
