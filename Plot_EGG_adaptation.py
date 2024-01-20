@@ -491,7 +491,7 @@ def heatplot(dat, xlim=(0, 0, 0), spacer=0, vline=[], freq=1, order=3, rate=62.5
     x = dat.timestamps.to_numpy()
     arraylist = []
     
-    # Initialize the list for active channel labels
+    # Added to this function, initialize active channels
     active_channels = []
     
     if len(xlim) == 2:
@@ -512,7 +512,7 @@ def heatplot(dat, xlim=(0, 0, 0), spacer=0, vline=[], freq=1, order=3, rate=62.5
                 yf = mod[1, :]
             arraylist.append(yf)
             
-            # Add the active channel number to the list
+            # Add active channel number to list
             active_channels.append(int(column[-2:]))
             
     datlist = np.array(arraylist)

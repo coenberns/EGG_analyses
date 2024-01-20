@@ -20,6 +20,8 @@ import sklearn
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
 from scipy.signal import butter, filtfilt
+import seaborn as sns
+
 
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
@@ -102,6 +104,18 @@ savgol_mean_0828 = savgol_filt(interp_mean_0828)
 #%% For the behavioral label data
 egg_data = butter_filter(savgol_mean_0828, fs=times_0828['effective_rate'], low_freq=0.02, high_freq=0.2)
 
+#%% Plotting the savgol_mean complete part of the recording
+sns.set_palette('tab10')
+datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
+fs_0828=times_0828['effective_rate']
+t_cycle_0828 = times_0828['t_cycle']
+
+signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,13444,15100,15513,16922,17800,21212,21956],
+           freq=[0.02,0.2],order=3, line_params=['black', 2,'dashed'],
+            rate=fs_0828, title='',skip_chan=[],
+            figsize=(10,10),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
 #%%
 seg_vmean_0828 = {}
 seg_vmean_0828 = segment_data(v_mean_0828, gap_size=30, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
@@ -112,27 +126,24 @@ seg_interp_0828={}
 seg_filtered_0828={}
 seg_savgol_0828={}
 # seg_smooth={}
-datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
-fs=times_0828['effective_rate']
-t_cycle = times_0828['t_cycle']
 
 
 for i in range(len(seg_vmean_0828)):
-        seg_interp_0828[i] = interpolate_data(seg_vmean_0828[i],cycle_time=t_cycle, max_gap=14, pchip=True)
-        seg_filtered_0828[i]=butter_filter(seg_interp_0828[i], low_freq=0.02, high_freq=0.2, fs=fs)
+        seg_interp_0828[i] = interpolate_data(seg_vmean_0828[i],cycle_time=t_cycle_0828, max_gap=14, pchip=True)
+        seg_filtered_0828[i]=butter_filter(seg_interp_0828[i], low_freq=0.02, high_freq=0.2, fs=fs_0828)
         seg_savgol_0828[i]=savgol_filt(seg_interp_0828[i], window=3,polyorder=1,deriv=0,delta=1)
         # seg_smooth[i]=smooth_signal_moving_average(seg_filtered[i], window_size=5)
 
 #%%
 fig1, _,_ = signalplot(seg_savgol_0828[0],xlim=(0,5000),spacer=200,vline=[],freq=[0.02,0.2],order=3,
-            rate=fs, title='',skip_chan=[],
+            rate=fs_0828, title='',skip_chan=[],
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 #%% Feeding/non-feeding calculations
 abs_mean_foodz=[]
 abs_mean_partz=[]
 abs_mean_nonz=[]
-filtered = butter_filter(seg_savgol_0828[0], fs=fs)
+filtered = butter_filter(seg_savgol_0828[0], fs=fs_0828)
 for i in range(8):
     abs_mean_food=np.abs(filtered[f'Channel {i}'][0:750]).mean()
     abs_mean_partial= np.abs(filtered[f'Channel {i}'][750:2500]).mean()
@@ -146,7 +157,7 @@ print("During partial eating: ", np.mean(abs_mean_partz), np.std(abs_mean_partz)
 # print("During resting: ", np.mean(abs_mean_nonz), np.std(abs_mean_nonz))
 
 #%%
-fig2, _, activ = heatplot(seg_savgol_0828[0],xlim=(0,5000),spacer=0,vline=[],freq=[0.02,0.2],order=3,rate=fs, title='',skip_chan=[],
+fig2, _, activ = heatplot(seg_savgol_0828[0],xlim=(0,5000),spacer=0,vline=[],freq=[0.02,0.2],order=3,rate=fs_0828, title='',skip_chan=[],
                             figsize=(10,10),textsize=16,vrange=[0,15],interpolation='bilinear',norm=True)
 
 #%%
@@ -160,40 +171,31 @@ for i in range(len(seg_filtered_0828)):
 
 #%%
 # 'Channel 0','Channel 1','Channel 2','Channel 3','Channel 4','Channel 5','Channel 6'
-egg_freq_heatplot_v2(savgol_mean_0828, rate=fs, xlim=[0,6400],seg_length=400,freq=[0.02,0.2],freqlim=[1,8], order=3,
+egg_freq_heatplot_v2(savgol_mean_0828, rate=fs_0828, xlim=[0,6400],seg_length=400,freq=[0.02,0.2],freqlim=[1,8], order=3,
                             vrange=[0],figsize=(10,15),interpolation='bilinear',n=5, intermediate=False, mmc=False,
                             max_scale=.6,norm=True,time='timestamps',
                             skip_chan=[])
 #%% Channel 7 4cpm frequency heatplot
 # skip_chan=['Channel 2','Channel 4', 'Channel 5', 'Channel 6']
-egg_freq_heatplot_v2(seg_savgol_0828[0], rate=fs, xlim=[0,3000],seg_length=600,freq=[0.02,0.2],freqlim=[1,8], order=3,
+egg_freq_heatplot_v2(seg_savgol_0828[0], rate=fs_0828, xlim=[0,3000],seg_length=600,freq=[0.02,0.2],freqlim=[1,8], order=3,
                             figsize=(8,3),interpolation='bilinear', n=10, intermediate=False, mmc=False,
                             max_scale=.5,norm=True,time='timestamps',
                             skip_chan=['Channel 0','Channel 1', 'Channel 2', 'Channel 3','Channel 4', 'Channel 5', 'Channel 6'])
-#%% Mean absolute v calculations for this part of data, low values in chan 0-1, higher towards higher channels, which is as expected.
-segment_calcs_0828 = seg_savgol_0828[0][seg_savgol_0828[0]['timestamps']<6000]
-segments_calcs_0828 = butter_filter(segment_calcs_0828, fs=fs)
-avg_0828 = {}
-for i in range(8):
-    channel = f'Channel {i}'  
-    abs_avg = np.abs(segment_calcs_0828[channel]).mean()
-    avg_0828[i] = {'channel': channel, 'abs_avg': abs_avg}
 
-absavg_data_0828 = pd.DataFrame.from_dict(avg_0828)
 #%% Signalplot for same segment 0-6000
 a,b,c =signalplot(seg_savgol_0828[0],xlim=(0,3000),spacer=100,vline=[],freq=1,order=3,
                 rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
                 figsize=(8,3),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
                 output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-egg_signalfreq(c,rate=fs, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
+egg_signalfreq(c,rate=fs_0828, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
 
 a1,b1,c1 = signalplot(seg_savgol_0828[0],xlim=(0,3000),spacer=50,vline=[380,560],freq=[0.02,0.2],line_params=['black',3,'dashed'],
                     order=3,rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
                     figsize=(8,4),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
                     output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-egg_signalfreq(c1,rate=fs, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
+egg_signalfreq(c1,rate=fs_0828, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
 #%%
 signalplot(seg_savgol_0828[0],xlim=(380,560),spacer=50,vline=[420,479],freq=[0.02,0.2],order=3, line_params=['#d62728', 3, 'dashed'],
                 rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
@@ -201,17 +203,46 @@ signalplot(seg_savgol_0828[0],xlim=(380,560),spacer=50,vline=[420,479],freq=[0.0
                 output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%%
-heatplot(seg_interp_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,
-         rate=fs, title='',skip_chan=[0,1,2,3,4,5,6],figsize=(9,3),textsize=16,vrange=[0,20],interpolation='bilinear',norm=True)
+q,r,v_abs_0828 = heatplot(seg_savgol_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=16,vrange=[0,20],interpolation='bilinear',norm=True)
+
+v_abs_0828 = v_abs_0828.T
+pd_vabs_0828 = pd.DataFrame(v_abs_0828, columns=[f'Channel {i}' for i in range(8)])
+
+plt.figure(figsize=(12, 8))
+sns.set_palette('tab20')
+boxplot = sns.boxplot(data=pd_vabs_0828, palette='tab10', showfliers=False)
+boxplot.set_title('')
+boxplot.set_xlabel('')
+boxplot.set_ylabel('Electrical Activity (mV)')
+
+means = pd_vabs_0828.mean()
+stds = pd_vabs_0828.std()
+Q3 = pd_vabs_0828.quantile(0.75)
+Q1 = pd_vabs_0828.quantile(0.25)
+IQR = Q3 - Q1
+whisker_top = Q3 + 1.5 * IQR
+
+for i in range(pd_vabs_0828.shape[1]):
+    # Find the maximum value within the whisker range for the current channel
+    whisker_val = whisker_top[i]
+    channel_data = pd_vabs_0828.iloc[:, i]
+    max_within_whisker = channel_data[channel_data <= whisker_val].max()
+
+    # Place the text above the top whisker or max value within the whisker range
+    plt.text(i, max_within_whisker + 0.2, f'Mean: {means[i]:.2f}\nSTD: {stds[i]:.2f}',
+             horizontalalignment='center', size='small', color='black', weight='semibold')
+plt.ylim(0,12)
+plt.show()
 
 #%%
-egg_freq_heatplot_v2(seg_interp_0828[1], rate=fs, xlim=[0,7800],seg_length=600,freq=[0.02,0.2],freqlim=[2,7],
+egg_freq_heatplot_v2(seg_interp_0828[1], rate=fs_0828, xlim=[0,7800],seg_length=600,freq=[0.02,0.2],freqlim=[2,7],
                             vrange=[0],figsize=(10,14),interpolation='bilinear',n=5, intermediate=False,mmc=False,
                             max_scale=.6,norm=True,time='timestamps',
                             skip_chan=[])
 
 #%%
-egg_freq_heatplot_v2(seg_interp_0828[2], rate=fs, xlim=[0,4000],seg_length=400,freq=[0.02,0.2],freqlim=[1,8],
+egg_freq_heatplot_v2(seg_interp_0828[2], rate=fs_0828, xlim=[0,4000],seg_length=400,freq=[0.02,0.2],freqlim=[1,8],
                             vrange=[0],figsize=(10,5),interpolation='bilinear',n=10, intermediate=False,
                             max_scale=.6,norm=True,time='timestamps',
                             skip_chan=['Channel 2','Channel 3','Channel 4','Channel 5', 'Channel 6', 'Channel 7'])
@@ -219,12 +250,12 @@ egg_freq_heatplot_v2(seg_interp_0828[2], rate=fs, xlim=[0,4000],seg_length=400,f
 #%%
 filtered_compact = seg_filtered_0828[0][datcols]
 
-egg_signalfreq(filtered_compact,rate=fs,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,
+egg_signalfreq(filtered_compact,rate=fs_0828,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,
                labels=[],figsize=(10,20),vline=[],vline_color='black',textsize=12,name_dict={})
 
 #%%
 savgol_mean_comp = savgol_mean_0828[datcols]
-egg_signalfreq(savgol_mean_comp,rate=fs,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,
+egg_signalfreq(savgol_mean_comp,rate=fs_0828,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,
                labels=[],figsize=(10,20),vline=[],vline_color='black',textsize=12,name_dict={})
 
 #%%
