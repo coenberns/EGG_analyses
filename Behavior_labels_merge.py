@@ -35,6 +35,7 @@ def read_behavior_data(folder, start_date, end_date, header=0, rate=14.93, scale
             df = pd.read_csv(file, header=header, usecols=['Time', 'Behavior', 'Behavioral category','Behavior type'],
                                 dtype={'Time': float, 'Behavior':str, 'Behavioral category':str, 'Behavior type': str})
             df['timestamps'] = timestamp + pd.to_timedelta(df['Time'], unit='s')
+            #Filter out ambulation for now: 
             beh = pd.concat([beh, df], ignore_index=True)
         else:
             pass
@@ -97,6 +98,7 @@ def get_ethograms(df):
 
 eths = get_ethograms(behavior)
 
+
 # %%
 def update_category(current, new):
     if new == 'Feeding/Drinking':
@@ -107,6 +109,9 @@ def update_category(current, new):
         return current
 
 def mergeDataAndEthograms(egg_data, behavior_df):
+    #Postprocessing out the 'Ambulation' behavior, since it is wrong
+    behavior_df.loc[behavior_df['Behavior'] == 'Ambulation', 'Behavior'] = None
+
     egg_data['Behavior'] = None
     egg_data['Category'] = 'Inactive'
     egg_data['beh_code'] = None
@@ -124,8 +129,14 @@ def mergeDataAndEthograms(egg_data, behavior_df):
         egg_data.loc[mask, 'Behavior'] = egg_data.loc[mask, 'Behavior'].apply(lambda x: x + [row['Behavior']])
         egg_data.loc[mask, 'Category'] = egg_data.loc[mask, 'Category'].apply(
             lambda current: update_category(current, row['Category']))
-        # combine behaviors into a single string for each row
-        egg_data['Combined_Behavior'] = egg_data['Behavior'].apply(lambda x: ','.join(sorted(set(x))) if x else 'None')
+    # # # combine behaviors into a single string for each row
+    # egg_data['Combined_Behavior'] = egg_data['Behavior'].apply(lambda x: ','.join(sorted(set(x))) if x else 'None')
+
+    # Combine behaviors into a single string for each row, excluding empty entries based on 'Ambulation' 
+    egg_data['Combined_Behavior'] = egg_data['Behavior'].apply(lambda x: ', '.join(sorted(set(filter(None, x)))) if x else 'No behavior')
+
+    # Redefine only the '' as Ambulation, since then the behavior was JUST ambulation
+    egg_data['Combined_Behavior'] = egg_data['Combined_Behavior'].replace('', 'Ambulation')
 
     #factorization combined beh
     codes, uniques = pd.factorize(egg_data['Combined_Behavior'])
@@ -146,3 +157,10 @@ def mergeDataAndEthograms(egg_data, behavior_df):
     return egg_data, beh_code_map, cat_code_map
 
 egg_beh_data, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data, eths)
+
+
+# %%
+behavior_codes_1D = egg_beh_data['beh_code']
+cat_codes_1D = egg_beh_data['cat_code']
+
+# %%

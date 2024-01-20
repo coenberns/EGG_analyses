@@ -99,7 +99,8 @@ interp_mean_0828 = interpolate_data(v_mean_0828, cycle_time=times_0828['t_cycle'
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0828 = savgol_filt(interp_mean_0828)
-
+#%% For the behavioral label data
+egg_data = butter_filter(savgol_mean_0828, fs=times_0828['effective_rate'], low_freq=0.02, high_freq=0.2)
 
 #%%
 seg_vmean_0828 = {}
@@ -145,8 +146,8 @@ print("During partial eating: ", np.mean(abs_mean_partz), np.std(abs_mean_partz)
 # print("During resting: ", np.mean(abs_mean_nonz), np.std(abs_mean_nonz))
 
 #%%
-fig2, _, activ = heatplot(filtered,xlim=(0,5000),spacer=0,vline=[],freq=1,order=3,rate=fs, title='',skip_chan=[],
-                            figsize=(10,10),textsize=16,vrange=[0,25],interpolation='bilinear',norm=True)
+fig2, _, activ = heatplot(seg_savgol_0828[0],xlim=(0,5000),spacer=0,vline=[],freq=[0.02,0.2],order=3,rate=fs, title='',skip_chan=[],
+                            figsize=(10,10),textsize=16,vrange=[0,15],interpolation='bilinear',norm=True)
 
 #%%
 # for i in range(len(seg_filtered)):
@@ -159,21 +160,53 @@ for i in range(len(seg_filtered_0828)):
 
 #%%
 # 'Channel 0','Channel 1','Channel 2','Channel 3','Channel 4','Channel 5','Channel 6'
-egg_freq_heatplot_v2(savgol_mean_0828, rate=fs, xlim=[0,6400],seg_length=400,freq=[0.03,0.15],freqlim=[1,7], order=6,
-                            vrange=[0],figsize=(10,15),interpolation='bilinear',n=10, intermediate=False,
-                            max_scale=.4,norm=True,time='timestamps',
-                            skip_chan=[])
-#%%
-# skip_chan=['Channel 2','Channel 4', 'Channel 5', 'Channel 6']
-egg_freq_heatplot_v2(seg_interp_0828[0], rate=fs, xlim=[0,4400],seg_length=400,freq=[0.03,0.15],freqlim=[1,7], order=3,
-                            vrange=[0],figsize=(10,10),interpolation='bilinear', n=10, intermediate=False,
+egg_freq_heatplot_v2(savgol_mean_0828, rate=fs, xlim=[0,6400],seg_length=400,freq=[0.02,0.2],freqlim=[1,8], order=3,
+                            vrange=[0],figsize=(10,15),interpolation='bilinear',n=5, intermediate=False, mmc=False,
                             max_scale=.6,norm=True,time='timestamps',
-                             skip_chan=['Channel 4','Channel 5','Channel 6'])
+                            skip_chan=[])
+#%% Channel 7 4cpm frequency heatplot
+# skip_chan=['Channel 2','Channel 4', 'Channel 5', 'Channel 6']
+egg_freq_heatplot_v2(seg_savgol_0828[0], rate=fs, xlim=[0,3000],seg_length=600,freq=[0.02,0.2],freqlim=[1,8], order=3,
+                            figsize=(8,3),interpolation='bilinear', n=10, intermediate=False, mmc=False,
+                            max_scale=.5,norm=True,time='timestamps',
+                            skip_chan=['Channel 0','Channel 1', 'Channel 2', 'Channel 3','Channel 4', 'Channel 5', 'Channel 6'])
+#%% Mean absolute v calculations for this part of data, low values in chan 0-1, higher towards higher channels, which is as expected.
+segment_calcs_0828 = seg_savgol_0828[0][seg_savgol_0828[0]['timestamps']<6000]
+segments_calcs_0828 = butter_filter(segment_calcs_0828, fs=fs)
+avg_0828 = {}
+for i in range(8):
+    channel = f'Channel {i}'  
+    abs_avg = np.abs(segment_calcs_0828[channel]).mean()
+    avg_0828[i] = {'channel': channel, 'abs_avg': abs_avg}
 
+absavg_data_0828 = pd.DataFrame.from_dict(avg_0828)
+#%% Signalplot for same segment 0-6000
+a,b,c =signalplot(seg_savgol_0828[0],xlim=(0,3000),spacer=100,vline=[],freq=1,order=3,
+                rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
+                figsize=(8,3),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+                output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+egg_signalfreq(c,rate=fs, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
+
+a1,b1,c1 = signalplot(seg_savgol_0828[0],xlim=(0,3000),spacer=50,vline=[380,560],freq=[0.02,0.2],line_params=['black',3,'dashed'],
+                    order=3,rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
+                    figsize=(8,4),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+                    output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+egg_signalfreq(c1,rate=fs, freqlim=[1,10], figsize=(9,3),labels=['Channel 7'])
+#%%
+signalplot(seg_savgol_0828[0],xlim=(380,560),spacer=50,vline=[420,479],freq=[0.02,0.2],order=3, line_params=['#d62728', 3, 'dashed'],
+                rate=times_0828['effective_rate'], title='',skip_chan=[0,1,2,3,4,5,6],
+                figsize=(8,4),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+                output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%%
-egg_freq_heatplot_v2(seg_interp_0828[1], rate=fs, xlim=[0,3500],seg_length=250,freq=[0.02,0.2],freqlim=[2,7],
-                            vrange=[0],figsize=(10,14),interpolation='bilinear',n=5, intermediate=False,
+heatplot(seg_interp_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+         rate=fs, title='',skip_chan=[0,1,2,3,4,5,6],figsize=(9,3),textsize=16,vrange=[0,20],interpolation='bilinear',norm=True)
+
+#%%
+egg_freq_heatplot_v2(seg_interp_0828[1], rate=fs, xlim=[0,7800],seg_length=600,freq=[0.02,0.2],freqlim=[2,7],
+                            vrange=[0],figsize=(10,14),interpolation='bilinear',n=5, intermediate=False,mmc=False,
                             max_scale=.6,norm=True,time='timestamps',
                             skip_chan=[])
 

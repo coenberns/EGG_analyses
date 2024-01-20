@@ -348,8 +348,9 @@ def migut_burst_interpolate(migut_data,rate=62.5):
         interpolated_data=f(new_data['timestamps'])
         new_data[chan]=interpolated_data
     return new_data
-    
-def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={}):
+
+#%%    
+def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'dashed'],freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={}):
     """
     Function to plot all channels in dataframe following data import using read_egg_v3
 
@@ -462,7 +463,7 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, titl
             space+=spacer
 #            print(space)
     if len(vline) != 0:
-        ax_an.vlines(vline,ymin=0-spacer/2, ymax=space-spacer/2,linewidth=5,color='black',linestyle='dashed')
+        ax_an.vlines(vline,ymin=0-spacer/2, ymax=space-spacer/2,color=line_params[0],linewidth=line_params[1],linestyle=line_params[2])
     if len(hline) != 0:
         ax_an.hlines(hline,xmin=xlim[0],xmax=xlim[1],linewidth=5,color='black',linestyle='dashed')
     ax_an.set_ylim(0-spacer,space)
@@ -483,46 +484,59 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, titl
     else: 
         outarray=outarray.T
     return fig_an,ax_an,outarray
-
-def heatplot(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,10),textsize=16,vrange=[0,0,0],interpolation='bilinear',norm=True):
-    plt.rcParams['font.size']=textsize
+#%%
+def heatplot(dat, xlim=(0, 0, 0), spacer=0, vline=[], freq=1, order=3, rate=62.5, title='', skip_chan=[], figsize=(10, 10), textsize=16, vrange=[0, 0, 0], interpolation='bilinear', norm=True):
+    plt.rcParams['font.size'] = textsize
     fig_an, ax_an = plt.subplots(figsize=figsize)
-    x=dat.timestamps.to_numpy()
-    arraylist=[]
-    if len(xlim)==2:
-        ax_an.set_xlim(xlim[0],np.min([xlim[1],x.max()]))
+    x = dat.timestamps.to_numpy()
+    arraylist = []
+    
+    # Initialize the list for active channel labels
+    active_channels = []
+    
+    if len(xlim) == 2:
+        ax_an.set_xlim(xlim[0], np.min([xlim[1], x.max()]))
     else:
-        ax_an.set_xlim([x.min(),x.max()])
-        xlim=[x.min(),x.max()]
+        ax_an.set_xlim([x.min(), x.max()])
+        xlim = [x.min(), x.max()]
         
-        
-    for i,column in enumerate(dat.columns):
+    for i, column in enumerate(dat.columns):
         if column.startswith('Channel') and not(int(column[-2:]) in skip_chan):
-            y=dat[column].to_numpy()
+            y = dat[column].to_numpy()
             if freq == 1:
-                xf,yf=egg_interpolate(np.array([x,y]),rate=rate)
+                xf, yf = egg_interpolate(np.array([x, y]), rate=rate)
             else:
-                d=np.array([x,y])
-                mod=egg_filter(d,freq=freq,rate=rate,order=order)
-                xf=mod[0,:]
-                yf=mod[1,:]
+                d = np.array([x, y])
+                mod = egg_filter(d, freq=freq, rate=rate, order=order)
+                xf = mod[0, :]
+                yf = mod[1, :]
             arraylist.append(yf)
             
-    datlist=np.array(arraylist)
+            # Add the active channel number to the list
+            active_channels.append(int(column[-2:]))
+            
+    datlist = np.array(arraylist)
     if len(xlim) == 2:
-        loc2=np.logical_and(xf>xlim[0],xf<xlim[1])
-        datlist=datlist[:,loc2]
-    if norm == True:
-        datlist=np.absolute(datlist)
-    if len(vrange)==2:
-        colors=ax_an.imshow(np.flip(datlist,axis=0),aspect='auto',extent=[xlim[0],xlim[1],-0.5,7.5],cmap='jet',vmin=vrange[0],vmax=vrange[1],interpolation=interpolation)
+        loc2 = np.logical_and(xf > xlim[0], xf < xlim[1])
+        datlist = datlist[:, loc2]
+    if norm:
+        datlist = np.absolute(datlist)
+        
+    if len(vrange) == 2:
+        colors = ax_an.imshow(np.flip(datlist, axis=0), aspect='auto', extent=[xlim[0], xlim[1], -0.5, len(active_channels)-0.5], cmap='jet', vmin=vrange[0], vmax=vrange[1], interpolation=interpolation)
     else:
-        colors=ax_an.imshow(np.flip(datlist,axis=0),aspect='auto',extent=[xlim[0],xlim[1],-0.5,7.5],cmap='jet',interpolation=interpolation)  
+        colors = ax_an.imshow(np.flip(datlist, axis=0), aspect='auto', extent=[xlim[0], xlim[1], -0.5, len(active_channels)-0.5], cmap='jet', interpolation=interpolation)  
+    
+    # Set the y-ticks and y-tick labels
+    ax_an.set_yticks(range(len(active_channels)))
+    ax_an.set_yticklabels(active_channels)
+    
     ax_an.set_xlabel('Time (s)')
-    ax_an.set_ylabel('Channel Number')    
-    cbar=fig_an.colorbar(colors,ax=ax_an)
+    ax_an.set_ylabel('Channel Number')
+    
+    cbar = fig_an.colorbar(colors, ax=ax_an)
     cbar.set_label('Electrical Activity (mV)', labelpad=10)
-    return fig_an,ax_an,datlist
+    return fig_an, ax_an, datlist
 
 
 
@@ -544,7 +558,7 @@ def rssiplot(dat,xlim=[0,0,0],figsize=(5,5),ylim=[-100,-20],textsize=16):
     return fig_an,ax_an
 
 #%%
-def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,mmc=True,labels=[],figsize=(10,20),title='',vline=[],vline_color='black',textsize=12,name_dict={}):
+def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,mmc=False,labels=[],figsize=(10,20),title='',vline=[],vline_color='black',textsize=12,name_dict={}):
     '''
 
     Parameters
@@ -616,7 +630,7 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
             label = name_dict.get(namelist[i-1], namelist[i-1])
         elif len(labels) == dat.shape[1]-1:
             label = name_dict.get(labels[i-1], labels[i-1])
-        current_ax.set_ylabel(label)
+        current_ax.set_ylabel(label, size=16)
         current_ax.ticklabel_format(axis='y', style='sci')
         # Additional plot settings
         if len(vline) != 0:
@@ -635,13 +649,15 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
         if mmc:
             ax[dat.shape[1]-2].set_xlabel('Frequency (1/hr)')
         else:     
-            ax[dat.shape[1]-2].set_xlabel('Frequency (1/mins)')  # Bottom graph label
+            ax[dat.shape[1]-2].set_xlabel('Frequency (1/mins)', size=16)  # Bottom graph label
     else:
         if mmc:
-            ax.set_xlabel('Frequency (1/hr)')
+            ax.set_xlabel('Frequency (cycles/hr)')
         else:    
-            ax.set_xlabel('Frequency (1/mins)')
+            ax.set_xlabel('Frequency (cycles/min)', size=16)
     fig.align_ylabels()
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.tick_params(axis='both', which='minor', labelsize=16)
     freq_power_chan = np.concatenate(([x], dlist), axis=0)
     if clip: 
         freq_power_chan = freq_power_chan[:, loc]
@@ -747,7 +763,7 @@ def egg_freq_heatplot(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.02,0
     #     colors=ax_an.imshow(np.flip(freq_dat,axis=0),aspect='auto',extent=[xlim[0],xlim[1],-0.5,7.5],cmap='jet',interpolation=interpolation)  
     return fig_an,ax_an,freq_data_list
 #%%
-def egg_freq_heatplot_v2(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.02,0.2],order=3,freqlim=[1,10],vrange=[0],figsize=(10,20),interpolation='bilinear',n=10, intermediate=False,max_scale=.4,norm=True,time='Synctime',skip_chan=[]):
+def egg_freq_heatplot_v2(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.02,0.2],order=3,freqlim=[1,10],vrange=[0],figsize=(10,20), textsize=16,interpolation='bilinear',n=10,mmc=False,intermediate=False,max_scale=.4,norm=True,time='Synctime',skip_chan=[]):
     '''
 
     Parameters
@@ -784,6 +800,7 @@ def egg_freq_heatplot_v2(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.0
     None.
 
     '''
+    plt.rcParams['font.size'] = textsize
     lim_list = [xlim[0]]
     freq_array = []
     skip_chan_text = list(map(lambda x: "Channel "+str(x), skip_chan))
@@ -794,7 +811,7 @@ def egg_freq_heatplot_v2(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.0
     for ele in lim_list[0:-1*n]:
         print([ele, ele+seg_length])
         a, b, c = signalplot(dat, rate=rate, xlim=[ele, ele+seg_length], freq=freq, order=order, time=time, output='PD', labels=labels, skip_chan=skip_chan)
-        a1, b1, c1 = egg_signalfreq(c, rate=rate, freqlim=freqlim, mode='power')
+        a1, b1, c1 = egg_signalfreq(c, rate=rate, freqlim=freqlim, mode='power', mmc=mmc)
         
         if not intermediate:
             plt.close(a1)
