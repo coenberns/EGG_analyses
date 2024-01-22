@@ -116,6 +116,56 @@ signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,134
             figsize=(10,10),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
+#%% HEATPLOT AND BOOXPLOTS FOR Figure 2
+q,r,v_feeding_0828 = heatplot(savgol_mean_0828,xlim=(0,4451),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+q,r,v_active_0828 = heatplot(savgol_mean_0828,xlim=(10976,13444),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+q,r,v_rest_0828 = heatplot(savgol_mean_0828,xlim=(17800,21212),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+v_feeding_0828 = v_feeding_0828.T
+v_active_0828 = v_active_0828.T
+v_rest_0828 = v_rest_0828.T
+
+pd_feeding_0828 = pd.DataFrame(v_feeding_0828, columns=[f'Channel {i}' for i in range(8)])
+pd_active_0828 = pd.DataFrame(v_active_0828, columns=[f'Channel {i}' for i in range(8)])
+pd_rest_0828 = pd.DataFrame(v_feeding_0828, columns=[f'Channel {i}' for i in range(8)])
+
+plt.figure(figsize=(12, 8))
+plt.rcParams['font.size'] = 16
+
+sns.set_palette('tab20')
+boxplot = sns.boxplot(data=pd_feeding_0828, palette='tab10', showfliers=False)
+boxplot.set_title('')
+boxplot.set_xlabel('')
+boxplot.set_ylabel('Electrical Activity (mV)')
+
+means = pd_feeding_0828.mean()
+stds = pd_feeding_0828.std()
+Q3 = pd_feeding_0828.quantile(0.75)
+Q1 = pd_feeding_0828.quantile(0.25)
+IQR = Q3 - Q1
+whisker_top = Q3 + 1.5 * IQR
+
+for i in range(pd_feeding_0828.shape[1]):
+    # Find the maximum value within the whisker range for the current channel
+    whisker_val = whisker_top[i]
+    channel_data = pd_feeding_0828.iloc[:, i]
+    max_within_whisker = channel_data[channel_data <= whisker_val].max()
+
+    # Place the text above the top whisker or max value within the whisker range
+    plt.text(i, max_within_whisker + 0.2, f'Mean: {means[i]:.2f}\nSTD: {stds[i]:.2f}',
+             horizontalalignment='center', size='small', color='black', weight='semibold')
+plt.ylim(0,12)
+plt.show()
+#%% FREQUENCY HEATPLOT FIGURE 2 OF EGG RESULTS
+egg_freq_heatplot_v2(savgol_mean_0828, rate=fs_0828, xlim=[0,25200],seg_length=600,freq=[0.03,0.2],freqlim=[1,8], order=3,
+                            vrange=[0],figsize=(8,2),interpolation='bilinear',n=10, intermediate=False, mmc=False,
+                            max_scale=.8,norm=True,time='timestamps', textsize=12,
+                            skip_chan=[1,2,3,4,5,6,7])
 #%%
 seg_vmean_0828 = {}
 seg_vmean_0828 = segment_data(v_mean_0828, gap_size=30, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
@@ -203,39 +253,6 @@ signalplot(seg_savgol_0828[0],xlim=(380,560),spacer=50,vline=[420,479],freq=[0.0
                 output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%%
-q,r,v_abs_0828 = heatplot(seg_savgol_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,
-                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=16,vrange=[0,20],interpolation='bilinear',norm=True)
-
-v_abs_0828 = v_abs_0828.T
-pd_vabs_0828 = pd.DataFrame(v_abs_0828, columns=[f'Channel {i}' for i in range(8)])
-
-plt.figure(figsize=(12, 8))
-sns.set_palette('tab20')
-boxplot = sns.boxplot(data=pd_vabs_0828, palette='tab10', showfliers=False)
-boxplot.set_title('')
-boxplot.set_xlabel('')
-boxplot.set_ylabel('Electrical Activity (mV)')
-
-means = pd_vabs_0828.mean()
-stds = pd_vabs_0828.std()
-Q3 = pd_vabs_0828.quantile(0.75)
-Q1 = pd_vabs_0828.quantile(0.25)
-IQR = Q3 - Q1
-whisker_top = Q3 + 1.5 * IQR
-
-for i in range(pd_vabs_0828.shape[1]):
-    # Find the maximum value within the whisker range for the current channel
-    whisker_val = whisker_top[i]
-    channel_data = pd_vabs_0828.iloc[:, i]
-    max_within_whisker = channel_data[channel_data <= whisker_val].max()
-
-    # Place the text above the top whisker or max value within the whisker range
-    plt.text(i, max_within_whisker + 0.2, f'Mean: {means[i]:.2f}\nSTD: {stds[i]:.2f}',
-             horizontalalignment='center', size='small', color='black', weight='semibold')
-plt.ylim(0,12)
-plt.show()
-
-#%%
 egg_freq_heatplot_v2(seg_interp_0828[1], rate=fs_0828, xlim=[0,7800],seg_length=600,freq=[0.02,0.2],freqlim=[2,7],
                             vrange=[0],figsize=(10,14),interpolation='bilinear',n=5, intermediate=False,mmc=False,
                             max_scale=.6,norm=True,time='timestamps',
@@ -261,5 +278,60 @@ egg_signalfreq(savgol_mean_comp,rate=fs_0828,freqlim=[1,10],ylim=0,mode='power',
 #%%
 heatplot(seg_interp_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,rate=62.5, title='',skip_chan=[],figsize=(10,10),textsize=16,vrange=[0,40],interpolation='bilinear',norm=True)
 
+
+# %%
+q,r,v_feeding_0828 = heatplot(savgol_mean_0828,xlim=(0,4451),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+q,r,v_active_0828 = heatplot(savgol_mean_0828,xlim=(10976,13444),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+q,r,v_rest_0828 = heatplot(savgol_mean_0828,xlim=(17800,21212),spacer=0,vline=[],freq=[0.02,0.2],order=3,
+                    rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
+
+v_feeding_0828 = v_feeding_0828.T
+v_active_0828 = v_active_0828.T
+v_rest_0828 = v_rest_0828.T
+
+# Create a DataFrame for each category with a 'Category' column
+pd_feeding_0828 = pd.DataFrame(v_feeding_0828, columns=[f'Channel {i}' for i in range(8)])
+pd_feeding_0828['Category'] = 'Feeding'
+
+pd_active_0828 = pd.DataFrame(v_active_0828, columns=[f'Channel {i}' for i in range(8)])
+pd_active_0828['Category'] = 'Active'
+
+pd_rest_0828 = pd.DataFrame(v_rest_0828, columns=[f'Channel {i}' for i in range(8)])
+pd_rest_0828['Category'] = 'Rest'
+
+#  Combine the data into a single DataFrame
+combined_data = pd.concat([pd_feeding_0828, pd_active_0828, pd_rest_0828], ignore_index=True)
+
+# Melt the combined DataFrame so each row is a single observation
+melted_data = combined_data.melt(id_vars='Category', var_name='Channel', value_name='Electrical Activity (mV)')
+
+# Plot the boxplot for each category
+plt.figure(figsize=(12, 8))
+sns.set_palette('tab10')
+boxplot = sns.boxplot(x='Category', y='Electrical Activity (mV)', data=melted_data, showfliers=False, showmeans=True)
+boxplot.set_title('Boxplot of Absolute Amplitudes by Category')
+boxplot.set_xlabel('Category')
+boxplot.set_ylabel('Electrical Activity (mV)')
+
+# Calculate and annotate the overall mean and std for each category
+category_stats = melted_data.groupby('Category')['Electrical Activity (mV)'].agg(['mean', 'std'])
+category_stats = category_stats.sort_values('mean', ascending=False)
+
+# Get the x positions of the boxes to place the annotations correctly
+x_positions = range(len(category_stats))
+
+for x, (category, stats) in zip(x_positions, category_stats.iterrows()):
+    mean = stats['mean']
+    std = stats['std']
+    plt.text(x, mean + std + 0.1, f'Mean: {mean:.2f}\nSTD: {std:.2f}',
+             horizontalalignment='center', size='small', color='black', weight='semibold')
+
+# Set the y-limit to accommodate the annotations
+plt.ylim(0, 6)
+plt.show()
 
 # %%
