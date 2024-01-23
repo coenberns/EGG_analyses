@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
 import timeit
 import time
 import cProfile
@@ -22,7 +21,7 @@ import seaborn as sns
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
 from functions_read_bursts import*
-from Plot_EGG import*
+from Old_Plot_EGG import*
 
 # %% IMPORT OLD MEASUREMENT - LOOK AT SETTINGS ETC
 file0= r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Old pig\2022.07.19_Full.txt"

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, time
 import pathlib 
-from Plot_EGG import*
+from Old_Plot_EGG import*
 import time
 import os
 from functions_read_bursts import *

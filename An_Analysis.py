@@ -7,7 +7,7 @@ Created on Tue Feb  7 15:05:12 2023
 
 import sys
 sys.path.append('C:/Users/seany/Dropbox/Langer Lab/Data/EGG_Data_Repository/')
-from Plot_EGG import * 
+from Old_Plot_EGG import * 
 import scipy.signal as sig
 import os
 #%%

@@ -215,7 +215,6 @@ seg1s = seg_savgol_0814[0][datcols]
 freqfig1s, _, freqs1s = egg_signalfreq(seg1s,rate=fs_0814,freqlim=[2,10],ylim=0,mode='power',ylog=False,xlog=False,
                clip=False,labels=[],figsize=(10,20),vline=[],vline_color='black',textsize=12,name_dict={})
 
-
 #%%
 seg2 = seg_interp_0814[1][datcols]
 

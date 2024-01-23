@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
 import timeit
 import time
 import cProfile
@@ -23,7 +22,7 @@ import seaborn as sns
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
 from functions_read_bursts import*
-from Plot_EGG import*
+from Old_Plot_EGG import*
 
 #%%
 file_pt1=r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\08282023 second - straight measurement mode 2\08282023_firstpartambu_noglitch.txt"

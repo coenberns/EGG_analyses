@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta
 import os
-from Plot_EGG import*
+from Old_Plot_EGG import*
 # from Plot_EGG_adaptation import*
 
 file = r"C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2/08282023_1plushours-daytime1.txt"

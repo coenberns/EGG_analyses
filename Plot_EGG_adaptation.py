@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Oct 21 15:42:42 2021
+Created on 08/20/2023
 
-@author: seany
+@author: coenberns
 """
 import pandas as pd
 import numpy as np
@@ -655,9 +655,9 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
             ax.set_xlabel('Frequency (cycles/hr)')
         else:    
             ax.set_xlabel('Frequency (cycles/min)', size=16)
+    ax.set_xticklabels(size=14)
+    ax.set_yticklabels(size=14)
     fig.align_ylabels()
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.tick_params(axis='both', which='minor', labelsize=16)
     freq_power_chan = np.concatenate(([x], dlist), axis=0)
     if clip: 
         freq_power_chan = freq_power_chan[:, loc]

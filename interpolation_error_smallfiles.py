@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
 import timeit
 import time
 import cProfile
@@ -27,7 +26,7 @@ from scipy import signal
 from filterpy.kalman import KalmanFilter
 import pywt
 from functions_read_bursts import*
-from Plot_EGG import*
+from Old_Plot_EGG import*
 
 #%%
 def averaging_bursts(df, n_burst=5, sleep_ping=1):

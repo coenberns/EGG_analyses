@@ -14,7 +14,7 @@ import numpy as np
 import datetime as dt
 from scipy.interpolate import CubicSpline
 import re
-from Plot_EGG import*
+from Old_Plot_EGG import*
 import sys
 
 def read_shimmer(file,time_loc=0):

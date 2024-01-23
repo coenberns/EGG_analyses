@@ -104,7 +104,7 @@ savgol_mean_0828 = savgol_filt(interp_mean_0828)
 #%% For the behavioral label data
 egg_data = butter_filter(savgol_mean_0828, fs=times_0828['effective_rate'], low_freq=0.02, high_freq=0.2)
 
-#%% Plotting the savgol_mean complete part of the recording
+#%% Plotting the savgol_mean complete part of the recording with lines for ambulation and feeding/drinking
 sns.set_palette('tab10')
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 fs_0828=times_0828['effective_rate']
@@ -115,6 +115,16 @@ signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,134
             rate=fs_0828, title='',skip_chan=[],
             figsize=(10,10),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#%% MMC First larger recording
+a,b,c_0828 = signalplot_hrs(savgol_mean_0828,xlim=(),spacer=100,vline=[],
+           freq=[0.0001,0.0005],order=3, rate=fs_0828, title='',skip_chan=[0,1,2],
+            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+a1,b1,c2_0828 = egg_signalfreq(c_0828, rate=fs_0828, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
+                                figsize=(8,8))
+
 
 #%% HEATPLOT AND BOOXPLOTS FOR Figure 2
 q,r,v_feeding_0828 = heatplot(savgol_mean_0828,xlim=(0,4451),spacer=0,vline=[],freq=[0.02,0.2],order=3,
@@ -279,7 +289,7 @@ egg_signalfreq(savgol_mean_comp,rate=fs_0828,freqlim=[1,10],ylim=0,mode='power',
 heatplot(seg_interp_0828[0],xlim=(0,3000),spacer=0,vline=[],freq=[0.02,0.2],order=3,rate=62.5, title='',skip_chan=[],figsize=(10,10),textsize=16,vrange=[0,40],interpolation='bilinear',norm=True)
 
 
-# %%
+# %% Different characteristic states 
 q,r,v_feeding_0828 = heatplot(savgol_mean_0828,xlim=(0,4451),spacer=0,vline=[],freq=[0.02,0.2],order=3,
                     rate=fs_0828, title='',skip_chan=[],figsize=(10,10),textsize=24,vrange=[0,15],interpolation='bilinear',norm=True)
 
@@ -301,7 +311,7 @@ pd_active_0828 = pd.DataFrame(v_active_0828, columns=[f'Channel {i}' for i in ra
 pd_active_0828['Category'] = 'Active'
 
 pd_rest_0828 = pd.DataFrame(v_rest_0828, columns=[f'Channel {i}' for i in range(8)])
-pd_rest_0828['Category'] = 'Rest'
+pd_rest_0828['Category'] = 'Inactive'
 
 #  Combine the data into a single DataFrame
 combined_data = pd.concat([pd_feeding_0828, pd_active_0828, pd_rest_0828], ignore_index=True)
@@ -310,28 +320,110 @@ combined_data = pd.concat([pd_feeding_0828, pd_active_0828, pd_rest_0828], ignor
 melted_data = combined_data.melt(id_vars='Category', var_name='Channel', value_name='Electrical Activity (mV)')
 
 # Plot the boxplot for each category
-plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 6))
 sns.set_palette('tab10')
 boxplot = sns.boxplot(x='Category', y='Electrical Activity (mV)', data=melted_data, showfliers=False, showmeans=True)
-boxplot.set_title('Boxplot of Absolute Amplitudes by Category')
-boxplot.set_xlabel('Category')
-boxplot.set_ylabel('Electrical Activity (mV)')
+boxplot.set_xlabel('Characteristic state', size=18)
+boxplot.set_ylabel('Electrical Activity (mV)', size= 18)
 
-# Calculate and annotate the overall mean and std for each category
-category_stats = melted_data.groupby('Category')['Electrical Activity (mV)'].agg(['mean', 'std'])
-category_stats = category_stats.sort_values('mean', ascending=False)
+# Calculate the quartiles and IQR for each category
+category_stats = melted_data.groupby('Category')['Electrical Activity (mV)'].agg(['mean', 'std', lambda x: x.quantile(0.75), lambda x: x.quantile(0.25)])
+category_stats['IQR'] = category_stats.apply(lambda row: row['<lambda_0>'] - row['<lambda_1>'], axis=1)
 
-# Get the x positions of the boxes to place the annotations correctly
-x_positions = range(len(category_stats))
+# Sort categories based on the mean to match the order in the boxplot
+category_stats_sorted = category_stats.sort_values('mean', ascending=False)
 
-for x, (category, stats) in zip(x_positions, category_stats.iterrows()):
-    mean = stats['mean']
-    std = stats['std']
-    plt.text(x, mean + std + 0.1, f'Mean: {mean:.2f}\nSTD: {std:.2f}',
-             horizontalalignment='center', size='small', color='black', weight='semibold')
+# Annotate the overall mean and std for each category
+for i, (idx, row) in enumerate(category_stats_sorted.iterrows()):
+    # Calculate the whisker value based on Q3 + 1.5 * IQR
+    whisker_cap = row['<lambda_0>'] + 1.5 * row['IQR']
+    
+    # Get the max data point within the whisker cap for the category
+    max_within_whisker = melted_data[
+        (melted_data['Category'] == idx) &
+        (melted_data['Electrical Activity (mV)'] <= whisker_cap)
+    ]['Electrical Activity (mV)'].max()
 
-# Set the y-limit to accommodate the annotations
-plt.ylim(0, 6)
+    # Position the text above the whisker or max value within the whisker range
+    plt.text(i, max_within_whisker + 0.1, f'Mean: {row["mean"]:.2f}\nSTD: {row["std"]:.2f}',
+             horizontalalignment='center', size='x-small', color='black', weight='semibold')
+plt.yticks(size=16)
+plt.xticks(size=16)
+plt.ylim(0, 7)
 plt.show()
+
+# %%
+categories = ['Category'] + [f'Channel {i}' for i in range(8)]
+filtered_0828 = egg_beh_data
+filtered_0828 = filtered_0828[categories]
+for i in range(8):
+    channel = [f'Channel {i}']
+    filtered_0828[channel]=np.absolute(filtered_0828[channel])
+
+#%% PLOTTING AVERAGE OVER ALL CHANNELS PER CATEGORY
+filtered_0828['mean_abs_volt'] = filtered_0828[[f'Channel {i}' for i in range(8)]].mean(axis=1)
+
+# Now, we can create a new DataFrame that contains these means per category
+means_per_category = filtered_0828[['Category', 'mean_abs_volt']]
+category_stats = filtered_0828.groupby('Category')['mean_abs_volt'].agg(['mean', 'std'])
+category_stats = category_stats.sort_values('mean')
+
+# Calculate the quartiles and IQR for the mean electrical activity within each category.
+category_stats['Q3'] = filtered_0828.groupby('Category')['mean_abs_volt'].quantile(0.75)
+category_stats['Q1'] = filtered_0828.groupby('Category')['mean_abs_volt'].quantile(0.25)
+category_stats['IQR'] = category_stats['Q3'] - category_stats['Q1']
+
+# Plot the boxplot
+plt.figure(figsize=(8, 6))
+boxplot = sns.boxplot(x='Category', y='Mean Electrical Activity (mV)', data=filtered_0828, showfliers=False,
+                        order=['Inactive', 'Active', 'Feeding/Drinking'])
+plt.xlabel('Category',size=18)
+plt.ylabel('Average Electrical Activity (mV)',size=18)
+plt.xticks(size=16)
+plt.yticks(size=16)
+
+#  Add the annotations above the highest whisker
+for i, (category, row) in enumerate(category_stats.iterrows()):
+    # Calculate the whisker top end
+    whisker_top_end = row['Q3'] + 1.5 * row['IQR']
+    # Make sure the whisker top end doesn't exceed the max value
+    max_value = filtered_0828[filtered_0828['Category'] == category]['Mean Electrical Activity (mV)'].max()
+    whisker_top_end = min(whisker_top_end, max_value)
+    # Annotate with mean and standard deviation
+    plt.text(i, whisker_top_end+0.05, f"Mean: {row['mean']:.2f}\nSTD: {row['std']:.2f}", weight='semibold', 
+             horizontalalignment='center', size=14, verticalalignment='bottom', color='black')
+
+plt.ylim(-.2, 5.7)
+plt.show()
+
+# %% 
+short = ['Category'] + [f'Channel {i}' for i in range(8)]
+egg_beh_data_short = egg_beh_data[short]
+for i in range(8):
+    channel = [f'Channel {i}']
+    egg_beh_data_short[channel] = np.absolute(egg_beh_data_short[channel])
+plottable = egg_beh_data_short.groupby('Category').mean()
+plottable_rest=plottable.reset_index()
+plottable_long = pd.melt(plottable_rest, id_vars='Category', var_name='Channel', value_name='Average Activity')
+plottable_long['Channel'] = plottable_long['Channel'].str.extract('(\d+)').astype(int)
+
+
+plottable_long.sort_values(['Category', 'Average Activity'])
+# Create the barplot with sorted data
+plt.figure(figsize=(12, 6))
+sns.set_palette('tab10')
+barplot = sns.barplot(x='Channel', y='Average Activity', hue='Category', data=plottable_long, hue_order=['Inactive','Active','Feeding/Drinking'], alpha=1)
+barplot.set_xlabel('Channel', size=18)
+barplot.set_ylabel('Average Electrical Activity (mV)', size=18)
+barplot.set_xticklabels(barplot.get_xticklabels(), rotation=0)  # Remove rotation if you prefer
+
+# Show the legend
+plt.legend(title='Category')
+plt.xticks(size=16)
+plt.yticks(size=16)
+plt.ylim(0,3 )
+plt.legend(prop={'size': 16})
+
+# Set the x-tick labels to be just the channel numbers
 
 # %%

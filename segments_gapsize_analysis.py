@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
+from Old_Plot_EGG import*
 import timeit
 import time
 import cProfile
@@ -23,7 +23,7 @@ from sklearn.metrics import mean_absolute_error as mae
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
 from functions_read_bursts import*
-from Plot_EGG import*
+from Old_Plot_EGG import*
 
 #%%
 #Mac

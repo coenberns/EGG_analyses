@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
+from Plot_EGG_adaptation import*
 import timeit
 import time
 import cProfile
@@ -26,7 +26,6 @@ from scipy.interpolate import UnivariateSpline as univsp
 from scipy.signal import savgol_filter
 from filterpy.kalman import KalmanFilter
 from functions_read_bursts import*
-from Plot_EGG import*
 
 
 #%%
