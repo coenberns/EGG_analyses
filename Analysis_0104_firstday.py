@@ -101,7 +101,7 @@ signalplot(savgol_mean_0104,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
 
 #%% Signal plot for potential MMC recordings? Looks interesting
 a,b,c_0104 = signalplot_hrs(savgol_mean_0104,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
-            rate=fs_0104, title='',skip_chan=[3,4,5],
+            rate=fs_0104, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 

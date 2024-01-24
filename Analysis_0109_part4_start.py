@@ -64,12 +64,9 @@ v_fulldat2_0109 = v_fulldat_0109
 burst_length = 6
 channels = [f'Channel {i}' for i in range(8)]
 
-def nanmean(series):
-    return np.nanmean(series)
-
 # Apply the custom function for averaging
 for channel in channels:
-    v_fulldat2_0109[channel] = v_fulldat2_0109.groupby('burst_group')[channel].transform(nanmean)
+    v_fulldat2_0109[channel] = v_fulldat2_0109.groupby('burst_group')[channel].transform('mean')
 
 # Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
 for col in ['elapsed_s', 'corrected_realtime']:
@@ -89,12 +86,24 @@ interp_mean_0109 = interpolate_data(v_mean_0109, cycle_time=times_0109['t_cycle'
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0109 = savgol_filt(interp_mean_0109)
 
-#%%
-fs = times_0109['effective_rate']
+#%% General plot in slow wave frequencies
+fs_0109 = times_0109['effective_rate']
 signalplot(savgol_mean_0109,xlim=(),spacer=250,vline=[],freq=[0.02,0.2],order=3,
-            rate=fs, title='',skip_chan=[],
+            rate=fs_0109, title='',skip_chan=[],
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#%% Signal plot for potential MMC recordings? Looks interesting
+a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
+            rate=fs_0109, title='',skip_chan=[0,1,2],
+            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#%% Plotting its power density for low frequencies. Clear view of MMC 
+a1,b1,c2_0109 = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
+                                figsize=(8,8))
+
+
 
 #%%
 # egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 
