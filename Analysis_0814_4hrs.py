@@ -59,6 +59,20 @@ v_mean_0814 = v_fulldat2_0814[v_fulldat2_0814['packet_miss_idx'] % burst_length 
 #Take into account larger gaps and pchip interpolation over them
 interp_mean_0814 = interpolate_data(v_mean_0814, cycle_time=times_0814['t_cycle'],pchip=True)
 savgol_mean_0814 = savgol_filt(interp_mean_0814, window=3,polyorder=1)
+
+#%% MMC plots for the first recording
+fs_0814=times_0814['effective_rate']
+t_cycle_0814 = times_0814['t_cycle']
+datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
+
+a,b,c_0814 = signalplot_hrs(savgol_mean_0814,xlim=(0,3),spacer=200,vline=[],
+           freq=[0.0001,0.005],order=3, rate=fs_0814, title='',skip_chan=[0,1,2],
+            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+a1,b1,c2_0814 = egg_signalfreq(c_0814, rate=fs_0814, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
+                                figsize=(8,8))
+
 #%%
 
 seg_vmean_0814 = {}
@@ -70,9 +84,7 @@ seg_filtered_0814={}
 seg_savgol_0814={}
 seg_combi_0814={}
 # seg_smooth={}
-fs_0814=times_0814['effective_rate']
-t_cycle_0814 = times_0814['t_cycle']
-datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
+
 
 for i in range(len(seg_vmean_0814)):
         seg_interp_0814[i] = interpolate_data(seg_vmean_0814[i],cycle_time=t_cycle_0814, max_gap=15, rescale=True)

@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Plot_EGG import*
 import timeit
 import time
 import cProfile
@@ -23,6 +22,7 @@ from sklearn.metrics import mean_absolute_error as mae
 
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
+import Old_Plot_EGG as oldEGG
 from functions_read_bursts import*
 from Plot_EGG_adaptation import*
 
@@ -78,6 +78,18 @@ interp_mean_0829 = interpolate_data(v_mean_0829, cycle_time=times_0829['t_cycle'
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0829 = savgol_filt(interp_mean_0829)
+
+#%%
+fs_0829=times_0829['effective_rate']
+datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
+a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(0,3),spacer=200,vline=[],
+           freq=[0.0001,0.02],order=3, rate=fs_0829, title='',skip_chan=[0,1,2],
+            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+a1,b1,c2_0814 = egg_signalfreq(c_0829, rate=fs_0829, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
+                                figsize=(8,8))
+
 #%%
 seg_vmean_0829 = {}
 seg_vmean_0829 = segment_data(v_mean_0829, gap_size=14, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
@@ -86,8 +98,7 @@ print_segment_info(seg_vmean_0829)
 seg_interp_0829={}
 seg_filtered_0829={}
 seg_savgol_0829={}
-fs=times_0829['effective_rate']
-datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
+
 
 for i in range(len(seg_vmean_0829)):
         seg_interp_0829[i] = interpolate_egg_v3(seg_vmean_0829[i], method='cubicspline', time=False)

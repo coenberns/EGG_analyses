@@ -22,6 +22,7 @@ from sklearn.metrics import mean_absolute_error as mae
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
 from functions_read_bursts import*
+import Old_Plot_EGG as oldEGG
 from Plot_EGG_adaptation import*
 
 #%% Dir selection
@@ -84,7 +85,7 @@ v_mean_0104 = v_fulldat2_0104[v_fulldat2_0104['packet_miss_idx'] % burst_length 
 #%%
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
 #Does take a considerable amount of time....
-interp_mean_0104 = interpolate_data(v_mean_0104, cycle_time=times_0104['t_cycle'])
+interp_mean_0104 = interpolate_data(v_mean_0104, cycle_time=times_0104['t_cycle'], pchip=True)
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0104 = savgol_filt(interp_mean_0104)
@@ -98,10 +99,9 @@ signalplot(savgol_mean_0104,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-#%%
-#Signal plot for potential MMC recordings? Looks interesting
-a,b,c_0104 = signalplot_hrs(savgol_mean_0104,xlim=(),spacer=100,vline=[],freq=[0.0001,0.0005],order=3,
-            rate=fs_0104, title='',skip_chan=[0,1,2],
+#%% Signal plot for potential MMC recordings? Looks interesting
+a,b,c_0104 = signalplot_hrs(savgol_mean_0104,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
+            rate=fs_0104, title='',skip_chan=[3,4,5],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
@@ -110,8 +110,8 @@ a1,b1,c2_0104 = egg_signalfreq(c_0104, rate=fs_0104, freqlim=[0.001*60,0.08*60],
                                 figsize=(8,8))
 
 #%% Looking at dominant frequencies?
-egg_freq_heatplot_v2(savgol_mean_0104,rate=fs_0104,xlim=[0,36000], freq=[0.0001,0.01], seg_length=8000,mmc=True, 
-                        freqlim=[0.00001,0.08],time='timestamps', max_scale=.8, n=20, norm=True, skip_chan=[], figsize=(10,15))
+oldEGG.egg_freq_heatplot_v2(savgol_mean_0104,rate=fs_0104,xlim=[0,36000], freq=[0.0001,0.01], seg_length=6000, 
+                        freqlim=[0.00001,0.08],time='timestamps', max_scale=.8, n=10, norm=True, skip_chan=[], figsize=(10,15))
 #%%
 # egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 
 #                         freqlim=[1,8],time='timestamps', max_scale=.8, n=5)

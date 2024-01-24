@@ -116,13 +116,13 @@ signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,134
             figsize=(10,10),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-#%% MMC First larger recording
-a,b,c_0828 = signalplot_hrs(savgol_mean_0828,xlim=(),spacer=100,vline=[],
-           freq=[0.0001,0.0005],order=3, rate=fs_0828, title='',skip_chan=[0,1,2],
+#%% MMC First part larger recording S1
+a,b,c_0828 = signalplot_hrs(savgol_mean_0828,xlim=(),spacer=200,vline=[],
+           freq=[0.0001,0.2],order=3, rate=fs_0828, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-a1,b1,c2_0828 = egg_signalfreq(c_0828, rate=fs_0828, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
+a1,b1,c2_0828 = egg_signalfreq(c_0828, rate=fs_0828, freqlim=[0.001*60,0.125*60], mode='power', vline=[0.25,1.33],mmc=True,
                                 figsize=(8,8))
 
 
