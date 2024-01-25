@@ -103,12 +103,6 @@ a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(),spacer=100,vline=[],freq=[0
 a1,b1,c2_0109 = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
                                 figsize=(8,8))
 
-
-
-#%%
-# egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 
-#                         freqlim=[1,8],time='timestamps', max_scale=.8, n=5)
-
 #%%
 seg_vmean_0109 = {}
 seg_vmean_0109 = segment_data(v_mean_0109, gap_size=60, seg_length=1000, window=100, min_frac=0.6, window_frac=0.2, rescale=True)

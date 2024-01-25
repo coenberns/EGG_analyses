@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from scipy import fftpack
 from scipy.interpolate import interp1d
 from matplotlib.offsetbox import AnchoredOffsetbox
+# import pyplot as pyplot
+# import peakutils as peakutils
 import re
 from scipy.interpolate import CubicSpline
 def read_egg_v2(file,channels=1,header=7,rate=32):
@@ -622,6 +624,10 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
             current_ax = ax
         else:
             current_ax = ax[dat.shape[1]-1-i]
+        current_ax.tick_params(axis='x', labelsize=15)
+        current_ax.tick_params(axis='y', labelsize=15)
+        current_ax.yaxis.get_offset_text().set_fontsize(14)        
+
         current_ax.ticklabel_format(axis='y', scilimits=(0, 0))
         current_ax.stem(x[loc], np.abs(dlist[i-1])[loc])
         # Handle labels
@@ -647,22 +653,20 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
     if not single_channel:
         ax[dat.shape[1]-9].set_title(title)
         if mmc:
-            ax[dat.shape[1]-2].set_xlabel('Frequency (1/hr)')
+            ax[dat.shape[1]-2].set_xlabel('Frequency (1/hr)', size=16)
         else:     
             ax[dat.shape[1]-2].set_xlabel('Frequency (1/mins)', size=16)  # Bottom graph label
     else:
         if mmc:
-            ax.set_xlabel('Frequency (cycles/hr)')
+            ax.set_xlabel('Frequency (1/hr)', size=16)
         else:    
-            ax.set_xlabel('Frequency (cycles/min)', size=16)
-    ax.set_xticklabels(size=14)
-    ax.set_yticklabels(size=14)
+            ax.set_xlabel('Frequency (1/min)', size=16)
     fig.align_ylabels()
     freq_power_chan = np.concatenate(([x], dlist), axis=0)
     if clip: 
         freq_power_chan = freq_power_chan[:, loc]
     return fig, ax, freq_power_chan
-
+#%%
 def egg_freq_heatplot(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.02,0.2],freqlim=[1,10],vrange=[0],figsize=(10,20),interpolation='bilinear',n=10, intermediate=False,max_scale=.4,norm=True,time='timestamps'):
     '''
 
@@ -688,13 +692,6 @@ def egg_freq_heatplot(dat, rate=62.5, xlim=[0,10000],seg_length=500,freq=[0.02,0
         Interpolation passed to imshow. The default is 'bilinear'.
     n : uint, optional
         Overlap between segments, used for smoothness but slows down calcuation. The default is 10.
-    intermediate : bool, optional
-        Flag to generate intermediate plots (memory inefficient). The default is 'no'.
-    max_scale : float, optional
-        imshow max as a function of global max in the data. The default is .4.
-    norm : bool, optional
-        Flag to normalize frequency data between segments. The default is 'yes'.
-
     Returns
     -------
     None.

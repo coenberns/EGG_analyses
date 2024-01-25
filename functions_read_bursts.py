@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, time
 import pathlib 
-from Plot_EGG import*
+from Old_Plot_EGG import*
 from scipy.signal import butter, filtfilt, savgol_filter
 from filterpy.kalman import KalmanFilter
 import pywt
