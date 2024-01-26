@@ -64,12 +64,9 @@ v_fulldat2_0111 = v_fulldat_0111
 burst_length = 6
 channels = [f'Channel {i}' for i in range(8)]
 
-def nanmean(series):
-    return np.nanmean(series)
-
 # Apply the custom function for averaging
 for channel in channels:
-    v_fulldat2_0111[channel] = v_fulldat2_0111.groupby('burst_group')[channel].transform(nanmean)
+    v_fulldat2_0111[channel] = v_fulldat2_0111.groupby('burst_group')[channel].transform('mean')
 
 # Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
 for col in ['elapsed_s', 'corrected_realtime']:
@@ -79,7 +76,7 @@ for col in ['elapsed_s', 'corrected_realtime']:
 v_mean_0111 = v_fulldat2_0111[v_fulldat2_0111['packet_miss_idx'] % burst_length == 0]
 # v_mean_0111 = averaging_bursts(v_fulldat_0111,n_burst=5, sleep_ping=1)
 
-#%%
+#%% PROBABLY THIS RECORDING IS QUITE USELESS SINCE IT WAS DURING MOVING OF THE PIG
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
 #Does take a considerable amount of time....
 interp_mean_0111 = interpolate_data(v_mean_0111, cycle_time=times_0111['t_cycle'])
@@ -88,11 +85,21 @@ interp_mean_0111 = interpolate_data(v_mean_0111, cycle_time=times_0111['t_cycle'
 savgol_mean_0111 = savgol_filt(interp_mean_0111)
 
 #%%
-fs = times_0111['effective_rate']
+fs_0111 = times_0111['effective_rate']
 signalplot(savgol_mean_0111,xlim=(),spacer=50,vline=[],freq=[0.02,0.2],order=3,
-            rate=fs, title='',skip_chan=[],
+            rate=fs_0111, title='',skip_chan=[],
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#%% MMC - no valuable data
+a_0111,b_0111,c_0111 = signalplot_hrs(savgol_mean_0111,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
+            rate=fs_0111, title='',skip_chan=[0,1,2],
+            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#%% Plotting its power density for low frequencies. Clear view of MMC 
+a2_0111,b2_0111,c2_0111 = egg_signalfreq(c_0111, rate=fs_0111, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1.33],mmc=True,
+                                figsize=(8,8))
 
 #%%
 # egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 

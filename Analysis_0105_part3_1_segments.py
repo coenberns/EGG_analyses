@@ -61,6 +61,11 @@ v_compact_0105, v_fulldat_0105, times_0105 =read_egg_v3_bursts(file_0105,
                                                 sleep_time=1.84,
                                                 t_deviation=0.2)
 
+if times_0105['t_cycle'] < 2 and times_0105['t_cycle'] > 1.9:
+    print('Cycling time is okay')
+else:
+    print('FUCK')
+
 #%%
 v_fulldat2_0105 = v_fulldat_0105
 burst_length = 6
@@ -100,25 +105,25 @@ signalplot(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Signal plot for potential MMC recordings? Looks interesting
-a,b,c_0105 = signalplot_hrs(savgol_mean_0105,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
+a,b,c_0105 = signalplot_hrs(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0.0001,0.02],order=3,
             rate=fs_0105, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Plotting its power density for low frequencies. Clear view of MMC 
-a1,b1,c2_0105 = egg_signalfreq(c_0105, rate=fs_0105, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
+a1,b1,c2_0105 = egg_signalfreq(c_0105, rate=fs_0105, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
                                 figsize=(8,8))
 
 #%% Looking at dominant frequencies?
 oldEGG.egg_freq_heatplot_v2(savgol_mean_0105,rate=fs_0105,xlim=[0,36000], freq=[0.0001,0.01], seg_length=6000, 
-                        freqlim=[0.00001,0.08],time='timestamps', max_scale=.8, n=10, norm=True, skip_chan=[], figsize=(10,15))
+                        freqlim=[0.00001,0.1],time='timestamps', max_scale=.8, n=10, norm=True, skip_chan=[], figsize=(10,15))
 #%%
 # egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 
 #                         freqlim=[1,8],time='timestamps', max_scale=.8, n=5)
 
 #%%
 seg_vmean_0105 = {}
-seg_vmean_0105 = segment_data(v_mean_0105, gap_size=15, seg_length=1000, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
+seg_vmean_0105 = segment_data(v_mean_0105, gap_size=600, seg_length=4000, window=1000, min_frac=0.3, window_frac=0.2, rescale=True)
 print_segment_info(seg_vmean_0105)
 
 #%%
@@ -126,10 +131,11 @@ seg_interp_0105={}
 seg_filtered_0105={}
 seg_savgol_0105={}
 fs_0105=times_0105['effective_rate']
+t_cycle_0105 = times_0105['t_cycle']
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 
 for i in range(len(seg_vmean_0105)):
-        seg_interp_0105[i] = interpolate_egg_v3(seg_vmean_0105[i], method='cubicspline', time=False, rescale=True)
+        seg_interp_0105[i] = interpolate_data(seg_vmean_0105[i], cycle_time=t_cycle_0105, max_gap=14)
         seg_filtered_0105[i]=butter_filter(seg_interp_0105[i], low_freq=0.02, high_freq=0.2, fs=fs_0105)
         seg_savgol_0105[i]=savgol_filt(seg_interp_0105[i], window=3,polyorder=1,deriv=0,delta=1)
 
@@ -149,23 +155,19 @@ signalplot(seg_savgol_0105[3],xlim=(),spacer=50,vline=[],freq=[0.02,0.2],order=3
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 # %% Segment for segment heatplotting
-egg_freq_heatplot_v2(seg_savgol_0105[0],rate=times_0105['effective_rate'],xlim=[0,3600], freq=[0.02,0.2], seg_length=400, 
-                        freqlim=[1,8],time='timestamps', max_scale=.8, n=10)
+egg_freq_heatplot_v2(seg_savgol_0105[0],rate=times_0105['effective_rate'],xlim=[0,9600], freq=[0.02,0.2], seg_length=600, 
+                        freqlim=[1,8],time='timestamps', max_scale=.7, n=10)
 
 # %% Segment for segment heatplotting
-egg_freq_heatplot_v2(seg_savgol_0105[1],rate=times_0105['effective_rate'],xlim=[0,2400], freq=[0.02,0.2], seg_length=400, 
+egg_freq_heatplot_v2(seg_savgol_0105[1],rate=times_0105['effective_rate'],xlim=[0,9600], freq=[0.02,0.2], seg_length=600, 
                         freqlim=[1,8],time='timestamps', max_scale=.8, n=5)
 
 # %% Segment for segment heatplotting
-egg_freq_heatplot_v2(seg_savgol_0105[2],rate=times_0105['effective_rate'],xlim=[0,3600], freq=[0.02,0.2], seg_length=400, 
+egg_freq_heatplot_v2(seg_savgol_0105[2],rate=times_0105['effective_rate'],xlim=[0,8400], freq=[0.02,0.2], seg_length=600, 
                         freqlim=[1,8],time='timestamps', max_scale=.8, n=10)
 
 # %% Segment for segment heatplotting
-egg_freq_heatplot_v2(seg_savgol_0105[3],rate=times_0105['effective_rate'],xlim=[0,3600], freq=[0.02,0.2], seg_length=400, 
-                        freqlim=[1,8],time='timestamps', max_scale=.8, n=10)
-
-# %% Segment for segment heatplotting
-egg_freq_heatplot_v2(seg_savgol_0105[4],rate=times_0105['effective_rate'],xlim=[0,8000], freq=[0.02,0.2], seg_length=400, 
+egg_freq_heatplot_v2(seg_savgol_0105[3],rate=times_0105['effective_rate'],xlim=[0,13200], freq=[0.02,0.2], seg_length=600, 
                         freqlim=[1,8],time='timestamps', max_scale=.8, n=10)
 
 # %%

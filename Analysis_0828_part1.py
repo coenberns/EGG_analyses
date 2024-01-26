@@ -64,7 +64,7 @@ print(f"File selected: {file_0828.name}")
 
 #%%
 #For the general read-in of data file
-v_compact_0828, v_fulldat_0828, times_0828 =read_egg_v3_bursts(file_0828,
+v_mean_0828, v_fulldat_0828, times_0828 =read_egg_v3_bursts(file_0828,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=300,
@@ -76,23 +76,23 @@ v_compact_0828, v_fulldat_0828, times_0828 =read_egg_v3_bursts(file_0828,
 
 
 #%%
-v_fulldat2_0828 = v_fulldat_0828
-burst_length = 6
-channels = [f'Channel {i}' for i in range(8)]
+# v_fulldat2_0828 = v_fulldat_0828
+# burst_length = 6
+# channels = [f'Channel {i}' for i in range(8)]
 
-# def nanmean(series):
-#     return np.nanmean(series)
+# # def nanmean(series):
+# #     return np.nanmean(series)
 
-# Apply the custom function for averaging
-for channel in channels:
-    v_fulldat2_0828[channel] = v_fulldat2_0828.groupby('burst_group')[channel].transform('mean')
+# # Apply the custom function for averaging
+# for channel in channels:
+#     v_fulldat2_0828[channel] = v_fulldat2_0828.groupby('burst_group')[channel].transform('mean')
 
-# Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
-for col in ['elapsed_s', 'corrected_realtime']:
-    v_fulldat2_0828[col] = v_fulldat2_0828.groupby('burst_group')[col].transform('first')
+# # Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
+# for col in ['elapsed_s', 'corrected_realtime']:
+#     v_fulldat2_0828[col] = v_fulldat2_0828.groupby('burst_group')[col].transform('first')
 
-# Filtering for the first packet of each burst
-v_mean_0828 = v_fulldat2_0828[v_fulldat2_0828['packet_miss_idx'] % burst_length == 0]
+# # Filtering for the first packet of each burst
+# v_mean_0828 = v_fulldat2_0828[v_fulldat2_0828['packet_miss_idx'] % burst_length == 0]
 
 #%%
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
@@ -118,11 +118,11 @@ signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,134
 
 #%% MMC First part larger recording S1
 a,b,c_0828 = signalplot_hrs(savgol_mean_0828,xlim=(),spacer=200,vline=[],
-           freq=[0.0001,0.2],order=3, rate=fs_0828, title='',skip_chan=[0,1,2],
+           freq=[0.0001,0.1],order=3, rate=fs_0828, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-a1,b1,c2_0828 = egg_signalfreq(c_0828, rate=fs_0828, freqlim=[0.001*60,0.125*60], mode='power', vline=[0.25,1.33],mmc=True,
+a1,b1,c2_0828 = egg_signalfreq(c_0828, rate=fs_0828, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
                                 figsize=(8,8))
 
 

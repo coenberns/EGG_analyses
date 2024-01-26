@@ -48,7 +48,8 @@ def read_behavior_data(folder, start_date, end_date, header=0, rate=14.93, scale
 #%%
 folder_path_all=r"D:\Boris observations\all_boris_48hrs_rec"
 folder_path_part1=r"D:\Boris observations\observations_part1_rec"
-files=glob.glob(os.path.join(folder_path_part1,'*'))
+folder_path_part2=r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Boris\Boris observations\08292023_part2rec_observations"
+files=glob.glob(os.path.join(folder_path_part2,'*'))
 print(files)
 behavior = read_behavior_data(files, start_date='2023-08-28', end_date='2023-08-30')
 # %%
@@ -100,20 +101,33 @@ eths = get_ethograms(behavior)
 
 
 # %%
-def update_category(current, new):
-    if new == 'Feeding/Drinking':
-        return new
-    elif current == 'Inactive' and new == 'Active':
-        return new
-    else:
+# def update_category(current, new):
+#     if new == 'Feeding/Drinking':
+#         return new
+#     elif current == 'Inactive' and new == 'Active':
+#         return new
+#     else:
+#         return current
+    
+def update_category(current, behavior, new_category):
+    if pd.isna(behavior):
+        # Return current category if behavior is NaN or None
         return current
+    elif behavior == 'Resting':
+        return 'Inactive'
+    elif new_category == 'Feeding/Drinking':
+        return new_category
+    elif current is None and new_category == 'Active':
+        return new_category
+    else:
+        return current if current is not None else 'Inactive'
 
 def mergeDataAndEthograms(egg_data, behavior_df):
     #Postprocessing out the 'Ambulation' behavior, since it is wrong
     behavior_df.loc[behavior_df['Behavior'] == 'Ambulation', 'Behavior'] = None
 
     egg_data['Behavior'] = None
-    egg_data['Category'] = 'Inactive'
+    egg_data['Category'] = None
     egg_data['beh_code'] = None
     egg_data['cat_code'] = None
 
@@ -127,8 +141,10 @@ def mergeDataAndEthograms(egg_data, behavior_df):
         # multiple behavior instances are concetenated to a list
         egg_data.loc[mask, 'Behavior'] = egg_data.loc[mask, 'Behavior'].apply(lambda x: x if isinstance(x, list) else [])
         egg_data.loc[mask, 'Behavior'] = egg_data.loc[mask, 'Behavior'].apply(lambda x: x + [row['Behavior']])
+        # egg_data.loc[mask, 'Category'] = egg_data.loc[mask, 'Category'].apply(
+        #     lambda current: update_category(current, row['Category']))
         egg_data.loc[mask, 'Category'] = egg_data.loc[mask, 'Category'].apply(
-            lambda current: update_category(current, row['Category']))
+            lambda current: update_category(current, row['Behavior'], row['Category']))
     # # # combine behaviors into a single string for each row
     # egg_data['Combined_Behavior'] = egg_data['Behavior'].apply(lambda x: ','.join(sorted(set(x))) if x else 'None')
 
@@ -137,6 +153,9 @@ def mergeDataAndEthograms(egg_data, behavior_df):
 
     # Redefine only the '' as Ambulation, since then the behavior was JUST ambulation
     egg_data['Combined_Behavior'] = egg_data['Combined_Behavior'].replace('', 'Ambulation')
+
+    #Replace the nan category of an '' behavior, so Ambulation with active category again
+    egg_data.loc[egg_data['Combined_Behavior'] == 'Ambulation', 'Category'] = 'Active'
 
     #factorization combined beh
     codes, uniques = pd.factorize(egg_data['Combined_Behavior'])
@@ -156,7 +175,7 @@ def mergeDataAndEthograms(egg_data, behavior_df):
 
     return egg_data, beh_code_map, cat_code_map
 
-egg_beh_data, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data, eths)
+egg_beh_data_part2, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data_longer, eths)
 
 
 # %%

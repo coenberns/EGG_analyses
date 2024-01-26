@@ -490,13 +490,27 @@ def read_egg_v3_bursts(file,
         'burst_times': burst_times
     }
 
-    datcols = ['timestamps', 'elapsed_s', 'packet_re_idx', 'packet_miss_idx'] + [f'Channel {i}' for i in range(8)]
-    v_compact = v_fulldat[datcols]
+    v_mean = v_fulldat.copy()
+    channels = [f'Channel {i}' for i in range(8)]
+
+    # Apply the custom function for averaging
+    for channel in channels:
+        v_mean[channel] = v_mean.groupby('burst_group')[channel].transform('mean')
+
+    # Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
+    for col in ['elapsed_s', 'corrected_realtime']:
+        v_mean[col] = v_mean.groupby('burst_group')[col].transform('first')
+
+    # Filtering for the first packet of each burst
+    v_mean = v_mean[v_mean['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
+
+    # datcols = ['timestamps', 'elapsed_s', 'packet_re_idx', 'packet_miss_idx'] + [f'Channel {i}' for i in range(8)]
+    # v_compact = v_fulldat[datcols]
 
     complete_end=time.time()
     print("The total function took: ", complete_end-complete_start, " to run")
 
-    return v_compact, v_fulldat, times
+    return v_mean, v_fulldat, times
 
 #%%
 # OLD FUNCTION WITHOUT TAKING ANOTHER VALUE FROM THE GROUP TO REPRESENT THE BURSTS VALUES

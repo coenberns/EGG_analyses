@@ -75,7 +75,8 @@ for col in ['elapsed_s', 'corrected_realtime']:
 # Filtering for the first packet of each burst
 v_mean_0109 = v_fulldat2_0109[v_fulldat2_0109['packet_miss_idx'] % burst_length == 0]
 
-
+if times_0109['t_cycle'] < 2:
+    print('Cycling time is okay')
 # v_mean_0105 = averaging_bursts(v_fulldat_0105,n_burst=5, sleep_ping=1)
 
 #%%
@@ -94,13 +95,13 @@ signalplot(savgol_mean_0109,xlim=(),spacer=250,vline=[],freq=[0.02,0.2],order=3,
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Signal plot for potential MMC recordings? Looks interesting
-a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(),spacer=100,vline=[],freq=[0.0001,0.01],order=3,
+a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(),spacer=300,vline=[],freq=[0.0001,0.01],order=3,
             rate=fs_0109, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Plotting its power density for low frequencies. Clear view of MMC 
-a1,b1,c2_0109 = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1],mmc=True,
+a1,b1,c2_0109 = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,.5,1.33],mmc=True,
                                 figsize=(8,8))
 
 #%%

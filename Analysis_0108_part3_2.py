@@ -89,7 +89,7 @@ savgol_mean_0108 = savgol_filt(interp_mean_0108)
 
 #%% General plot for slow wave signal
 fs_0108=times_0108['effective_rate']
-signalplot(savgol_mean_0108,xlim=(),spacer=100,vline=[],freq=[0.02,0.2],order=3,
+signalplot(savgol_mean_0108,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
             rate=fs_0108, title='',skip_chan=[],
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
@@ -97,7 +97,7 @@ signalplot(savgol_mean_0108,xlim=(),spacer=100,vline=[],freq=[0.02,0.2],order=3,
 #%% MMC Plot
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 a,b,c_0108 = signalplot_hrs(savgol_mean_0108,xlim=(0,30),spacer=200,vline=[],
-           freq=[0.0001,0.02],order=3, rate=fs_0108, title='',skip_chan=[0,1,2],
+           freq=[0.0001,0.01],order=3, rate=fs_0108, title='',skip_chan=[0,1,6],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
