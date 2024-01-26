@@ -81,6 +81,11 @@ savgol_mean_0829 = savgol_filt(interp_mean_0829)
 
 #%%
 fs_0829=times_0829['effective_rate']
+a,b,c = signalplot(savgol_mean_0829,xlim=(4.5*3600,5*3600),spacer=100,vline=[],
+           freq=[0.02,0.2],order=3, rate=fs_0829, title='',skip_chan=[],
+            figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+#%%
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(0,30),spacer=200,vline=[],
            freq=[0.0001,0.01],order=3, rate=fs_0829, title='',skip_chan=[0,1,2],

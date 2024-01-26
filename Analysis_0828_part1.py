@@ -109,7 +109,7 @@ sns.set_palette('tab10')
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 fs_0828=times_0828['effective_rate']
 t_cycle_0828 = times_0828['t_cycle']
-
+#%%
 signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,13444,15100,15513,16922,17800,21212,21956],
            freq=[0.02,0.2],order=3, line_params=['black', 2,'dashed'],
             rate=fs_0828, title='',skip_chan=[],

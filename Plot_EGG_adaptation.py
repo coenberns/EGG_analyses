@@ -2,8 +2,9 @@
 """
 Created on 08/20/2023
 
-@author: coenberns
+@author: coenberns - seanyou
 """
+#%%
 import pandas as pd
 import numpy as np
 import scipy as sp
@@ -16,6 +17,9 @@ from matplotlib.offsetbox import AnchoredOffsetbox
 # import peakutils as peakutils
 import re
 from scipy.interpolate import CubicSpline
+from matplotlib.ticker import ScalarFormatter
+
+#%%
 def read_egg_v2(file,channels=1,header=7,rate=32):
     """
     Data import for EGGv2. 
@@ -560,6 +564,15 @@ def rssiplot(dat,xlim=[0,0,0],figsize=(5,5),ylim=[-100,-20],textsize=16):
     return fig_an,ax_an
 
 #%%
+# Subclassing ScalarFormatter
+class CustomScalarFormatter(ScalarFormatter):
+    def __init__(self, useOffset=None, useMathText=None, useLocale=None):
+        super().__init__(useOffset=useOffset, useMathText=useMathText, useLocale=useLocale)
+        self.set_scientific(True)
+
+    def _set_format(self, vmin=None, vmax=None):  # Override function that sets the format of the ticks
+        self.format = "%1.0f"  # No decimal places
+
 def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,xlog=False,clip=False,mmc=False,labels=[],figsize=(10,20),title='',vline=[],vline_color='black',textsize=12,name_dict={}):
     '''
 
@@ -626,7 +639,8 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
             current_ax = ax[dat.shape[1]-1-i]
         current_ax.tick_params(axis='x', labelsize=15)
         current_ax.tick_params(axis='y', labelsize=15)
-        current_ax.yaxis.get_offset_text().set_fontsize(14)        
+        current_ax.yaxis.get_offset_text().set_fontsize(14) 
+        current_ax.yaxis.set_major_formatter(CustomScalarFormatter())
 
         current_ax.ticklabel_format(axis='y', scilimits=(0, 0))
         current_ax.stem(x[loc], np.abs(dlist[i-1])[loc])
