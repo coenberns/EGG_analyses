@@ -541,114 +541,6 @@ def averaging_bursts(df, n_burst=5, sleep_ping=1):
     df2 = df2[df2['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
     return df2
 
-
-
-# def averaging_bursts(df, n_burst=5, sleep_ping=1):
-#     df2 = df.copy()
-#     burst_length = n_burst + sleep_ping
-
-#     # Averaging for channel data
-#     for i in range(8):
-#         channel = f'Channel {i}'
-#         # Convert to numpy
-#         data = df2[channel].values
-#         # Calculate padding
-#         remainder = len(data) % (burst_length)
-#         padding_size = 0 if remainder == 0 else ((burst_length) - remainder)
-#         # Pad with nan
-#         padded_data = np.pad(data, (0, padding_size), constant_values=np.nan)
-#         # Reshape the data to have n_burst+sleep_ping values per row
-#         reshaped_data = padded_data.reshape(-1, (burst_length))
-#         # Compute the mean per row, ignoring nan's
-#         means = np.nanmean(reshaped_data, axis=1)
-#         # Repeat mean 6 times to get original shape back
-#         repeated_means = np.repeat(means, (burst_length))
-#         # Trim back to old length
-#         trimmed_means = repeated_means[:len(data)]
-#         # Assign to the voltage channels
-#         df2[channel] = trimmed_means
-
-#     # Select first valid value for 'corrected_realtime' and 'elapsed_s'
-#     for col in ['corrected_realtime', 'elapsed_s']:
-#         column_data = df2[col].to_numpy()
-#         # Calculate padding
-#         remainder = len(column_data) % burst_length
-#         padding_size = 0 if remainder == 0 else (burst_length - remainder)
-#         # Pad with the appropriate value (NaT for datetimes, NaN for floats)
-#         padding_value = -1 if col == 'corrected_realtime' else np.nan
-#         padded_data = np.pad(column_data, (0, padding_size), constant_values=padding_value)
-#         # Reshape the data to have burst_length values per row
-#         reshaped_data = padded_data.reshape(-1, burst_length)
-#         # Process each group to find the first valid value
-#         for group_idx, group in enumerate(reshaped_data):
-#             valid_value = next((x for x in group if not pd.isnull(x)), padding_value)
-#             # Assign the first valid value to the entire group
-#             reshaped_data[group_idx, :] = valid_value
-#         # Flatten the reshaped data and trim to the original length
-#         df2[col] = reshaped_data.flatten()[:len(df2[col])]
-
-#     # Filter to retain only the first packet of each burst
-#     df2 = df2[df2['packet_miss_idx'] % burst_length == 0]
-
-#     return df2
-
-
-#%%
-def calculate_time(file, date=None):
-
-    if date is None:
-        # get only the filename from the file path
-        file_path = pathlib.Path(file)
-        filename = file_path.name
-        # extract date from the filename
-        date = filename.split('_')[0]
-
-    # Creating datetime object
-    # which takes in "MMDDYYYY" like only US people write date order
-    date = datetime.strptime(date, '%m%d%Y')
-    dat = pd.read_csv(file, header=0, dtype=str, delimiter='|', names=[
-        'realtime', 'misc', 'packet', 'msg', 'rssi'])
-
-    dat = dat[~dat.rssi.str.contains('error')]
-    dat = dat[dat.misc.str.contains('0a')]
-    dat = dat.reset_index(drop=True)
-
-    counter = dat.packet.astype(int)
-    new_counter = [0]
-    for j, ele in enumerate(counter[1:]):
-        step = counter[j+1]-counter[j]
-        if step > 0:
-            new_counter.append(step+new_counter[j])
-        else:
-            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
-            #print('flip', step, 65536-counter[j]+counter[j+1])
-    abscounterseries = pd.Series(new_counter, name='packet_re_idx')
-
-    dat = pd.concat((dat, abscounterseries), axis=1)
-    
-    # Creating a datetime object from realtime, recalling it realtime (since it still is)
-    dat["realtime"] = dat["realtime"].str.strip()
-    dat["realtime"] = pd.to_datetime(dat["realtime"], format='%H:%M:%S.%f')
-    dat["realtime"] = dat["realtime"].apply(
-        lambda t: datetime.combine(date, t.time()))
-    # Check for date rollover and increment the date if necessary, with additional glitch values excluded
-    dat['time_diff'] = dat['realtime'].diff().dt.total_seconds()
-    dat['rollover'] = dat['time_diff'] < 0
-    dat['glitch'] = (dat['time_diff'] > -5) & (dat['rollover'])
-    dat['correct_rollover'] = dat['rollover'] & ~dat['glitch'] 
-    dat['days_to_add'] = dat['correct_rollover'].cumsum()
-    dat['corrected_realtime'] = dat['realtime'] + pd.to_timedelta(dat['days_to_add'], unit='D')
-    # dat['corrected_realtime'].interpolate(method='linear', inplace=True)
-
-    # probably delete this if timestamps values at end are close to elapsed_s
-    dat['elapsed_t'] = dat['corrected_realtime'] - dat['corrected_realtime'].iloc[0]
-    dat['elapsed_s'] = dat['elapsed_t'].dt.total_seconds()
-    t_elapsed = dat['elapsed_t'].max()
-    s_elapsed = dat['elapsed_s'].max()
-    print("The total time elapsed was: ", t_elapsed)
-
-    return dat, t_elapsed, s_elapsed
-
 # %%
 def plot_battery_temp(file, plot = False, bat = True, temp = True):
     _, filename = os.path.split(file)
@@ -850,8 +742,6 @@ def segment_data(df, gap_size=14, seg_length=1500, window=100, min_frac=0.8, win
         segments[segment_id] = filtered_segment
     print("Amount of segments =", segment_id)
     return segments
-
-
 
 #%%
 def interpolate_egg_v3(df, method = 'cubicspline', order=3, rescale=False, time=False):
@@ -1582,9 +1472,61 @@ def interpolate_data_pandas(df, cycle_time, max_gap=14, rescale=False, time_ip=F
     print(f'The function took {end - start:.2f} seconds to run')
     return df2
 
-#%%
+#%% OLD FUNCTION TO CALCULATE TIME JUST FROM FILENAME
+def calculate_time(file, date=None):
 
-# grouped_fulldat = assign_groups(v_fulldat)
+    if date is None:
+        # get only the filename from the file path
+        file_path = pathlib.Path(file)
+        filename = file_path.name
+        # extract date from the filename
+        date = filename.split('_')[0]
+
+    # Creating datetime object
+    # which takes in "MMDDYYYY" like only US people write date order
+    date = datetime.strptime(date, '%m%d%Y')
+    dat = pd.read_csv(file, header=0, dtype=str, delimiter='|', names=[
+        'realtime', 'misc', 'packet', 'msg', 'rssi'])
+
+    dat = dat[~dat.rssi.str.contains('error')]
+    dat = dat[dat.misc.str.contains('0a')]
+    dat = dat.reset_index(drop=True)
+
+    counter = dat.packet.astype(int)
+    new_counter = [0]
+    for j, ele in enumerate(counter[1:]):
+        step = counter[j+1]-counter[j]
+        if step > 0:
+            new_counter.append(step+new_counter[j])
+        else:
+            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
+            #print('flip', step, 65536-counter[j]+counter[j+1])
+    abscounterseries = pd.Series(new_counter, name='packet_re_idx')
+
+    dat = pd.concat((dat, abscounterseries), axis=1)
+    
+    # Creating a datetime object from realtime, recalling it realtime (since it still is)
+    dat["realtime"] = dat["realtime"].str.strip()
+    dat["realtime"] = pd.to_datetime(dat["realtime"], format='%H:%M:%S.%f')
+    dat["realtime"] = dat["realtime"].apply(
+        lambda t: datetime.combine(date, t.time()))
+    # Check for date rollover and increment the date if necessary, with additional glitch values excluded
+    dat['time_diff'] = dat['realtime'].diff().dt.total_seconds()
+    dat['rollover'] = dat['time_diff'] < 0
+    dat['glitch'] = (dat['time_diff'] > -5) & (dat['rollover'])
+    dat['correct_rollover'] = dat['rollover'] & ~dat['glitch'] 
+    dat['days_to_add'] = dat['correct_rollover'].cumsum()
+    dat['corrected_realtime'] = dat['realtime'] + pd.to_timedelta(dat['days_to_add'], unit='D')
+    # dat['corrected_realtime'].interpolate(method='linear', inplace=True)
+
+    # probably delete this if timestamps values at end are close to elapsed_s
+    dat['elapsed_t'] = dat['corrected_realtime'] - dat['corrected_realtime'].iloc[0]
+    dat['elapsed_s'] = dat['elapsed_t'].dt.total_seconds()
+    t_elapsed = dat['elapsed_t'].max()
+    s_elapsed = dat['elapsed_s'].max()
+    print("The total time elapsed was: ", t_elapsed)
+
+    return dat, t_elapsed, s_elapsed
 
 #%%
 # def smooth_signal_moving_average(df, window_size=5):

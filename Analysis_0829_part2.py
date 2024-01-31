@@ -33,7 +33,8 @@ from Plot_EGG_adaptation import*
 # #Windows
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Documents_lab/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -81,8 +82,8 @@ savgol_mean_0829 = savgol_filt(interp_mean_0829)
 
 #%%
 fs_0829=times_0829['effective_rate']
-a,b,c = signalplot(savgol_mean_0829,xlim=(4.5*3600,5*3600),spacer=100,vline=[],
-           freq=[0.02,0.2],order=3, rate=fs_0829, title='',skip_chan=[],
+a,b,c_0829_slow = signalplot(savgol_mean_0829,xlim=(),spacer=100,vline=[],
+           freq=1,order=3, rate=fs_0829, title='',skip_chan=[],
             figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 #%%
