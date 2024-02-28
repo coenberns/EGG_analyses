@@ -88,9 +88,9 @@ a,b,c_0829_slow = signalplot(savgol_mean_0829,xlim=(),spacer=100,vline=[],
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 #%%
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
-a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(0,30),spacer=200,vline=[],
-           freq=[0.0001,0.01],order=3, rate=fs_0829, title='',skip_chan=[0,1,2],
-            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(22,29),spacer=50,vline=[23.5,25.3,27.2],
+            freq=[0.0001,0.001],order=3, rate=fs_0829, title='',skip_chan=[0,1,2,4,5,6,7], line_params=['black',3,'dashed'],
+            figsize=(10,3),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 a1,b1,c2_0829 = egg_signalfreq(c_0829, rate=fs_0829, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,

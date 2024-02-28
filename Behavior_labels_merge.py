@@ -46,9 +46,9 @@ def read_behavior_data(folder, start_date, end_date, header=0, rate=14.93, scale
     #     print(file)
 
 #%%
-folder_path_all=r"D:\Boris observations\all_boris_48hrs_rec"
-folder_path_part1=r"D:\Boris observations\observations_part1_rec"
-folder_path_part2=r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Boris\Boris observations\08292023_part2rec_observations"
+folder_path_all=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/all_boris_48hrs_rec"
+folder_path_part1=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/observations_part1_rec"
+folder_path_part2=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/observations_part2_rec"
 files=glob.glob(os.path.join(folder_path_part2,'*'))
 print(files)
 behavior = read_behavior_data(files, start_date='2023-08-28', end_date='2023-08-30')
@@ -108,7 +108,8 @@ eths = get_ethograms(behavior)
 #         return new
 #     else:
 #         return current
-    
+egg_data_part2 = pd.read_hdf('08292023_part2_filtered_wdatetime.h5', key='part2')
+#%%
 def update_category(current, behavior, new_category):
     if pd.isna(behavior):
         # Return current category if behavior is NaN or None
@@ -165,17 +166,26 @@ def mergeDataAndEthograms(egg_data, behavior_df):
     for unique, code in zip(uniques, range(len(uniques))):
         beh_code_map[unique] = code
 
-    #factorize unique categories
-    cat_codes, cat_uniques = pd.factorize(egg_data['Category'])
-    egg_data['cat_code'] = cat_codes
+    # #factorize unique categories
+    # cat_codes, cat_uniques = pd.factorize(egg_data['Category'])
+    # egg_data['cat_code'] = cat_codes
 
-    # get mapping of cats
-    for unique, code in zip(cat_uniques, range(len(cat_uniques))):
-        cat_code_map[unique] = code
+    # # get mapping of cats
+    # for unique, code in zip(cat_uniques, range(len(cat_uniques))):
+    #     cat_code_map[unique] = code
+        
+    # Custom factorization for categories
+    category_order = ['Feeding/Drinking', 'Active', 'Inactive']
+    egg_data['Category'] = pd.Categorical(egg_data['Category'], categories=category_order, ordered=True)
+    egg_data['cat_code'] = egg_data['Category'].cat.codes
+    egg_data['cat_code'] = egg_data['cat_code'].astype(int)
+
+    # Update the cat_code_map
+    cat_code_map = {category: code for code, category in enumerate(category_order)}
 
     return egg_data, beh_code_map, cat_code_map
 
-egg_beh_data_part2, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data_longer, eths)
+egg_beh_data_part2, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data_part2, eths)
 
 
 # %%

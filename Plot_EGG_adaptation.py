@@ -139,7 +139,13 @@ def egg_filter(dat,rate=32,freq=[0,0.1],order=3,ncomb=0,debug=0):
             c,d=sig.iircomb(ele/rate, 3)
             filtered=sig.filtfilt(c,d,filtered)
     
-    fdata=np.array([tfixed,filtered])
+    original_timestamps = dat[0,:]
+    interpolate_back = interp1d(tfixed, filtered, kind='linear', fill_value="extrapolate")
+    filtered_resampled = interpolate_back(original_timestamps)
+
+    fdata = np.array([original_timestamps, filtered_resampled])
+
+    # fdata=np.array([tfixed,filtered])
     return fdata
 
 def egg_fft(dat,rate=32,xlim=[-5,5],ylim=0):
@@ -408,7 +414,7 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'das
     ax_an.set_xlabel('Time (s)')
     xsize=ax_an.get_xlim()[1]-ax_an.get_xlim()[0]   
 
-    loc=np.logical_and(x>xlim[0],x<xlim[1])
+    loc=np.logical_and(x>=xlim[0],x<=xlim[1])
     space=0
     if spacer == 0: #this is to automatically set the spacing we want between the 
         distarr=[]
@@ -449,7 +455,7 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'das
                 outarray.append(y)
             else:
                 mod=egg_filter(np.array([x,y]),freq=freq,rate=rate,order=order,ncomb=ncomb)
-                loc2=np.logical_and(mod[0,:]>xlim[0],mod[0,:]<xlim[1])
+                loc2=np.logical_and(mod[0,:]>=xlim[0],mod[0,:]<=xlim[1])
                 if Normalize_channels: 
                     mod[1,:]=mod[1,:]/(mod[1,loc2].max()-mod[1,loc2].min())
                 if len(outarray)==0: outarray.append(mod[0,:].squeeze())

@@ -874,7 +874,10 @@ def perform_wavelet_analysis(signal, wavelet_name='db4'):
     return coefficients, frequencies
 #%%
 
-def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={}):
+def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'dashed'],
+                   freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,
+                   hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',
+                   Normalize_channels=False,labels=[],color_dict={},name_dict={}):
     """
     Function to plot all channels in dataframe following data import using read_egg_v3
 
@@ -990,7 +993,7 @@ def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, 
             space+=spacer
 #            print(space)
     if len(vline) != 0:
-        ax_an.vlines(vline,ymin=0-spacer/2, ymax=space-spacer/2,linewidth=5,color='black',linestyle='dashed')
+        ax_an.vlines(vline,ymin=0-spacer/2, ymax=space-spacer/2,color=line_params[0],linewidth=line_params[1],linestyle=line_params[2])
     if len(hline) != 0:
         ax_an.hlines(hline,xmin=xlim[0],xmax=xlim[1],linewidth=5,color='black',linestyle='dashed')
     ax_an.set_ylim(0-spacer,space)

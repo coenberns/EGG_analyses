@@ -37,7 +37,9 @@ from Plot_EGG_adaptation import*
 # #Windows
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Documents_lab/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -102,14 +104,26 @@ interp_mean_0828 = interpolate_data(v_mean_0828, cycle_time=times_0828['t_cycle'
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0828 = savgol_filt(interp_mean_0828)
 #%% For the behavioral label data
-egg_data = butter_filter(savgol_mean_0828, fs=times_0828['effective_rate'], low_freq=0.02, high_freq=0.2)
-
-#%% Plotting the savgol_mean complete part of the recording with lines for ambulation and feeding/drinking
-sns.set_palette('tab10')
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
 fs_0828=times_0828['effective_rate']
 t_cycle_0828 = times_0828['t_cycle']
-#%%
+egg_data_0828 = butter_filter(savgol_mean_0828, fs=times_0828['effective_rate'], low_freq=0.02, high_freq=0.2)
+datcols = ['datetime', 'timestamps'] + [f'Channel {i}' for i in range(8)]
+egg_data_0828 = egg_data_0828[datcols]
+# egg_data_0828.to_hdf('08282023_part1_filtered.h5', key='part1')
+
+#%%Alternative way 
+# a,b,c_0828_slow = signalplot(savgol_mean_0828,xlim=(),spacer=100,vline=[],
+#            freq=[0.02,0.2],order=3, rate=fs_0828, title='',skip_chan=[],
+#             figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+#             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+# c_0828_slow.rename(columns={'Synctime': 'timestamps'}, inplace=True)
+# savgol_small_0828 = savgol_mean_0828[['timestamps']+['datetime']]
+# egg_data_0828 = c_0828_slow.merge(savgol_small_0828, how='left', on='timestamps')
+
+#%% Plotting the savgol_mean complete part of the recording with lines for ambulation and feeding/drinking
+sns.set_palette('tab10')
+#%% Figure EGG results - vlines are from dataframe
 signalplot(savgol_mean_0828,xlim=(),spacer=80,vline=[50,4451,8340,9363,10976,13444,15100,15513,16922,17800,21212,21956],
            freq=[0.02,0.2],order=3, line_params=['black', 2,'dashed'],
             rate=fs_0828, title='',skip_chan=[],
