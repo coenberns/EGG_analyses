@@ -4,6 +4,8 @@
 @author: coenberns
 11/29/2023 
 """
+import sys
+sys.path.append('/Users/coenberns/Documents_lab/Thesis/Coding/Ephys/Thesis Python')
 
 import pandas as pd
 import numpy as np
@@ -25,11 +27,11 @@ from functions_read_bursts import*
 from Old_Plot_EGG import*
 
 #%%
-file_pt1=r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\08282023 second - straight measurement mode 2\08282023_firstpartambu_noglitch.txt"
-file_pt2=r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\08282023 second - straight measurement mode 2\08282023_Ambulation_secondpart.txt"
+file_pt1=r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2/08282023_firstpartambu_noglitch.txt"
+file_pt2=r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2/08282023_Ambulation_secondpart.txt"
 
 #For the general read-in of data file
-v_compact_pt1, v_fulldat_pt1, times_pt1 =read_egg_v3_bursts(file_pt1,
+df1, v_fulldat_pt1, times_pt1 =read_egg_v3_bursts(file_pt1,
                                                             header = None,
                                                             rate = 62.5,
                                                             scale=600,
@@ -38,7 +40,7 @@ v_compact_pt1, v_fulldat_pt1, times_pt1 =read_egg_v3_bursts(file_pt1,
                                                             sleep_time=1.84,
                                                             t_deviation=0.2)
 
-v_compact_pt2, v_fulldat_pt2, times_pt2 =read_egg_v3_bursts(file_pt2,
+df2, v_fulldat_pt2, times_pt2 =read_egg_v3_bursts(file_pt2,
                                                             header = None,
                                                             rate = 62.5,
                                                             scale=600,
@@ -46,12 +48,6 @@ v_compact_pt2, v_fulldat_pt2, times_pt2 =read_egg_v3_bursts(file_pt2,
                                                             sleep_ping=1,
                                                             sleep_time=1.84,
                                                             t_deviation=0.2)
-# %%
-
-df1 = averaging_bursts(v_compact_pt1)
-df2 = averaging_bursts(v_compact_pt2)
-
-
 
 #%%
 # Calculate the number of segments for each dataframe
@@ -82,12 +78,12 @@ mean_list2 = []
 length_segs = []
 nr_gaps = []
 for i in range(len(df_dict1)):
-    gaps_dict1[i]=get_gap_sizes(df_dict1[f'seg1 {i}'], sec_gap=14)
+    gaps_dict1[i]=get_gap_sizes(df_dict1[f'seg1 {i}'], sec_gap=5000)
     mean_list1.append(np.mean(gaps_dict1[i]))
     length_segs.append(len(df_dict1[f'seg1 {i}']))
     nr_gaps.append(len(gaps_dict1[i]))
 for i in range(len(df_dict2)):
-    gaps_dict2[i]=get_gap_sizes(df_dict2[f'seg2 {i}'], sec_gap=14)
+    gaps_dict2[i]=get_gap_sizes(df_dict2[f'seg2 {i}'], sec_gap=5000)
     mean_list2.append(np.mean(gaps_dict2[i]))
     length_segs.append(len(df_dict2[f'seg2 {i}']))
     nr_gaps.append(len(gaps_dict2[i]))

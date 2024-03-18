@@ -119,7 +119,7 @@ def calc_corr_stats(reference_signal, recorded_signal, fit_value):
 
     # Complex Correlation (pearson's r for complex part of signal)
     complex_corr = np.mean(np.conj(fft_reference) * fft_recorded) / \
-        (np.sqrt(np.mean(np.abs(fft_reference)**2) * np.mean(np.abs(fft_recorded)**2))) #slash is to break the line
+        (np.sqrt(np.mean(np.abs(fft_reference)**2) * np.mean(np.abs(fft_recorded)**2)))
     #It's absolute value ranges between 0 and 1 for 1 perfectly correlated
     #It's angle, or the argument, gives phase diff between signals (0 is in phase)
     

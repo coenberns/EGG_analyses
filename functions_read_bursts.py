@@ -15,107 +15,21 @@ from datetime import datetime, time
 import pathlib 
 from Old_Plot_EGG import*
 from scipy.signal import butter, filtfilt, savgol_filter
+from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import mean_absolute_error as mae
+from scipy.interpolate import CubicSpline, interp1d, PchipInterpolator
 from filterpy.kalman import KalmanFilter
+from dtaidistance import dtw
+from dtaidistance import dtw_visualisation as dtwvis
 import pywt
 import time
 import os
 
-def read_egg_v3_sync(file,header=0,rate=62.5,scale=150,error=0, date=None):
-    """
-    This is a function which uses pandas to read in data recorded from EGG V3 and transmitted to a board using
-    RFStudio7. 
-    
-    file : filepath of the target txt file
-    header : Number of lines to skip
-    rate : Sampling rate in samples/second per channel set on the ADS131m8
-    scale : +- scale in mV 
-    error : returns data with CRC errors. Default is 0 so those are stripped
-    
-    output: Pandas data frame with the following information:
-        .realtime : realtime from RFStudio when packet was received
-        .misc : RF Studio output, not useful
-        .packet : packet number, set from EGGv3, ranges from 0 to 65535 (unit16). Roll over if higher
-        .msg : str of packet recieved
-        .rssi : RSSI of packet, also includes CRC error
-        'Channel n': Channels of recording data in mV, n is from 0 to 7
-        .counter : absolute renumbered packets (without overflow)
-        .timestamps : timesamples calculated from sampling rate and absolute timer
-        .SPI : SPI Status (first packet of msg)
-    
-    """
-    if date is None:
-        # get only the filename from the file path
-        file_path = pathlib.Path(file)
-        filename = file_path.name
-        # extract date from the filename
-        date = filename.split('_')[0]
+#%% ALL FUNCTIONS CONSIDERING READ-IN OF MODE 2/3 OR READ-IN FOR ALIGNING MODE 1 (OLD 62.5 Hz)
 
-    # Creating datetime object
-    base_date = datetime.strptime(date, '%Y.%m.%d')
-    print(base_date)
-    dat=pd.read_csv(file, header=header, dtype = str, delimiter='|', names=['realtime','misc','packet','msg','rssi'])
-    dat=dat[~dat.rssi.str.contains('error')]
-    dat=dat[dat.misc.str.contains('16')]
-    dat=dat.reset_index(drop=True)
-    dat_col=dat.msg
-    hexdat=dat_col.str.split(' ') #Return list of splits based on spaces in msg
-    serieslist=[]
-    for k,ele in enumerate(hexdat):
-        if len(ele) == 23: #Only select those that have the correct length
-            vlist=[]
-            for i in range(0,10):
-                n=i*2+2
-                value= ''.join(['0x',ele[n],ele[n-1]])
-                hvalue=int(value,16)
-                if i==0:
-                    vlist.append(hvalue) #append hex code
-                else:    
-                    if hvalue<2**15:
-                        vlist.append(scale*float(hvalue)/(2**15))
-                    else:
-                        vlist.append(scale*(((float(hvalue)-2**16)/(2**15))))
-        else:
-#            print('Line Error!'+str(k))
-#            print(ele)
-            vlist=[] #add empty list on error
-        serieslist.append(vlist)
-    collist=['SPI']
-    for i in range(8): collist.append('Channel '+str(i)) #make channel list name
-    collist.append('CRC')
-    datalist=pd.DataFrame(serieslist,columns=collist)
-    fulldat=pd.concat((dat,datalist),axis=1)
-    counter=fulldat.packet.astype(int)
-    new_counter=[0]
-    for j,ele in enumerate(counter[1:]): #Renumbered counter - note this will give an error if you accidentally miss the 0/65535 packets
-        step=counter[j+1]-counter[j]
-#       if step != -65535:
-        if step > 0:
-            new_counter.append(step+new_counter[j])
-#       elif step < 0:
-#            new_counter.append(new_counter[j])
-        else:
-            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
-            print('flip', step, 65536-counter[j]+counter[j+1])
-#            new_counter.append(1+new_counter[j])
-    tarray=np.array(new_counter)*1/rate
-    abscounterseries=pd.Series(new_counter,name='counter')
-    tseries=pd.Series(tarray,name='timestamps')
-    fulldat=pd.concat((fulldat,abscounterseries,tseries),axis=1)
-    
-    fulldat['timedelta'] = pd.to_timedelta(fulldat['timestamps'], unit='s')
-    fulldat['realtime'] = fulldat['realtime'].str.strip()
-    fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])
-    base_time = base_date + fulldat['realtime'].iloc[0]
-    fulldat['realtime'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time
-    noerror=~fulldat.rssi.str.contains('error') # Gives rows without crc error
-    if error: 
-        return fulldat # return non-crc error 
-    else:
-        return fulldat[noerror]
-#    hexdat.dropna() #drop out of range NaNs without shifting indicies
-
-
-#%% INITIAL ASSIGN GROUPS FUNCTION
+# ____ START OF MASTER FUNCTION WITH HELPER FUNCTIONS ____ 
+# Assigning groups to also get a feel for MCU wake-up and going to sleep times 
+# + integrating right "burst_time" value in read_egg_v3_bursts
 def assign_groups(df, n_burst=5, sleep_time=1.84, t_deviation=0.2, n_missing=1):
     """
     Standardized grouping of the low power transmission scheme using packet bursts / sleeping cycles
@@ -168,8 +82,7 @@ def assign_groups(df, n_burst=5, sleep_time=1.84, t_deviation=0.2, n_missing=1):
     print("The total time for grouping was: ", (group_end-group_start))
     return df
 
-#%%
-#INITIAL TIME DIFFERENCE CALCULATIONS
+#Calculating times based on average of the groups provided above - may be able to delete due to burst_group addition later
 def avg_time_diffs(df, n_burst=5, sleep_time=1.84, t_deviation=0.2):
     """
     Calcutating the effective sampling rate, using the values of average time differences
@@ -254,8 +167,7 @@ def avg_time_diffs(df, n_burst=5, sleep_time=1.84, t_deviation=0.2):
 
     return avg_t_cycle, effective_rate, avg_wake_up_time, avg_sleep_time, avg_burst_time, burst_times
 
-#%%
-#MASTER FUNCTION
+# MASTER FUNCTION FOR READ-IN AND AVERAGING OF THE DATA RECORDED IN MODES 2-3 
 def read_egg_v3_bursts(file,
                         header=None,
                         rate = 62.5,
@@ -282,17 +194,7 @@ def read_egg_v3_bursts(file,
         n_missing: amount of packets in burst that can have a NaN value after the first transmission
 
     Outputs:
-        VT_data: Voltage time data, use timestamps for time (others are indication of functionality, first two can be left out)
-            .avg_elapsed_t: datetime object which contains the average elapsed time of a group (1, just for indication of difference)
-            .avg_elapsed_s: The average elapsed time of the group, from start, in seconds (2, just for indication of difference)
-            .packet_re_idx: The re-indexed packet number (zero is first voltage packet, note: this can be renamed "counter" if necessary)
-            .group: group numbers based on the assign_groups() function 
-            .Channel {i}: mean voltage per group for all channels
-            .timestamps: The evenly spaced time variable, based on avg_t_cycle and the packet number divided by 6
-        grouped_fulldat: The full dataset, grouped based on the assign_groups() function
-        volt_fulldat: The dataset including all voltages, average and raw and all other columns as in grouped_fulldat (sleep and missing are dropped)
-        avg_t_cycle: The average time between the sample bursts as calculated by avg_time_diffs() 
-        effective_rate: The effective sampling rate based on the avg_t_cycle(*) (=1/*)
+        VT_data: Voltage time data, 
 
     """
     complete_start = time.time()
@@ -493,7 +395,7 @@ def read_egg_v3_bursts(file,
     v_mean = v_fulldat.copy()
     channels = [f'Channel {i}' for i in range(8)]
 
-    # Apply the custom function for averaging
+    # Averaging by burst_group
     for channel in channels:
         v_mean[channel] = v_mean.groupby('burst_group')[channel].transform('mean')
 
@@ -503,45 +405,168 @@ def read_egg_v3_bursts(file,
 
     # Filtering for the first packet of each burst
     v_mean = v_mean[v_mean['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
+    complete_end=time.time()
+    
+    print("The total function took: ", complete_end-complete_start, " to run")
+    return v_mean, v_fulldat, times
 
     # datcols = ['timestamps', 'elapsed_s', 'packet_re_idx', 'packet_miss_idx'] + [f'Channel {i}' for i in range(8)]
     # v_compact = v_fulldat[datcols]
 
-    complete_end=time.time()
-    print("The total function took: ", complete_end-complete_start, " to run")
+# ________ END OF MASTER FUNCTION AND HELPER FUNCTIONS _______
 
-    return v_mean, v_fulldat, times
+# Calculate total time from file
+def calculate_time(file, date=None):
 
-#%%
-# OLD FUNCTION WITHOUT TAKING ANOTHER VALUE FROM THE GROUP TO REPRESENT THE BURSTS VALUES
-def averaging_bursts(df, n_burst=5, sleep_ping=1):
-    df2=df.copy()
-    burst_length = n_burst+sleep_ping
-    for i in range(8):
-        channel = f'Channel {i}'
-        # Convert to numpy
-        data = df2[channel].values
-        # Calculate padding
-        remainder = len(data) % (n_burst+sleep_ping)
-        padding_size = 0 if remainder == 0 else ((n_burst+sleep_ping) - remainder)
-        # Pad with nan
-        padded_data = np.pad(data, (0, padding_size), constant_values=np.nan)
-        # Reshape the data to have n_burst+sleep_ping values per row
-        reshaped_data = padded_data.reshape(-1, (n_burst+sleep_ping))
-        # Compute the mean per row, ignoring nan's
-        means = np.nanmean(reshaped_data, axis=1)
-        # Repeat mean 6 times to get original shape back
-        repeated_means = np.repeat(means, (n_burst+sleep_ping))
-        # Trim back to old length
-        trimmed_means = repeated_means[:len(data)]
-        # Assign to the voltage channels
-        df2[channel] = trimmed_means
+    if date is None:
+        # get only the filename from the file path
+        file_path = pathlib.Path(file)
+        filename = file_path.name
+        # extract date from the filename
+        date = filename.split('_')[0]
 
-    #Filter for 1st of burst only to shift averaging starting at t=0
-    df2 = df2[df2['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
-    return df2
+    # Creating datetime object
+    # which takes in "MMDDYYYY" like only US people write date order
+    date = datetime.strptime(date, '%m%d%Y')
+    dat = pd.read_csv(file, header=0, dtype=str, delimiter='|', names=[
+        'realtime', 'misc', 'packet', 'msg', 'rssi'])
 
-# %%
+    dat = dat[~dat.rssi.str.contains('error')]
+    dat = dat[dat.misc.str.contains('0a')]
+    dat = dat.reset_index(drop=True)
+
+    counter = dat.packet.astype(int)
+    new_counter = [0]
+    for j, ele in enumerate(counter[1:]):
+        step = counter[j+1]-counter[j]
+        if step > 0:
+            new_counter.append(step+new_counter[j])
+        else:
+            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
+            #print('flip', step, 65536-counter[j]+counter[j+1])
+    abscounterseries = pd.Series(new_counter, name='packet_re_idx')
+
+    dat = pd.concat((dat, abscounterseries), axis=1)
+    
+    # Creating a datetime object from realtime, recalling it realtime (since it still is)
+    dat["realtime"] = dat["realtime"].str.strip()
+    dat["realtime"] = pd.to_datetime(dat["realtime"], format='%H:%M:%S.%f')
+    dat["realtime"] = dat["realtime"].apply(
+        lambda t: datetime.combine(date, t.time()))
+    # Check for date rollover and increment the date if necessary, with additional glitch values excluded
+    dat['time_diff'] = dat['realtime'].diff().dt.total_seconds()
+    dat['rollover'] = dat['time_diff'] < 0
+    dat['glitch'] = (dat['time_diff'] > -5) & (dat['rollover'])
+    dat['correct_rollover'] = dat['rollover'] & ~dat['glitch'] 
+    dat['days_to_add'] = dat['correct_rollover'].cumsum()
+    dat['corrected_realtime'] = dat['realtime'] + pd.to_timedelta(dat['days_to_add'], unit='D')
+    # dat['corrected_realtime'].interpolate(method='linear', inplace=True)
+
+    # probably delete this if timestamps values at end are close to elapsed_s
+    dat['elapsed_t'] = dat['corrected_realtime'] - dat['corrected_realtime'].iloc[0]
+    dat['elapsed_s'] = dat['elapsed_t'].dt.total_seconds()
+    t_elapsed = dat['elapsed_t'].max()
+    s_elapsed = dat['elapsed_s'].max()
+    print("The total time elapsed was: ", t_elapsed)
+
+    return dat, t_elapsed, s_elapsed
+
+# Reading egg_v3 - with additional part for introducing pseudotime for alignment with downsampled version
+def read_egg_v3_sync(file,header=0,rate=62.5,scale=150,error=0, date=None):
+    """
+    This is a function which uses pandas to read in data recorded from EGG V3 and transmitted to a board using
+    RFStudio7. It adds pseudotime, to make sure we can use datetime obj. for down-sampling (resample)
+    
+    file : filepath of the target txt file
+    header : Number of lines to skip
+    rate : Sampling rate in samples/second per channel set on the ADS131m8
+    scale : +- scale in mV 
+    error : returns data with CRC errors. Default is 0 so those are stripped
+    
+    output: Pandas data frame with the following information:
+        .pseudotime: the datetime object as index for downsampling
+        .realtime : realtime from RFStudio when packet was received
+        .misc : RF Studio output, not useful
+        .packet : packet number, set from EGGv3, ranges from 0 to 65535 (unit16). Roll over if higher
+        .msg : str of packet recieved
+        .rssi : RSSI of packet, also includes CRC error
+        'Channel n': Channels of recording data in mV, n is from 0 to 7
+        .counter : absolute renumbered packets (without overflow)
+        .timestamps : timesamples calculated from sampling rate and absolute timer
+        .SPI : SPI Status (first packet of msg)
+    
+    """
+    if date is None:
+        # get only the filename from the file path
+        file_path = pathlib.Path(file)
+        filename = file_path.name
+        # extract date from the filename
+        date = filename.split('_')[0]
+
+    # Creating datetime object
+    base_date = datetime.strptime(date, '%Y.%m.%d')
+    print(base_date)
+    dat=pd.read_csv(file, header=header, dtype = str, delimiter='|', names=['realtime','misc','packet','msg','rssi'])
+    dat=dat[~dat.rssi.str.contains('error')]
+    dat=dat[dat.misc.str.contains('16')]
+    dat=dat.reset_index(drop=True)
+    dat_col=dat.msg
+    hexdat=dat_col.str.split(' ') #Return list of splits based on spaces in msg
+    serieslist=[]
+    for k,ele in enumerate(hexdat):
+        if len(ele) == 23: #Only select those that have the correct length
+            vlist=[]
+            for i in range(0,10):
+                n=i*2+2
+                value= ''.join(['0x',ele[n],ele[n-1]])
+                hvalue=int(value,16)
+                if i==0:
+                    vlist.append(hvalue) #append hex code
+                else:    
+                    if hvalue<2**15:
+                        vlist.append(scale*float(hvalue)/(2**15))
+                    else:
+                        vlist.append(scale*(((float(hvalue)-2**16)/(2**15))))
+        else:
+#            print('Line Error!'+str(k))
+#            print(ele)
+            vlist=[] #add empty list on error
+        serieslist.append(vlist)
+    collist=['SPI']
+    for i in range(8): collist.append('Channel '+str(i)) #make channel list name
+    collist.append('CRC')
+    datalist=pd.DataFrame(serieslist,columns=collist)
+    fulldat=pd.concat((dat,datalist),axis=1)
+    counter=fulldat.packet.astype(int)
+    new_counter=[0]
+    for j,ele in enumerate(counter[1:]): #Renumbered counter - note this will give an error if you accidentally miss the 0/65535 packets
+        step=counter[j+1]-counter[j]
+#       if step != -65535:
+        if step > 0:
+            new_counter.append(step+new_counter[j])
+#       elif step < 0:
+#            new_counter.append(new_counter[j])
+        else:
+            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
+            print('flip', step, 65536-counter[j]+counter[j+1])
+#            new_counter.append(1+new_counter[j])
+    tarray=np.array(new_counter)*1/rate
+    abscounterseries=pd.Series(new_counter,name='counter')
+    tseries=pd.Series(tarray,name='timestamps')
+    fulldat=pd.concat((fulldat,abscounterseries,tseries),axis=1)
+    
+    fulldat['timedelta'] = pd.to_timedelta(fulldat['timestamps'], unit='s')
+    fulldat['realtime'] = fulldat['realtime'].str.strip()
+    fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])
+    base_time = base_date + fulldat['realtime'].iloc[0]
+    fulldat['realtime'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time
+    noerror=~fulldat.rssi.str.contains('error') # Gives rows without crc error
+    if error: 
+        return fulldat # return non-crc error 
+    else:
+        return fulldat[noerror]
+#    hexdat.dropna() #drop out of range NaNs without shifting indicies
+#%% READ-IN FUNCTION FOR BATTERY AND TEMPERATURE MEASUREMENTS
 def plot_battery_temp(file, plot = False, bat = True, temp = True):
     _, filename = os.path.split(file)
     # extract date from the filename
@@ -631,35 +656,7 @@ def plot_battery_temp(file, plot = False, bat = True, temp = True):
 
     return battempdat
 
-#%%
-def egg_signal_check_slowwave(data,rate=62.5, xpoint=1000, slow_window=200,chan_select=0, close=True, s_freq=[0.02,0.25],figsize=(10,15),s_flim=[1,10],rncomb=0):
-    
-    a0,b0,c0=signalplot(data,rate=rate,xlim=[xpoint,xpoint+slow_window],freq=[0.001,1000])
-
-    a1,b1,c1=signalplot(data,rate=rate,xlim=[xpoint,xpoint+slow_window],freq=s_freq)
-    aa1,bb1,cc1=egg_signalfreq(c1,rate=rate,freqlim=s_flim,mode='power',clip=True)
-    maxloc=cc1[chan_select+1,:].argmax()
-    s_peakfreq=cc1[0,maxloc]
-    print('Peak Slow Wave Frequency is ', s_peakfreq)
-    
-
-    cc1=cc1.T
- 
-    if close:
-        plt.close(a0)
-        plt.close(a1)
-    fig,ax_n=plt.subplots(nrows=2,figsize=figsize)
-    ax_n[0].plot(c0[:,0],c0[:,chan_select+1])
-    ax_n[0].set_ylabel('Raw Data (mV)')
-    
-    ax_n[1].plot(c1[:,0],c1[:,chan_select+1])
-    ax_n[1].set_ylabel('Slow Wave (mV)')
-    
-    
-    
-    return fig,ax_n    
-
-#%% NEWER SEGMENTATION - OLDER AT BOTTOM
+#%% SEGMENTATION FUNCTIONS
 def rescale_time(segment):
     offset = segment['timestamps'].iloc[0]
     segment['timestamps'] = segment['timestamps'] - offset
@@ -743,7 +740,74 @@ def segment_data(df, gap_size=14, seg_length=1500, window=100, min_frac=0.8, win
     print("Amount of segments =", segment_id)
     return segments
 
-#%%
+def print_segment_info(segmented_data):
+    for segment_number, segment in segmented_data.items():
+        print(f"Segment {segment_number+1} length:", len(segment))
+        
+        if not segment.empty:
+            first_timepoint = segment['corrected_realtime'].first_valid_index()
+            if first_timepoint is not None:
+                print(f"First time for Segment {segment_number+1}:", segment['corrected_realtime'].loc[first_timepoint])
+            else:
+                print(f"Segment {segment_number} has no valid time values at the start.")
+
+            # Find the last non-nan 'corrected_realtime'
+            last_timepoint = segment['corrected_realtime'].last_valid_index()
+            if last_timepoint is not None:
+                print(f"Last time for Segment {segment_number+1}:", segment['corrected_realtime'].loc[last_timepoint])
+                print(f"Total duration for Segment {segment_number+1}:", segment['corrected_realtime'].loc[last_timepoint] - segment['corrected_realtime'].loc[first_timepoint])
+            else:
+                print(f"Segment {segment_number} has no valid time values at the end.")
+        else:
+            print(f"Segment {segment_number} is empty.")
+
+#%% INTERPOLATION FUNCTIONS
+# Interpolation function where only gaps smaller than max_gap are CubicSpline() interpolated
+def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
+    df2 = df.copy()
+    
+    if rescale:
+        df2['timestamps'] -= df2['timestamps'].iloc[0]
+    
+    if time_ip:
+        df2['timestamps'] = df2['timestamps'].interpolate(method='linear')
+
+    # Preprocess 'Channel 0' to identify gaps applicable across all channels
+    df2['Channel 0'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
+    consec_nan_counts = df2['Channel 0'].isna().astype(int).groupby(df2['Channel 0'].notna().astype(int).cumsum()).sum()
+    gap_indices = consec_nan_counts[consec_nan_counts > 0].index
+    # Translate gap indices to start and end positions
+    gap_starts_ends = []
+    for idx in gap_indices:
+        gap_mask = df2['Channel 0'].notna().astype(int).cumsum() == idx
+        start, end = gap_mask.idxmax(), gap_mask[::-1].idxmax()
+        gap_starts_ends.append((start, end))
+    
+    max_nan_count = int(max_gap / cycle_time)
+
+    for channel in df2.columns:
+        if 'Channel' in channel:
+            x = df2['timestamps'].values
+            y = pd.to_numeric(df2[channel], errors='coerce').values
+            non_nan_mask = ~np.isnan(y)
+            
+            for start, end in gap_starts_ends:
+                # Calculate gap_size based on timestamps to handle non-integer cycle times
+                gap_size = end - start
+                if gap_size <= max_nan_count:
+
+                    interp_func = CubicSpline(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+                
+                else:
+                    if pchip: 
+                        interp_func = PchipInterpolator(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+                    else:
+                        interp_func = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate", bounds_error=False)
+                
+                df2.loc[start:end, channel] = interp_func(x[start:end+1])
+    return df2
+
+# Quick and dirty interpolation method
 def interpolate_egg_v3(df, method = 'cubicspline', order=3, rescale=False, time=False):
     df2 = df.copy()
     # Ensure columns are of a numeric type
@@ -771,11 +835,14 @@ def interpolate_egg_v3(df, method = 'cubicspline', order=3, rescale=False, time=
             df2[channel] = df2[channel].interpolate(method=method)
     return df2
 
-def butter_filter(df, fs, low_freq=0.02, high_freq=0.2, order=3):
+#%% FILTER FUNCTIONS 
+#normal butterworth filter, with coefficients a,b
+def butter_filter(df, fs, freq = [0.02,0.2], order=3):
     df_filtered = df.copy()
     nyquist = 0.5 * fs
-    low = low_freq / nyquist
-    high = high_freq / nyquist
+    low = freq[0] / nyquist
+    freq_adj = min(freq[1],nyquist*.99)
+    high = freq_adj / nyquist
     b, a = butter(order, [low, high], btype='band')
 
     for column in df.columns:
@@ -783,6 +850,21 @@ def butter_filter(df, fs, low_freq=0.02, high_freq=0.2, order=3):
             df_filtered[column] = filtfilt(b, a, df[column].values)
     return df_filtered
 
+#sos output butter filter, using sos output with digital filter consistency
+def butter_filter_sos(df, fs, freq=[0.02,0.2], order=3):
+    df_filtered = df.copy()
+    nyquist = 0.5 * fs
+    low = freq[0] / nyquist
+    freq_adj = min(freq[1],nyquist*.99)
+    high = freq_adj / nyquist
+    sos = butter(order, [low, high], btype='band', output='sos')
+
+    for column in df.columns:
+        if column.startswith('Channel'):
+            df_filtered[column] = sig.sosfiltfilt(sos, df[column].values)
+    return df_filtered
+
+#Savitzky-Golay filtering
 def savgol_filt(df, window=3, polyorder=1, deriv=0, delta=1.0):
     df_filtered = df.copy()
     
@@ -792,7 +874,7 @@ def savgol_filt(df, window=3, polyorder=1, deriv=0, delta=1.0):
     
     for column in df.columns:
         if column.startswith('Channel'):
-            # Apply the Savitzky-Golay filter to the column
+            # apply SG filter per channel
             df_filtered[column] = savgol_filter(df[column].values, window, polyorder, deriv=deriv, delta=delta)
 
     return df_filtered
@@ -801,13 +883,10 @@ def kalman_filter(df):
     df2=df.copy()
     for i in range(8):
         channel = f'Channel {i}'
-
         #Kalman filter and then interpolating
         # all_values = df2[channel].tolist()
         measurements = df2[channel].dropna().tolist()        
-
         filtered_values = []
-
         #dt = times['t_cycle']
         kf = KalmanFilter(dim_x=1, dim_z=1)
         kf.x = [df2[channel].iloc[0]]  # initial state
@@ -837,27 +916,52 @@ def kalman_filter(df):
 
     return df2
 
-def print_segment_info(segmented_data):
-    for segment_number, segment in segmented_data.items():
-        print(f"Segment {segment_number+1} length:", len(segment))
-        
-        if not segment.empty:
-            first_timepoint = segment['corrected_realtime'].first_valid_index()
-            if first_timepoint is not None:
-                print(f"First time for Segment {segment_number+1}:", segment['corrected_realtime'].loc[first_timepoint])
-            else:
-                print(f"Segment {segment_number} has no valid time values at the start.")
+# Old egg filter, adapted
+def egg_filter(dat,rate=62.5,freq=[0,0.2],order=3,ncomb=0,debug=0):
+    """
+    Function which filters data using a butterworth filter
+    Parameters
+    ----------
+    dat : List of 2 np arrays
+        List of 2 np arrays where first array are timestamps and 2nd array is values
+    rate : sampling rate in seconds, optional
+        Sampling rate in seconds, used for interpolation of data prior to filtering. The default is 32.
+    freq : List, optional
+        Bandpass filter frequency. The default is [0,0.1].
+    order : int, optional
+        Order of butterworth filter generated for filtering. The default is 3.
+    ncomb : float
+        frequency in hrz of notch comb filter
+    Returns
+    -------
+    fdata: numpy array of 2xN.
+        1st index is columns, 2nd is rows. 1st column are timestamps and 2nd column is filtered data.
 
-            # Find the last non-nan 'corrected_realtime'
-            last_timepoint = segment['corrected_realtime'].last_valid_index()
-            if last_timepoint is not None:
-                print(f"Last time for Segment {segment_number+1}:", segment['corrected_realtime'].loc[last_timepoint])
-                print(f"Total duration for Segment {segment_number+1}:", segment['corrected_realtime'].loc[last_timepoint] - segment['corrected_realtime'].loc[first_timepoint])
-            else:
-                print(f"Segment {segment_number} has no valid time values at the end.")
-        else:
-            print(f"Segment {segment_number} is empty.")
+    """
+    fn=rate/2
+    wn=np.array(freq)/fn
+#    wn[0]=np.max([0,wn[0]])
+    wn[1]=np.min([.99,wn[1]])
+#    print(wn)
+    f=interp1d(dat[0,:],dat[1,:])
+#    print(f)
+    start_value=dat[0,:].min()
+    end_value=dat[0,:].max()
+    tfixed=np.arange(start_value,end_value, 1/rate)
+    sos=sig.butter(order,wn,btype='bandpass',output='sos')
+    filtered=sig.sosfiltfilt(sos,f(tfixed))
+    if ncomb!=0:
+        if not isinstance(ncomb, list):
+            ncomb=[ncomb]
+        for ele in ncomb:
+            c,d=sig.iircomb(ele/rate, 3)
+            filtered=sig.filtfilt(c,d,filtered)
+    
+    fdata=np.array([tfixed,filtered])
+    return fdata
 
+#%% SMALL SIGNAL ANALYSES FUNCTIONS
+# Wavelet analysis for signal, however, not properly functioning atm
 def perform_wavelet_analysis(signal, wavelet_name='db4'):
     # Perform Continuous Wavelet Transform (CWT)
     scales = np.arange(1, 128)
@@ -872,8 +976,33 @@ def perform_wavelet_analysis(signal, wavelet_name='db4'):
     plt.show()
     
     return coefficients, frequencies
-#%%
 
+#Check slow wave frequency in a signal for a particular channel and plot
+def egg_signal_check_slowwave(data,rate=62.5, xpoint=1000, slow_window=200,chan_select=0, close=True, s_freq=[0.02,0.25],figsize=(10,15),s_flim=[1,10],rncomb=0):
+    
+    a0,b0,c0=signalplot(data,rate=rate,xlim=[xpoint,xpoint+slow_window],freq=[0.001,1000])
+
+    a1,b1,c1=signalplot(data,rate=rate,xlim=[xpoint,xpoint+slow_window],freq=s_freq)
+    aa1,bb1,cc1=egg_signalfreq(c1,rate=rate,freqlim=s_flim,mode='power',clip=True)
+    maxloc=cc1[chan_select+1,:].argmax()
+    s_peakfreq=cc1[0,maxloc]
+    print('Peak Slow Wave Frequency is ', s_peakfreq)
+    
+    cc1=cc1.T
+
+    if close:
+        plt.close(a0)
+        plt.close(a1)
+    fig,ax_n=plt.subplots(nrows=2,figsize=figsize)
+    ax_n[0].plot(c0[:,0],c0[:,chan_select+1])
+    ax_n[0].set_ylabel('Raw Data (mV)')
+    
+    ax_n[1].plot(c1[:,0],c1[:,chan_select+1])
+    ax_n[1].set_ylabel('Slow Wave (mV)')
+
+    return fig,ax_n  
+#%% ADAPTED OLD FUNCTIONS FROM PLOT_EGG
+#Plotting signal with hour scale
 def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'dashed'],
                    freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,
                    hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',
@@ -968,7 +1097,7 @@ def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 
                 else:
                     ax_an.plot(x, y-y[loc].mean()+space)
                 if points:
-                   ax_an.plot(x, y-y[loc].mean()+space,'ro') 
+                    ax_an.plot(x, y-y[loc].mean()+space,'ro') 
                 print('plotted!')
                 outarray.append(y)
             else:
@@ -1015,7 +1144,7 @@ def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 
         outarray=outarray.T
     return fig_an,ax_an,outarray
 
-#%% Get gap sizes for gap distribution analysis
+#%% GAP SIZE DISTRIBUTION, INSERTING GAPS ETC. FOR INTERPOLATION VALIDATION
 def get_gap_sizes(df, sec_gap):
     gap_sizes = []
     gap_size = 0
@@ -1039,7 +1168,72 @@ def get_gap_sizes(df, sec_gap):
 
     return gap_sizes
 
-#%% RESAMPLING FUNCTION 
+# Plot CDF of all gap sizes for a recording, including all recording files in 'path' as dir
+def gap_distribution_plot(path):
+    filepath = pathlib.Path(path)
+    count_df = pd.DataFrame()
+
+    for file in filepath.iterdir():
+        if file.is_file() and file.suffix == '.txt':     
+            #For the general read-in of data file
+            df, _, _ =read_egg_v3_bursts(file,
+                                        header = None,
+                                        rate = 62.5,
+                                        scale=600,
+                                        n_burst=5,
+                                        sleep_ping=1,
+                                        sleep_time=1.84,
+                                        t_deviation=0.2)
+            
+            gaps = get_gap_sizes(df, sec_gap=20000)
+            gaps_rounded = [round(num) for num in gaps]
+            rounded_gaps_df = pd.DataFrame(gaps_rounded, columns=['gap size'])
+            gap_count = pd.DataFrame(rounded_gaps_df.value_counts().reset_index(name='count'))           
+            count_df = pd.concat([count_df, gap_count], ignore_index=True)
+            
+    count_df = count_df.groupby('gap size').sum().reset_index()
+    count_df = count_df.sort_values('gap size').reset_index(drop=True)
+
+    #Non-weighted CDF of gap sizes
+    data = count_df.copy()
+    col = sns.color_palette('deep')
+    data['cdf'] = data['count'].cumsum() / data['count'].sum()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(data['gap size'], data['cdf'], marker='.', linestyle='--', markersize=8, color = col[0])
+    plt.axhline(y=0.925, color=col[5], alpha=.75, linestyle=':')
+    plt.text(x=np.min(data['gap size']), y=0.925, s='93%', va='bottom', ha='center', size=12, fontweight='bold')
+    plt.axvline(x=14, color=col[5], alpha=.75, linestyle=':')
+    plt.text(x=14, y=plt.ylim()[0], s='14s', va='bottom', ha='left', size=12, fontweight='bold')
+    plt.tick_params(axis='both', which='major', labelsize=12)
+    plt.xscale('log')  
+    plt.xlabel('Gap size [s]', size=16)
+    plt.ylabel(r'CDF [$\mathbb{P}$]', size=16)
+    plt.grid(True)
+    plt.show()
+
+    # Weighted CDF of gap sizes
+    col = sns.color_palette('deep')
+    data_w = count_df.copy()
+    data_w['weighted'] = data_w['gap size'] * data_w['count']
+    data_w = data_w.sort_values('gap size')
+    data_w['weighted_cdf'] = data_w['weighted'].cumsum() / data_w['weighted'].sum()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(data_w['gap size'], data_w['weighted_cdf'], marker='.', linestyle='--', markersize=8, color = col[0])
+    plt.axhline(y=0.465,color=col[5], alpha=.75, linestyle=':')
+    plt.text(x=np.min(data['gap size']), y=0.465, s='47%', va='bottom', ha='center', size=12, fontweight='bold')
+    plt.axvline(x=14, color=col[5], alpha=.75, linestyle=':')
+    plt.text(x=14, y=plt.ylim()[0], s='14s', va='bottom', ha='left', size=12, fontweight='bold')
+    plt.tick_params(axis='both', which='major', labelsize=12)
+    plt.xscale('log')
+    plt.xlabel('Gap size [s]', size=16)
+    plt.ylabel(r'Weighted CDF [$\mathbb{P}$]', size=16)
+    plt.grid(True)
+    plt.show()
+
+    return data, data_w
+#%% FUNCTIONS USED IN DOWNSAMPLING OF EAO RECORDINGS
 # Custom resampler used in downsampling 62.5 SPS recordings
 def burst_resampler(group, n_burst=5, rate=62.5):
     """
@@ -1066,52 +1260,8 @@ def burst_resampler(group, n_burst=5, rate=62.5):
     else:
         return pd.Series([np.nan] * len(group.columns), index=group.columns)
 
-#%% OLD DOWNSAMPLING
-# def downsample_to_burst(file,time_str='2S',scale=300, date=None, round=False):
-#     """
-#     Sample down a 62.5 SPS recording to a predefined period
-
-#     :param file: raw recording file (.txt file) 
-#     :param time_str: The new period in down-sampling; '2S' is data every 2 seconds
-#     :param scale: +- scale in mV 
-#     :param date: The date of the recording, if None; it is gotten from the filename
-#     :param round: Round off the first datetime object to the time_str variable
-#     :return fulldat: Initial full dataframe, with pseudotime included
-#     :return resampled_interp: The resampled/downsampled full dataset interpolated for nan values
-#     : 
-#     """
-#     if date is None:
-#         # get only the filename from the file path
-#         file_path = pathlib.Path(file)
-#         filename = file_path.name
-#         # extract date from the filename
-#         date = filename.split('_')[0]
-
-#     # Creating datetime object
-#     # which takes in "MMDDYYYY" like only US people write date order
-#     base_date = datetime.strptime(date, '%Y.%m.%d')
-#     fulldat = read_egg_v3(file,scale=scale)
-#     # base_date2 = pd.Timestamp('2023-09-21')
-#     fulldat['realtime'] = fulldat['realtime'].str.strip()
-#     fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])  # Convert to Timedelta
-#     if round == True:
-#         base_time = base_date + fulldat['realtime'].iloc[0].round(time_str)  # Add first realtime value to base_date
-#     else:
-#         base_time = base_date + fulldat['realtime'].iloc[0]
-#     fulldat['pseudo_time'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time  # Add to base_time
-#     fulldat.set_index('pseudo_time', inplace=True)
-#     datcols = ['timestamps']+[f'Channel {i}' for i in range(8)]
-#     fulldat_short = fulldat[datcols]
-#     # Resample and apply the custom function - burst resampler relies on n_burst=5 and rate=62.5
-#     resampled_fulldat = fulldat_short.resample(time_str, label='left').apply(burst_resampler)
-#     # Reset index to return pseudotime
-#     resampled_fulldat.reset_index(inplace=True)
-#     resampled_fulldat['timestamps']=(resampled_fulldat['pseudo_time'] - resampled_fulldat['pseudo_time'].iloc[0]).dt.total_seconds()
-#     resampled_interp = interpolate_egg_v3(resampled_fulldat, method='cubicspline')
-
-#     return fulldat, resampled_interp
-# %% DOWNSAMPLE EVERY TWO SECONDS
-def downsample_to_burst(file,time_str='2S',scale=150, date=None, round=False):
+# Main downsampling function for resampling the EAO datasets
+def downsample_to_burst(file,time_str='2S',scale=300, date=None, round=False):
     """
     Sample down a 62.5 SPS recording to a predefined period
 
@@ -1132,48 +1282,52 @@ def downsample_to_burst(file,time_str='2S',scale=150, date=None, round=False):
         date = filename.split('_')[0]
 
     # Creating datetime object
+    # which takes in "MMDDYYYY" like only US people write date order
     base_date = datetime.strptime(date, '%Y.%m.%d')
     fulldat = read_egg_v3(file,scale=scale)
     # base_date2 = pd.Timestamp('2023-09-21')
     fulldat['realtime'] = fulldat['realtime'].str.strip()
-    fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])
+    fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])  # Convert to Timedelta
     if round == True:
         base_time = base_date + fulldat['realtime'].iloc[0].round(time_str)  # Add first realtime value to base_date
     else:
         base_time = base_date + fulldat['realtime'].iloc[0]
     fulldat['pseudo_time'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time  # Add to base_time
-    fulldat['timedelta'] = pd.to_timedelta(fulldat['timestamps'], unit='s')
     fulldat.set_index('pseudo_time', inplace=True)
-    datcols = ['timestamps','timedelta']+[f'Channel {i}' for i in range(8)]
+    datcols = ['timestamps']+[f'Channel {i}' for i in range(8)]
     fulldat_short = fulldat[datcols]
     # Resample and apply the custom function - burst resampler relies on n_burst=5 and rate=62.5
     resampled_fulldat = fulldat_short.resample(time_str, label='left').apply(burst_resampler)
     # Reset index to return pseudotime
-    fulldat.reset_index(inplace=True)
+    fulldat_short.reset_index(inplace=True)
     resampled_fulldat.reset_index(inplace=True)
-    resampled_interp = interpolate_egg_v3(resampled_fulldat, method='cubicspline',time=True)
+    fulldat_short['timestamps']=(fulldat_short['pseudo_time'] - fulldat_short['pseudo_time'].iloc[0]).dt.total_seconds()
+    resampled_fulldat['timestamps']=(resampled_fulldat['pseudo_time'] - resampled_fulldat['pseudo_time'].iloc[0]).dt.total_seconds()
+    resampled_interp = interpolate_data(resampled_fulldat, cycle_time=2, time_ip=True)
 
-    return fulldat, resampled_interp
+    return resampled_interp, fulldat_short
 
-#%% Downsample from filtered with signalplot
+# Downsample from filtered with signalplot
 def downsample_from_signalplot(df, time_str='2S'):
     df['timedelta'] = pd.to_timedelta(df['Synctime'], unit='s')
     df.set_index('timedelta', inplace=True)
     resampled_df = df.resample(time_str,label='left').apply(burst_resampler)
     df.reset_index(inplace=True)
     resampled_df.reset_index(inplace=True)
+    df = df.rename(columns={'Synctime': 'timestamps'})
+    resampled_df = resampled_df.rename(columns={'Synctime': 'timestamps'})
 
-    return df, resampled_df
+    return resampled_df, df
 
 
 #%% DISTRIBUTE GAPS RANDOMLY OVER DATA
-def distribute_gaps(df, gap_file, sec_gap=14, t_cycle=2):
+def distribute_gaps(df, gap_file, max_gap=14, t_cycle=2):
     """
     Introduce gaps into voltage data based on gap distribution from a separate dataframe
 
     :param df: DataFrame with time and voltage data
     :param gap_df: DataFrame with the gap size data of the recordings - presaved
-    :param sec_gap: The maximum gap size in seconds for binning the data
+    :param max_gap: The maximum gap size in seconds for binning the data
     :param avg_gaps: Average number of gaps based on previous calculations
     :return: DataFrame with gaps introduced in voltage data
     """
@@ -1181,8 +1335,8 @@ def distribute_gaps(df, gap_file, sec_gap=14, t_cycle=2):
     gap_df = pd.read_pickle(gap_file)
 
     # Bin the gap data and calculate probabilities
-    bins = np.arange(t_cycle-0.2, sec_gap + t_cycle, t_cycle)
-    labels = np.arange(t_cycle, sec_gap + t_cycle, t_cycle).astype(str)
+    bins = np.arange(t_cycle-0.2, max_gap + t_cycle, t_cycle)
+    labels = np.arange(t_cycle, max_gap + t_cycle, t_cycle).astype(str)
     gap_df['binned'] = pd.cut(gap_df['gap size'], bins=bins, labels=labels, include_lowest=True)
     binned_counts = gap_df['binned'].value_counts().sort_index()
     total_gaps = binned_counts.sum()
@@ -1198,7 +1352,7 @@ def distribute_gaps(df, gap_file, sec_gap=14, t_cycle=2):
         avg_ratio = 0.06978
         num_gaps = int(length*avg_ratio)
         print(num_gaps)
-        gap_sizes = np.arange(t_cycle, sec_gap + t_cycle, t_cycle)
+        gap_sizes = np.arange(t_cycle, max_gap + t_cycle, t_cycle)
     
     else: 
         df2=df.copy()
@@ -1207,7 +1361,7 @@ def distribute_gaps(df, gap_file, sec_gap=14, t_cycle=2):
         avg_ratio = 0.03845
         num_gaps = int(length*avg_ratio)
         print(num_gaps)
-        gap_sizes = np.arange(t_cycle, sec_gap + t_cycle, t_cycle)
+        gap_sizes = np.arange(t_cycle, max_gap + t_cycle, t_cycle)
 
     t_s = []
     t_end = []
@@ -1238,300 +1392,298 @@ def distribute_gaps(df, gap_file, sec_gap=14, t_cycle=2):
             df2.loc[start_idx:end_idx, 'Channel 0':'Channel 7'] = np.nan
 
     return df2
-#%%
-def egg_filter(dat,rate=32,freq=[0,0.1],order=3,ncomb=0,debug=0):
-    """
-    Function which filters data using a butterworth filter
-    Parameters
-    ----------
-    dat : List of 2 np arrays
-        List of 2 np arrays where first array are timestamps and 2nd array is values
-    rate : sampling rate in seconds, optional
-        Sampling rate in seconds, used for interpolation of data prior to filtering. The default is 32.
-    freq : List, optional
-        Bandpass filter frequency. The default is [0,0.1].
-    order : int, optional
-        Order of butterworth filter generated for filtering. The default is 3.
-    ncomb : float
-        frequency in hrz of notch comb filter
-    Returns
-    -------
-    fdata: numpy array of 2xN.
-        1st index is columns, 2nd is rows. 1st column are timestamps and 2nd column is filtered data.
 
+def distribute_gaps_weighted(df, gap_file=None, max_gap=14, t_cycle=2, weighted=True, rand_state = None):
     """
-    fn=rate/2
-    wn=np.array(freq)/fn
-#    wn[0]=np.max([0,wn[0]])
-    wn[1]=np.min([.99,wn[1]])
-#    print(wn)
-    f=interp1d(dat[0,:],dat[1,:])
-#    print(f)
-    start_value=dat[0,:].min()
-    end_value=dat[0,:].max()
-    tfixed=np.arange(start_value,end_value, 1/rate)
-    sos=sig.butter(order,wn,btype='bandpass',output='sos')
-    filtered=sig.sosfiltfilt(sos,f(tfixed))
-#    b,a=sig.butter(order,wn,btype='bandpass')
-    
-#    if debug == 1:
-#        w,h=sig.freqs(b,a)
-#        fig,ax=plt.subplots(figsize=(5,5))
-#        ax.semilogx(w,20*np.log10(abs(h)))
-#        ax.vlines(wn,ymin=-10,ymax=10)
-    
-#    filtered=sig.filtfilt(b,a,f(tfixed),method='pad')
-    if ncomb!=0:
-        if not isinstance(ncomb, list):
-            ncomb=[ncomb]
-        for ele in ncomb:
-            c,d=sig.iircomb(ele/rate, 3)
-            filtered=sig.filtfilt(c,d,filtered)
-    
-    fdata=np.array([tfixed,filtered])
-    return fdata
+    Introduce gaps into voltage data based on gap distribution from a separate dataframe or uniformly.
 
-def read_egg_v3_sync(file,header=0,rate=62.5,scale=150,error=0, date=None):
+    :param df: DataFrame with time and voltage data
+    :param gap_file: File path for DataFrame with the gap size data of the recordings - presaved
+    :param max_gap: The maximum gap size in seconds for binning the data
+    :param t_cycle: Time cycle in seconds for binning
+    :param weighted: Boolean to choose weighted or uniform gap distribution
+    :return: DataFrame with gaps introduced in voltage data
     """
-    This is a function which uses pandas to read in data recorded from EGG V3 and transmitted to a board using
-    RFStudio7. 
-    
-    file : filepath of the target txt file
-    header : Number of lines to skip
-    rate : Sampling rate in samples/second per channel set on the ADS131m8
-    scale : +- scale in mV 
-    error : returns data with CRC errors. Default is 0 so those are stripped
-    
-    output: Pandas data frame with the following information:
-        .realtime : realtime from RFStudio when packet was received
-        .misc : RF Studio output, not useful
-        .packet : packet number, set from EGGv3, ranges from 0 to 65535 (unit16). Roll over if higher
-        .msg : str of packet recieved
-        .rssi : RSSI of packet, also includes CRC error
-        'Channel n': Channels of recording data in mV, n is from 0 to 7
-        .counter : absolute renumbered packets (without overflow)
-        .timestamps : timesamples calculated from sampling rate and absolute timer
-        .SPI : SPI Status (first packet of msg)
-    
-    """
-    if date is None:
-        # get only the filename from the file path
-        file_path = pathlib.Path(file)
-        filename = file_path.name
-        # extract date from the filename
-        date = filename.split('_')[0]
+    df2 = df.copy()
+    t_tot = df2['timestamps'].max()
+    length = len(df2)
 
-    # Creating datetime object
-    base_date = datetime.strptime(date, '%Y.%m.%d')
-    print(base_date)
-    dat=pd.read_csv(file, header=header, dtype = str, delimiter='|', names=['realtime','misc','packet','msg','rssi'])
-    dat=dat[~dat.rssi.str.contains('error')]
-    dat=dat[dat.misc.str.contains('16')]
-    dat=dat.reset_index(drop=True)
-    dat_col=dat.msg
-    hexdat=dat_col.str.split(' ') #Return list of splits based on spaces in msg
-    serieslist=[]
-    for k,ele in enumerate(hexdat):
-        if len(ele) == 23: #Only select those that have the correct length
-            vlist=[]
-            for i in range(0,10):
-                n=i*2+2
-                value= ''.join(['0x',ele[n],ele[n-1]])
-                hvalue=int(value,16)
-                if i==0:
-                    vlist.append(hvalue) #append hex code
-                else:    
-                    if hvalue<2**15:
-                        vlist.append(scale*float(hvalue)/(2**15))
-                    else:
-                        vlist.append(scale*(((float(hvalue)-2**16)/(2**15))))
-        else:
-#            print('Line Error!'+str(k))
-#            print(ele)
-            vlist=[] #add empty list on error
-        serieslist.append(vlist)
-    collist=['SPI']
-    for i in range(8): collist.append('Channel '+str(i)) #make channel list name
-    collist.append('CRC')
-    datalist=pd.DataFrame(serieslist,columns=collist)
-    fulldat=pd.concat((dat,datalist),axis=1)
-    counter=fulldat.packet.astype(int)
-    new_counter=[0]
-    for j,ele in enumerate(counter[1:]): #Renumbered counter - note this will give an error if you accidentally miss the 0/65535 packets
-        step=counter[j+1]-counter[j]
-#       if step != -65535:
-        if step > 0:
-            new_counter.append(step+new_counter[j])
-#       elif step < 0:
-#            new_counter.append(new_counter[j])
-        else:
-            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
-            print('flip', step, 65536-counter[j]+counter[j+1])
-#            new_counter.append(1+new_counter[j])
-    tarray=np.array(new_counter)*1/rate
-    abscounterseries=pd.Series(new_counter,name='counter')
-    tseries=pd.Series(tarray,name='timestamps')
-    fulldat=pd.concat((fulldat,abscounterseries,tseries),axis=1)
-    
-    fulldat['timedelta'] = pd.to_timedelta(fulldat['timestamps'], unit='s')
-    fulldat['realtime'] = fulldat['realtime'].str.strip()
-    fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])
-    base_time = base_date + fulldat['realtime'].iloc[0]
-    fulldat['realtime'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time
-    noerror=~fulldat.rssi.str.contains('error') # Gives rows without crc error
-    if error: 
-        return fulldat # return non-crc error 
+    # Gaps should be put in the same position for analysis of (Lin)-Regression
+    if rand_state is not None:
+        np.random.seed(rand_state)
+
+    if weighted:
+        # Load the gap_df for weighted distribution
+        gap_df = pd.read_pickle(gap_file)
+        bins = np.arange(t_cycle-0.2, max_gap + t_cycle, t_cycle)
+        labels = np.arange(t_cycle, max_gap + t_cycle, t_cycle).astype(str)
+        gap_df['binned'] = pd.cut(gap_df['gap size'], bins=bins, labels=labels, include_lowest=True)
+        binned_counts = gap_df['binned'].value_counts().sort_index()
+        total_gaps = binned_counts.sum()
+        gap_prob = binned_counts / total_gaps
+        print(gap_prob)
+
+        if gap_file == 'gap_df_48hrs_14sec.pkl':
+            avg_ratio = 0.06978
+        else: 
+            avg_ratio = 0.03845
+
+        num_gaps = int(length * avg_ratio)
+        gap_sizes = np.arange(t_cycle, max_gap + t_cycle, t_cycle)
     else:
-        return fulldat[noerror]
-#    hexdat.dropna() #drop out of range NaNs without shifting indicies
+        
+        max_gaps = int(length * 0.1) / max_gap
+        num_gaps = int(max_gaps)
+        gap_sizes = np.array([max_gap] * num_gaps)  
+        gap_prob = None
 
-#%%
-from scipy.interpolate import CubicSpline, interp1d, PchipInterpolator
-import time
+    t_s = []
+    t_end = []
+    for _ in range(num_gaps):
+        valid_start_time_found = False
+        while not valid_start_time_found:
+            t_start = np.random.uniform(0, t_tot)
+            chosen_gap = np.random.choice(gap_sizes, gap_prob) if weighted else max_gap
+            t_end_time = t_start + chosen_gap
+            if not any((t_start < et and t_end_time > st) for st, et in zip(t_s, t_end)):
+                valid_start_time_found = True
+                t_s.append(t_start)
+                t_end.append(t_end_time)
 
-def interpolate_data(df, cycle_time, max_gap=14, rescale=False, time_ip=False, pchip=True):
-    start = time.time()
-    df2 = df.copy()
-    # Reset timestamps to start from zero if required
-    if rescale: 
-        df2['timestamps'] -= df2['timestamps'].iloc[0]
+    sort_idx = np.argsort(t_s)
+    t_s = np.array(t_s)[sort_idx]
+    t_end = np.array(t_end)[sort_idx]
 
-    # Linearly interpolate timestamps if required (e.g., when downsampling)
-    if time_ip: 
-        df2['timestamps'] = df2['timestamps'].interpolate('linear')
+    # Introduce gaps into the data
+    for start, end in zip(t_s, t_end):
+        start_idxs = df2[df2['timestamps'] >= start].index
+        end_idxs = df2[df2['timestamps'] < end].index
+        if not start_idxs.empty and not end_idxs.empty:
+            start_idx = start_idxs[0]
+            end_idx = end_idxs[-1]
+            df2.loc[start_idx:end_idx, 'Channel 0':'Channel 7'] = np.nan
 
-    # Define the maximum number of consecutive NaNs allowed based on cycle_time
-    max_consecutive_nans = int(max_gap / cycle_time)
-
-    # Interpolate each channel
-    for channel in df2.columns:
-        if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
-            # Convert the column to numeric and count consecutive NaNs
-            df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
-            consec_nan_counts = df2[channel].isna().astype(int).groupby(df2[channel].notna().astype(int).cumsum()).sum()
-
-            # Prepare for interpolation
-            x = df2['timestamps'].values
-            y = df2[channel].values
-            non_nan_mask = ~np.isnan(y)
-            
-            # Interpolate with Cubic Spline or linear depending on the gap size
-            for group, count in consec_nan_counts.items():
-                if count <= max_consecutive_nans:
-                    # Cubic spline interpolation for small gaps
-                    cs = CubicSpline(x[non_nan_mask], y[non_nan_mask])
-                    df2.loc[non_nan_mask, channel] = cs(x[non_nan_mask])
-                else:
-                    if pchip == True:
-                        # PCHIP interpolation for larger gaps
-                        pchip_interp = PchipInterpolator(x[non_nan_mask], y[non_nan_mask])
-                        nan_indices = df2[channel].isna()
-                        df2.loc[nan_indices, channel] = pchip_interp(x[nan_indices])
-                    # Linear interpolation for larger gaps
-                    else:
-                        linear_interp = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate")
-                        nan_indices = df2[channel].isna()
-                        df2.loc[nan_indices, channel] = linear_interp(x[nan_indices])
-    end=time.time()
-    print(f'The function took {end-start:.2f} seconds to run')
     return df2
 
-def interpolate_data_pandas(df, cycle_time, max_gap=14, rescale=False, time_ip=False, pchip=True):
-    start = time.time()
-    df2 = df.copy()
+#%% SIGNAL COMPARISON BETWEEN DOWNSAMPLED AND ACTUAL 
 
-    # Reset timestamps to start from zero if required
-    if rescale: 
-        df2['timestamps'] -= df2['timestamps'].iloc[0]
-
-    # Linearly interpolate timestamps if required (e.g., when downsampling)
-    if time_ip: 
-        df2['timestamps'] = df2['timestamps'].interpolate(method='linear')
-
-    # Define the maximum number of consecutive NaNs allowed based on cycle_time
-    max_consecutive_nans = int(max_gap / cycle_time)
-
-    # Interpolate each channel
-    for channel in df2.columns:
-        if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
-            # Convert the column to numeric and count consecutive NaNs
-            df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
-            consec_nan_counts = df2[channel].isna().astype(int).groupby(df2[channel].notna().astype(int).cumsum()).sum()
-
-            # Prepare for interpolation
-            for group, count in consec_nan_counts.items():
-                if count <= max_consecutive_nans:
-                    # Cubic spline interpolation for small gaps
-                    df2[channel] = df2[channel].interpolate(method='cubicspline')
-                else:
-                    # PCHIP interpolation for larger gaps
-                    if pchip:
-                        df2[channel] = df2[channel].interpolate(method='pchip')
-                    else:
-                        # Linear interpolation for larger gaps
-                        df2[channel] = df2[channel].interpolate(method='linear')
-
-    end = time.time()
-    print(f'The function took {end - start:.2f} seconds to run')
-    return df2
-
-#%% OLD FUNCTION TO CALCULATE TIME JUST FROM FILENAME
-def calculate_time(file, date=None):
-
-    if date is None:
-        # get only the filename from the file path
-        file_path = pathlib.Path(file)
-        filename = file_path.name
-        # extract date from the filename
-        date = filename.split('_')[0]
-
-    # Creating datetime object
-    # which takes in "MMDDYYYY" like only US people write date order
-    date = datetime.strptime(date, '%m%d%Y')
-    dat = pd.read_csv(file, header=0, dtype=str, delimiter='|', names=[
-        'realtime', 'misc', 'packet', 'msg', 'rssi'])
-
-    dat = dat[~dat.rssi.str.contains('error')]
-    dat = dat[dat.misc.str.contains('0a')]
-    dat = dat.reset_index(drop=True)
-
-    counter = dat.packet.astype(int)
-    new_counter = [0]
-    for j, ele in enumerate(counter[1:]):
-        step = counter[j+1]-counter[j]
-        if step > 0:
-            new_counter.append(step+new_counter[j])
-        else:
-            new_counter.append(65536-counter[j]+counter[j+1]+new_counter[j])
-            #print('flip', step, 65536-counter[j]+counter[j+1])
-    abscounterseries = pd.Series(new_counter, name='packet_re_idx')
-
-    dat = pd.concat((dat, abscounterseries), axis=1)
+# Plotting both the v-t plots and freq spectrum of control vs resampled
+# If raw = True, plot only the raw v-t and get data 
+def plot_signal_comparison(resampled, data, fs_c=62.5, fs_d=0.5, xlim=None, scaler=1.1, fig_raw=(15,10),
+                           fig_spec = (20,25),freqlim=[0,10], freq=[0.02, 0.2], raw = False, savgol=True, size=18):
+    """
+    Plot voltage-time and frequency spectrum for control and downsampled data across all channels
+    in a 3-column layout: v-t plot, frequency spectrum downsampled, frequency spectrum control.
+    """
+    x_c = data['timestamps']
+    x_d = resampled['timestamps']
     
-    # Creating a datetime object from realtime, recalling it realtime (since it still is)
-    dat["realtime"] = dat["realtime"].str.strip()
-    dat["realtime"] = pd.to_datetime(dat["realtime"], format='%H:%M:%S.%f')
-    dat["realtime"] = dat["realtime"].apply(
-        lambda t: datetime.combine(date, t.time()))
-    # Check for date rollover and increment the date if necessary, with additional glitch values excluded
-    dat['time_diff'] = dat['realtime'].diff().dt.total_seconds()
-    dat['rollover'] = dat['time_diff'] < 0
-    dat['glitch'] = (dat['time_diff'] > -5) & (dat['rollover'])
-    dat['correct_rollover'] = dat['rollover'] & ~dat['glitch'] 
-    dat['days_to_add'] = dat['correct_rollover'].cumsum()
-    dat['corrected_realtime'] = dat['realtime'] + pd.to_timedelta(dat['days_to_add'], unit='D')
-    # dat['corrected_realtime'].interpolate(method='linear', inplace=True)
+    if xlim: 
+        data = data[(x_c >= xlim[0]) & (x_c <= xlim[1])]
+        resampled = resampled[(x_d >= xlim[0]) & (x_d <= xlim[1])]
 
-    # probably delete this if timestamps values at end are close to elapsed_s
-    dat['elapsed_t'] = dat['corrected_realtime'] - dat['corrected_realtime'].iloc[0]
-    dat['elapsed_s'] = dat['elapsed_t'].dt.total_seconds()
-    t_elapsed = dat['elapsed_t'].max()
-    s_elapsed = dat['elapsed_s'].max()
-    print("The total time elapsed was: ", t_elapsed)
+    if raw: 
 
-    return dat, t_elapsed, s_elapsed
+        fig, axs = plt.subplots(8, 1, figsize=fig_raw)
 
-#%%
+        # axs.text(-0.1, 0.5, f'Channel {i}', va='center', ha='right', transform=ax.transAxes, fontsize=size)
+        
+        for i in range(8):
+            max_y = 0
+            x_c = data['timestamps']
+            y_c = data[f'Channel {i}']
+            x_d = resampled['timestamps']
+            y_d = resampled[f'Channel {i}']
+
+            # if xlim:
+            #     mask_c = (x_c >= xlim[0]) & (x_c <= xlim[1])
+            #     mask_d = (x_d >= xlim[0]) & (x_d <= xlim[1])
+            #     x_c, y_c = x_c[mask_c], y_c[mask_c]
+            #     x_d, y_d = x_d[mask_d], y_d[mask_d]
+
+            # Voltage-time plots
+            axs[i].plot(x_c, y_c, linestyle='dashed', label='Control', color='C1')
+            axs[i].plot(x_d, y_d, label='Downsampled', color='C0', alpha=0.5)
+            if xlim:
+                axs[i].set_xlim(xlim)
+            axs[i].set_ylim([min(y_c.min(), y_d.min()) * scaler, max(y_c.max(), y_d.max()) * scaler])
+            axs[i].spines['right'].set_visible(False)
+            axs[i].spines['top'].set_visible(False)
+            axs[i].text(-0.1, 0.5, f'Channel {i}', va='center', ha='right', transform=axs[i].transAxes, fontsize=size)
+            # axs[i, 0].spines['left'].set_visible(False)
+            # axs[i, 0].xaxis.set_ticks_position('none')
+            # axs[i, 0].xaxis.set_ticks_position('bottom')
+            if i == 7:
+                axs[i].set_xlabel('Time [s]', size=size)
+            axs[i].legend()
+
+        return resampled, data
+
+    else: 
+        fulldat_filt = butter_filter_sos(data, fs=fs_c)
+        resampled_filt = butter_filter_sos(savgol_filt(resampled) if savgol else resampled, fs=fs_d)
+
+        fig, axs = plt.subplots(8, 3, figsize=fig_spec)
+
+        for i in range(7):
+            for j in range(3):  
+                axs[i, j].set_xticklabels([]) 
+        # plt.subplots_adjust(wspace=.2, hspace=.2)
+
+        # Adding channel labels on the left side of the first column
+        for i, ax in enumerate(axs[:, 0]):
+            ax.text(-0.1, 0.5, f'Channel {i}', va='center', ha='right', transform=ax.transAxes, fontsize=size)
+        
+        fig.text(0.695,.095, 'Magnitude', ha='center', va='center', rotation='vertical', fontsize=size)
+
+        # Common y-labels
+        fig.supylabel('Voltage [mV]', x=0.055, size=size)
+        # fig.supylabel('Magnitude', x=0.375, size=16)
+
+        titles = ['Voltage-Time', 'Spectrum (Downsampled)', 'Spectrum (Control)']
+        for ax, title in zip(axs[0], titles):
+            ax.set_title(title, size=size+2)
+
+        max_y_vals = [0]*8
+
+        for i in range(8):
+            max_y = 0
+            x_c = fulldat_filt['timestamps']
+            y_c = fulldat_filt[f'Channel {i}']
+            x_d = resampled_filt['timestamps']
+            y_d = resampled_filt[f'Channel {i}']
+
+            # if xlim:
+            #     mask_c = (x_c >= xlim[0]) & (x_c <= xlim[1])
+            #     mask_d = (x_d >= xlim[0]) & (x_d <= xlim[1])
+            #     x_c, y_c = x_c[mask_c], y_c[mask_c]
+            #     x_d, y_d = x_d[mask_d], y_d[mask_d]
+
+            # Voltage-time plots
+            axs[i, 0].plot(x_c, y_c, linestyle='dashed', label='Control', color='C1')
+            axs[i, 0].plot(x_d, y_d, label='Downsampled', color='C0', alpha=0.5)
+            if xlim:
+                axs[i, 0].set_xlim(xlim)
+            axs[i, 0].set_ylim([min(y_c.min(), y_d.min()) * scaler, max(y_c.max(), y_d.max()) * scaler])
+            axs[i, 0].spines['right'].set_visible(False)
+            axs[i, 0].spines['top'].set_visible(False)
+            # axs[i, 0].spines['left'].set_visible(False)
+            # axs[i, 0].xaxis.set_ticks_position('none')
+            # axs[i, 0].xaxis.set_ticks_position('bottom')
+            if i == 7:
+                axs[i, 0].set_xlabel('Time [s]', size=size)
+            axs[i, 0].legend()
+
+            # Frequency spectrum analyses
+            for j, (filt_data, fs, col) in enumerate([(resampled_filt, fs_d, 'C0'), (fulldat_filt, fs_c, 'C1')]):
+                x = filt_data['timestamps']
+                y = filt_data[f'Channel {i}']
+                if xlim:
+                    mask = (x >= xlim[0]) & (x <= xlim[1])
+                    y = y[mask]
+                    
+                freq, mag = sig.periodogram(y, fs)
+                freq *= 60  # Convert to cycles per minute (CPM)
+                max_y = max(max_y, np.max(mag))
+                d_idx = np.argmax(mag)  # Index of dominant frequency
+                d_freq = freq[d_idx]  # Dominant frequency
+                d_mag = mag[d_idx]  # Magnitude at dominant frequency
+                axs[i, j+1].stem(freq, mag, linefmt=f'{col}-', markerfmt=f'{col}o', basefmt=" ")
+                axs[i, j+1].plot(d_freq, d_mag, marker='*', markersize=8, color='red')
+                axs[i, j+1].text(d_freq, d_mag*1.075, f'{d_freq:.2f} CPM', fontsize=16, color='red', ha='center', fontweight='bold')
+                axs[i, j+1].set_xlim(freqlim)
+                axs[i, j+1].ticklabel_format(axis='y', scilimits=(0,0))
+                if i == 7:
+                    axs[i, j+1].set_xlabel('Frequency [CPM]', size=size)
+                axs[i, j+1].spines['right'].set_visible(False)
+                axs[i, j+1].spines['top'].set_visible(False)            
+            max_y_vals[i] = max_y
+
+            for j in range(1, 3):
+                axs[i, j].set_ylim(0, round(max_y_vals[i]*1.2, 1))
+                axs[i, j].yaxis.get_offset_text().set_fontsize(size)
+            
+            for ax in axs[-1,:]:
+                for label in ax.get_xticklabels():
+                    label.set_fontsize(size)
+            for ax in axs.flatten():  # Flatten the array to iterate over all subplots
+                for label in ax.get_yticklabels():
+                    label.set_fontsize(size)  # Set the y-tick label sizes to match the x-tick label sizes
+            
+            axs[i,2].set_yticklabels([])
+            axs[i,2].set_yticks([])
+            axs[i,2].spines['left'].set_visible(False)
+
+        plt.tight_layout()
+        plt.show()
+        return resampled_filt, fulldat_filt
+
+# Calculate the difference between voltage values downsampled/control, average per channel
+def calc_diff_resample(resamp, data, freq=True, warp_plot=True, window=25,fs_d=.5, fs_c=62.5):
+    
+    merged = pd.merge_asof(resamp, data, on='timestamps', suffixes=('_d', '_c'))
+    stats = []
+    
+    for i in range(8):
+        chan = f'Channel {i}'
+        chan_diff = f'Channel {i}_diff'
+        chan_d = f'Channel {i}_d' #channels downsampled
+        chan_c = f'Channel {i}_c' #channels control
+        merged[chan_diff] = merged[chan_d] - merged[chan_c]
+        MSE = mse(merged[chan_d], merged[chan_c])
+        RMSE = np.sqrt(MSE)
+        MAE = mae(merged[chan_d], merged[chan_c])
+        s1 = np.array(merged[chan_d], dtype=np.double)
+        s2 = np.array(merged[chan_c], dtype=np.double)
+        dtw_dist = dtw.distance_fast(s1,s2)
+        if warp_plot:
+            s1_short = np.array(merged[chan_d][50:175], dtype=np.double)
+            s2_short = np.array(merged[chan_c][50:175], dtype=np.double)
+            d_short,paths = dtw.warping_paths(s1_short, s2_short, window=window, psi=2)
+            best_path = dtw.best_path(paths)
+            print(f'Channel: {chan} with warping path: {d_short}')
+            dtwvis.plot_warpingpaths(s1_short, s2_short, paths, best_path)
+            dtwvis.plot_warping(s1_short, s2_short, best_path)
+        if freq:
+            freq_d, mag_d = sig.periodogram(resamp[chan], fs=fs_d)
+            freq_c, mag_c = sig.periodogram(data[chan], fs=fs_c)
+            freq_d = freq_d*60
+            freq_c = freq_c*60
+            d_f_d = freq_d[np.argmax(mag_d)]
+            d_f_c = freq_c[np.argmax(mag_c)]
+
+            stats.append({
+                'Channel': i,
+                'MSE': MSE,
+                'RMSE': RMSE,
+                'MAE': MAE,
+                'Freq_D': d_f_d,
+                'Freq_C': d_f_c,
+                'Diff D-Freq': np.abs(d_f_d-d_f_c),
+                'D-Mag': np.abs(np.argmax(mag_d)-np.argmax(mag_c)),
+                'DTW': dtw_dist
+            })
+        
+        else:
+            stats.append({
+                'Channel': i,
+                'MSE': MSE,
+                'RMSE': RMSE,
+                'MAE': MAE
+            })
+
+    diffs = merged[['timestamps']+[f'Channel {i}_diff' for i in range(8)]]
+    
+    chan_abs_avg = []
+    for i in range(1,9):
+        chan_abs_avg.append(np.mean(np.abs(diffs.iloc[:,i])))
+
+    statz=pd.DataFrame(stats)
+
+    return diffs, chan_abs_avg, statz
+
+#%% MISC OLD FUNCTIONS 
+# MOVING AVERAGE SMOOTHENING FUNCTION 
 # def smooth_signal_moving_average(df, window_size=5):
 #     df_smooth = df.copy()
 #     window = np.ones(int(window_size))/float(window_size)
@@ -1541,3 +1693,167 @@ def calculate_time(file, date=None):
 #             df_smooth[column] = np.convolve(df_smooth[column], window,'same')
 
 #     return df_smooth
+# OLD AVERAGING FUNCTION WITHOUT TAKING ANOTHER VALUE FROM THE GROUP TO REPRESENT ELAPSED TIMES ETC.
+# def averaging_bursts(df, n_burst=5, sleep_ping=1):
+#     df2=df.copy()
+#     burst_length = n_burst+sleep_ping
+#     for i in range(8):
+#         channel = f'Channel {i}'
+#         # Convert to numpy
+#         data = df2[channel].values
+#         # Calculate padding
+#         remainder = len(data) % (n_burst+sleep_ping)
+#         padding_size = 0 if remainder == 0 else ((n_burst+sleep_ping) - remainder)
+#         # Pad with nan
+#         padded_data = np.pad(data, (0, padding_size), constant_values=np.nan)
+#         # Reshape the data to have n_burst+sleep_ping values per row
+#         reshaped_data = padded_data.reshape(-1, (n_burst+sleep_ping))
+#         # Compute the mean per row, ignoring nan's
+#         means = np.nanmean(reshaped_data, axis=1)
+#         # Repeat mean 6 times to get original shape back
+#         repeated_means = np.repeat(means, (n_burst+sleep_ping))
+#         # Trim back to old length
+#         trimmed_means = repeated_means[:len(data)]
+#         # Assign to the voltage channels
+#         df2[channel] = trimmed_means
+
+#     #Filter for 1st of burst only to shift averaging starting at t=0
+#     df2 = df2[df2['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
+#     return df2
+
+# OLD INTERPOLATION FUNCTIONS
+
+# def interpolate_data(df, cycle_time, max_gap=14, rescale=False, time_ip=False, pchip=True):
+#     start = time.time()
+#     df2 = df.copy()
+#     # Reset timestamps to start from zero if required
+#     if rescale: 
+#         df2['timestamps'] -= df2['timestamps'].iloc[0]
+
+#     # Linearly interpolate timestamps if required (e.g., when downsampling)
+#     if time_ip: 
+#         df2['timestamps'] = df2['timestamps'].interpolate('linear')
+
+#     # Define the maximum number of consecutive NaNs allowed based on cycle_time
+#     max_consecutive_nans = int(max_gap / cycle_time)
+
+#     # Interpolate each channel
+#     for channel in df2.columns:
+#         if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
+#             # Convert the column to numeric and count consecutive NaNs
+#             df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
+#             consec_nan_counts = df2[channel].isna().astype(int).groupby(df2[channel].notna().astype(int).cumsum()).sum()
+#             print(consec_nan_counts)
+
+#             # Prepare for interpolation
+#             x = df2['timestamps'].values
+#             y = df2[channel].values
+#             non_nan_mask = ~np.isnan(y)
+            
+#             # Interpolate with Cubic Spline or linear depending on the gap size
+#             for group, count in consec_nan_counts.items():
+#                 if count <= max_consecutive_nans:
+#                     # Cubic spline interpolation for small gaps
+#                     cs = CubicSpline(x[non_nan_mask], y[non_nan_mask])
+#                     df2.loc[non_nan_mask, channel] = cs(x[non_nan_mask])
+#                 else:
+#                     if pchip == True:
+#                         # PCHIP interpolation for larger gaps
+#                         pchip_interp = PchipInterpolator(x[non_nan_mask], y[non_nan_mask])
+#                         nan_indices = df2[channel].isna()
+#                         df2.loc[nan_indices, channel] = pchip_interp(x[nan_indices])
+#                     # Linear interpolation for larger gaps
+#                     else:
+#                         linear_interp = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate")
+#                         nan_indices = df2[channel].isna()
+#                         df2.loc[nan_indices, channel] = linear_interp(x[nan_indices])
+#     end=time.time()
+#     print(f'The function took {end-start:.2f} seconds to run')
+#     return df2
+
+
+#PANDA INTERPOLATION, NO SCIPY INVOLVED
+# def interpolate_data_pandas(df, cycle_time, max_gap=14, rescale=False, time_ip=False, pchip=True):
+#     start = time.time()
+#     df2 = df.copy()
+
+#     # Reset timestamps to start from zero if required
+#     if rescale: 
+#         df2['timestamps'] -= df2['timestamps'].iloc[0]
+
+#     # Linearly interpolate timestamps if required (e.g., when downsampling)
+#     if time_ip: 
+#         df2['timestamps'] = df2['timestamps'].interpolate(method='linear')
+
+#     # Define the maximum number of consecutive NaNs allowed based on cycle_time
+#     max_consecutive_nans = int(max_gap / cycle_time)
+
+#     # Interpolate each channel
+#     for channel in df2.columns:
+#         if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
+#             # Convert the column to numeric and count consecutive NaNs
+#             df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
+#             consec_nan_counts = df2[channel].isna().astype(int).groupby(df2[channel].notna().astype(int).cumsum()).sum()
+
+#             # Prepare for interpolation
+#             for group, count in consec_nan_counts.items():
+#                 if count <= max_consecutive_nans:
+#                     # Cubic spline interpolation for small gaps
+#                     df2[channel] = df2[channel].interpolate(method='cubicspline')
+#                 else:
+#                     # PCHIP interpolation for larger gaps
+#                     if pchip:
+#                         df2[channel] = df2[channel].interpolate(method='pchip')
+#                     else:
+#                         # Linear interpolation for larger gaps
+#                         df2[channel] = df2[channel].interpolate(method='linear')
+
+#     end = time.time()
+#     print(f'The function took {end - start:.2f} seconds to run')
+#     return df2
+
+# NEW METHOD FOR DOWNSAMPLING, NOT COMPLETELY WORKING
+# def downsample_to_burst(file,time_str='2S',scale=150, date=None, round=False):
+#     """
+#     Sample down a 62.5 SPS recording to a predefined period
+
+#     :param file: raw recording file (.txt file) 
+#     :param time_str: The new period in down-sampling; '2S' is data every 2 seconds
+#     :param scale: +- scale in mV 
+#     :param date: The date of the recording, if None; it is gotten from the filename
+#     :param round: Round off the first datetime object to the time_str variable
+#     :return fulldat: Initial full dataframe, with pseudotime included
+#     :return resampled_interp: The resampled/downsampled full dataset interpolated for nan values
+#     : 
+#     """
+#     if date is None:
+#         # get only the filename from the file path
+#         file_path = pathlib.Path(file)
+#         filename = file_path.name
+#         # extract date from the filename
+#         date = filename.split('_')[0]
+
+#     # Creating datetime object
+#     base_date = datetime.strptime(date, '%Y.%m.%d')
+#     fulldat = read_egg_v3(file,scale=scale)
+#     # base_date2 = pd.Timestamp('2023-09-21')
+#     fulldat['realtime'] = fulldat['realtime'].str.strip()
+#     fulldat['realtime'] = pd.to_timedelta(fulldat['realtime'])
+#     if round == True:
+#         base_time = base_date + fulldat['realtime'].iloc[0].round(time_str)  # Add first realtime value to base_date
+#     else:
+#         base_time = base_date + fulldat['realtime'].iloc[0]
+#     fulldat['pseudo_time'] = pd.to_timedelta(fulldat['timestamps'], unit='s') + base_time  # Add to base_time
+#     fulldat['pseudo_time'] = fulldat['pseudo_time'].dt.round('2S') # Example rounding operation
+#     fulldat['timedelta'] = pd.to_timedelta(fulldat['timestamps'], unit='s')
+#     fulldat.set_index('pseudo_time', inplace=True)
+#     datcols = ['timestamps','timedelta']+[f'Channel {i}' for i in range(8)]
+#     fulldat_short = fulldat[datcols]
+#     # Resample and apply the custom function - burst resampler relies on n_burst=5 and rate=62.5
+#     resampled_fulldat = fulldat_short.resample(time_str, label='left').apply(burst_resampler)
+#     # Reset index to return pseudotime
+#     fulldat.reset_index(inplace=True)
+#     resampled_fulldat.reset_index(inplace=True)
+#     resampled_interp = interpolate_egg_v3(resampled_fulldat, method='cubicspline',time=True)
+
+#     return fulldat, resampled_interp

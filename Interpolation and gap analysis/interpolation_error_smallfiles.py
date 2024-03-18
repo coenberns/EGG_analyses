@@ -6,6 +6,8 @@ Created on Fri Aug 18 15:48:34 2023
 
 @author: coenberns
 """
+import sys
+sys.path.append('/Users/coenberns/Documents_lab/Thesis/Coding/Ephys/Thesis Python')
 
 import pandas as pd
 import numpy as np
@@ -214,12 +216,12 @@ def kalman_filter(df):
     return df2
 #%%
 #Mac
-# meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 
 # #Windows
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -273,12 +275,12 @@ for i in range(len(segmented_vmean_control)):
 
 #%%
 #Mac
-# meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 
 # #Windows
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -454,9 +456,9 @@ for method in methods:
                 'Method': method,
                 'MSE_Filtered': mse_mean_filtered,
                 # 'MSE_Kalman': mse_mean_kalman,
-                'RMSE_Interp': rmse_mean_filtered,
+                'RMSE_Filtered': rmse_mean_filtered,
                 # 'RMSE_Kalman': rmse_mean_kalman,
-                'MAE_Interp': mae_mean_filtered,
+                'MAE_Filtered': mae_mean_filtered,
                 'Abs diff D Freq': abs_diff_dfreq, 
                 'MSE Amplitude': mse_amplitude
                 # 'MAE_Kalman': mae_mean_kalman

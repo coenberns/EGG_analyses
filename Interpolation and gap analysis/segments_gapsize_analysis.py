@@ -6,19 +6,22 @@ Created on Thu December 7 12:06 2023
 @author: coenberns
 """
 #%%
+import sys
+sys.path.append('/Users/coenberns/Documents_lab/Thesis/Coding/Ephys/Thesis Python')
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as datetime
 from datetime import datetime, timedelta, time
 import pathlib 
-from Old_Plot_EGG import*
 import timeit
 import time
 import cProfile
 import sklearn
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
+import seaborn as sns
 
 from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
@@ -27,12 +30,12 @@ from Old_Plot_EGG import*
 
 #%%
 #Mac
-# meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 
 # #Windows
 #Baatery measurements
-#meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -59,7 +62,7 @@ print(f"File selected: {file1.name}")
 
 #%%
 #For the general read-in of data file
-v_compact1, v_fulldat1, times1 =read_egg_v3_bursts(file1,
+v_mean1, v_fulldat1, times1 =read_egg_v3_bursts(file1,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=300,
@@ -69,22 +72,21 @@ v_compact1, v_fulldat1, times1 =read_egg_v3_bursts(file1,
                                                 t_deviation=0.2)
 
 #%%
-v_mean1 = averaging_bursts(v_fulldat1)
 segment_lengths = []
 seg_vmean1 = {}
-seg_vmean1 = segment_data(v_mean1, gap_size=14, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2)
+seg_vmean1 = segment_data(v_mean1, gap_size=15, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2)
 for i in range(len(seg_vmean1)):
     segment_lengths.append(len(seg_vmean1[i]))
 print_segment_info(seg_vmean1)
 
 #%%
 #Mac
-# meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 
 # #Windows
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -111,7 +113,7 @@ print(f"File selected: {file2.name}")
 
 #%%
 #For the general read-in of data file
-v_compact2, v_fulldat2, times2 =read_egg_v3_bursts(file2,
+v_mean2, v_fulldat2, times2 =read_egg_v3_bursts(file2,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=300,
@@ -122,9 +124,8 @@ v_compact2, v_fulldat2, times2 =read_egg_v3_bursts(file2,
 
 
 #%%
-v_mean2 = averaging_bursts(v_fulldat2)
 seg_vmean2 = {}
-seg_vmean2 = segment_data(v_mean2, gap_size=14, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2)
+seg_vmean2 = segment_data(v_mean2, gap_size=15, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2)
 for i in range(len(seg_vmean2)):
     segment_lengths.append(len(seg_vmean2[i]))
 print_segment_info(seg_vmean2)
@@ -166,4 +167,11 @@ ratios =[nr_gaps / seg_len for seg_len,nr_gaps in zip(segment_lengths, nr_gaps_s
 avg_ratio = np.mean(ratios)
 
 # %%
+
+rounded_gaps = [round(num) for num in gap_sizes_combined]
+sns.set_palette('deep')
+ax = sns.histplot(rounded_gaps, bins=6, discrete=True, stat='probability')
+ax.set_xlabel('Gap size [s]')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 
