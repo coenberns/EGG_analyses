@@ -9,22 +9,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as datetime
-from datetime import datetime, timedelta, time
 import pathlib 
-import timeit
-import time
-import cProfile
-import sklearn
-from sklearn.metrics import mean_squared_error as mse
-from sklearn.metrics import mean_absolute_error as mae
-
-from scipy.interpolate import UnivariateSpline as univsp
-from scipy import signal
 from functions_read_bursts import*
 from Plot_EGG_adaptation import*
 
 #%% Dir selection
-meas_path = pathlib.Path(r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\01042024_multiweek")
+meas_path = pathlib.Path(r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/01042024_multiweek")
 # # Make list of available files in dir
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -50,7 +40,7 @@ file_0109 = in_folder[choice - 1]
 print(f"File selected: {file_0109.name}")
 #%%
 #For the general read-in of data file
-v_compact_0109, v_fulldat_0109, times_0109 =read_egg_v3_bursts(file_0109,
+v_mean_0109, v_fulldat_0109, times_0109 =read_egg_v3_bursts(file_0109,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=600,
@@ -59,33 +49,19 @@ v_compact_0109, v_fulldat_0109, times_0109 =read_egg_v3_bursts(file_0109,
                                                 sleep_time=1.84,
                                                 t_deviation=0.2)
 
-#%%
-v_fulldat2_0109 = v_fulldat_0109
-burst_length = 6
-channels = [f'Channel {i}' for i in range(8)]
-
-# Apply the custom function for averaging
-for channel in channels:
-    v_fulldat2_0109[channel] = v_fulldat2_0109.groupby('burst_group')[channel].transform('mean')
-
-# Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
-for col in ['elapsed_s', 'corrected_realtime']:
-    v_fulldat2_0109[col] = v_fulldat2_0109.groupby('burst_group')[col].transform('first')
-
-# Filtering for the first packet of each burst
-v_mean_0109 = v_fulldat2_0109[v_fulldat2_0109['packet_miss_idx'] % burst_length == 0]
-
 if times_0109['t_cycle'] < 2:
     print('Cycling time is okay')
-# v_mean_0105 = averaging_bursts(v_fulldat_0105,n_burst=5, sleep_ping=1)
 
 #%%
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
 #Does take a considerable amount of time....
-interp_mean_0109 = interpolate_data(v_mean_0109, cycle_time=times_0109['t_cycle'])
+interp_mean_0109 = interpolate_data(v_mean_0109, cycle_time=2,pchip=True)
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
 savgol_mean_0109 = savgol_filt(interp_mean_0109)
+
+#%%
+# savgol_mean_0109 = savgol_filt(interp_mean_0109)
 
 #%% General plot in slow wave frequencies
 fs_0109 = times_0109['effective_rate']
@@ -95,14 +71,16 @@ signalplot(savgol_mean_0109,xlim=(),spacer=250,vline=[],freq=[0.02,0.2],order=3,
             output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Signal plot for potential MMC recordings? Looks interesting
-a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(),spacer=300,vline=[],freq=[0.0001,0.01],order=3,
+a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(0,30),spacer=300,vline=[],freq=[0.0001,0.01],order=3,
             rate=fs_0109, title='',skip_chan=[0,1,2],
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%% Plotting its power density for low frequencies. Clear view of MMC 
-a1,b1,c2_0109 = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,.5,1.33],mmc=True,
+a1,b1,c2_0109_mmc = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,.5,1.33],mmc=True,
                                 figsize=(8,8))
+
+
 
 #%%
 seg_vmean_0109 = {}

@@ -27,37 +27,8 @@ from functions_read_bursts import*
 from Plot_EGG_adaptation import*
 
 #%%
-#Mac
-# meas_path = pathlib.Path("/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+file_0829 = r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/08282023 EDC1_2/08282023_Ambulation_secondpart.txt"
 
-# #Windows
-#Baatery measurements
-#meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
-# meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
-meas_path = pathlib.Path("/Users/coenberns/Documents_lab/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
-# # List all the files in the selected folder
-in_folder = [f for f in meas_path.iterdir() if f.is_file()]
-
-# Print a list of available files
-for i, f in enumerate(in_folder, start=1):
-    print(f"{i}. {f.name}")
-
-# Ask the user to choose a file
-while True:
-    try:
-        choice = int(input("Enter the number of the file you want to use (1,2, etc.): "))
-        if 1 <= choice <= len(in_folder):
-            break
-        else:
-            print("Invalid choice. Please enter a valid number.")
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-
-# Assign the selected file to a variable
-file_0829 = in_folder[choice - 1]
-
-# Now you can work with the selected_file
-print(f"File selected: {file_0829.name}")
 
 #%%
 #For the general read-in of data file
@@ -78,7 +49,8 @@ v_mean_0829, v_fulldat_0829, times_0829 =read_egg_v3_bursts(file_0829,
 interp_mean_0829 = interpolate_data(v_mean_0829, cycle_time=times_0829['t_cycle'])
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
-savgol_mean_0829 = savgol_filt(interp_mean_0829)
+savgol_mean_0829 = interp_mean_0829
+# savgol_mean_0829 = savgol_filt(interp_mean_0829)
 
 #%%
 fs_0829=times_0829['effective_rate']
@@ -86,29 +58,74 @@ a,b,c_0829_slow = signalplot(savgol_mean_0829,xlim=(),spacer=100,vline=[],
            freq=1,order=3, rate=fs_0829, title='',skip_chan=[],
             figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
-#%%
+
+#%% MMC plot for presentation
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
-a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(22,29),spacer=50,vline=[23.5,25.3,27.2],
+a,b,c_0829_p = signalplot_hrs(savgol_mean_0829,xlim=(22,29),spacer=50,vline=[23.5,25.3,27.2],
             freq=[0.0001,0.001],order=3, rate=fs_0829, title='',skip_chan=[0,1,2,4,5,6,7], line_params=['black',3,'dashed'],
             figsize=(10,3),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
+# a1,b1,c2_0829 = egg_signalfreq(c_0829, rate=fs_0829, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
+#                                 figsize=(8,8))
+
+#%% MMC Plots - something happens around 2 hrs, large positive peak in chan 7, negative peaks in chan 3-6
+a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(0,10),spacer=100,vline=[6400/3600, 7500/3600],
+            freq=[0.0001,0.001],order=3, rate=fs_0829, title='',skip_chan=[0,1,2], line_params=['black',3,'dashed'],
+            figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
 a1,b1,c2_0829 = egg_signalfreq(c_0829, rate=fs_0829, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
-                                figsize=(8,8))
+                                figsize=(10,15))
+
+#%% Signal plot and dominant frequency calculations
+a,b,c_0829 = signalplot_hrs(savgol_mean_0829,xlim=(0,30),spacer=200,vline=[],
+            freq=[0.0001,0.01],order=3, rate=fs_0829, title='',skip_chan=[0,1,2], line_params=['black',3,'dashed'],
+            figsize=(10,15),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+a1,b1,c2_0829_mmc = egg_signalfreq(c_0829, rate=fs_0829, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,1.33],mmc=True,
+                                figsize=(10,15))
+
+mmc_df = pd.DataFrame(c2_0829_mmc.T, columns=['Freq', 'Channel 3','Channel 4','Channel 5','Channel 6','Channel 7'])
+
+d_freqs = {}
+
+# Iterate over channel columns
+for channel in ['Channel 3', 'Channel 4', 'Channel 5', 'Channel 6', 'Channel 7']:
+    # Find the index of the maximum magnitude for the current channel
+    max_magnitude_index = mmc_df[channel].idxmax()
+    
+    # Extract the frequency corresponding to this maximum magnitude
+    d_freq = mmc_df.loc[max_magnitude_index, 'Freq']
+    
+    d_freqs[channel] = d_freq
+
+avg_dfreq = sum(d_freqs.values()) / len(d_freqs)
+
+for channel, frequency in d_freqs.items():
+    print(f"{channel}: {frequency} cycles/hr")
+
+print(f"Average Dominant Frequency: {avg_dfreq} cycles/hr")
+
+#%%
+a,b,c_0829_s = signalplot(savgol_mean_0829,xlim=(0,10*3600),spacer=100,vline=[6600],
+            freq=[0.0001,0.001],order=3, rate=fs_0829, title='',skip_chan=[0,1,2], line_params=['black',2,'dashed'],
+            figsize=(20,12),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
 #%%
 seg_vmean_0829 = {}
-seg_vmean_0829 = segment_data(v_mean_0829, gap_size=14, seg_length=1800, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
+seg_vmean_0829 = segment_data(v_mean_0829, gap_size=220, seg_length=6000, window=100, min_frac=0.8, window_frac=0.2, rescale=True)
 print_segment_info(seg_vmean_0829)
 
+#%%
 seg_interp_0829={}
 seg_filtered_0829={}
 seg_savgol_0829={}
-
-
 for i in range(len(seg_vmean_0829)):
-        seg_interp_0829[i] = interpolate_egg_v3(seg_vmean_0829[i], method='cubicspline', time=False)
-        seg_filtered_0829[i]=butter_filter(seg_interp_0829[i], low_freq=0.02, high_freq=0.2, fs_0829=fs_0829)
+        seg_interp_0829[i] = interpolate_data(seg_vmean_0829[i])
+        # seg_filtered_0829[i]=butter_filter(seg_interp_0829[i], low_freq=0.02, high_freq=0.2, fs_0829=fs_0829)
         seg_savgol_0829[i]=savgol_filt(seg_interp_0829[i], window=3,polyorder=1,deriv=0,delta=1)
 
 #%%
@@ -139,8 +156,10 @@ egg_freq_heatplot_v2(savgol_mean_0829, rate=fs_0829, xlim=[15000,20000],seg_leng
                             skip_chan=[])
 
 #%%
-egg_freq_heatplot_v2(seg_savgol_0829[0], rate=fs_0829, xlim=[0,4400],seg_length=400,freq=[0.02,0.2],freqlim=[1,7],
-                            vrange=[0],figsize=(10,15),interpolation='bilinear',n=5, intermediate=False,
+# seg_interp_0829[2] = seg_interp_0829[2].reset_index(drop=True)
+# seg_interp_0829[2]['timestamps'] = seg_interp_0829[2]['timestamps'] - seg_interp_0829[2].loc[0, 'timestamps']
+heatfig_0829, _, freqs_0829 = egg_freq_heatplot_v2(seg_interp_0829[1], rate=fs_0829, xlim=[0,12000],seg_length=600,freq=[0.02,0.2],freqlim=[1,8],
+                            vrange=[0],figsize=(10,15),interpolation='bilinear',n=10, intermediate=False,
                             max_scale=.7,norm=True,time='timestamps',
                             skip_chan=[])
 

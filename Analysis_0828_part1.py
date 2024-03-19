@@ -11,22 +11,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as datetime
-from datetime import datetime, timedelta, time
 import pathlib 
-import timeit
-import time
-import cProfile
-import sklearn
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
 from scipy.signal import butter, filtfilt
 import seaborn as sns
-
-
-from scipy.interpolate import UnivariateSpline as univsp
 from scipy import signal
-from filterpy.kalman import KalmanFilter
-import pywt
 from functions_read_bursts import*
 from Plot_EGG_adaptation import*
 
@@ -38,7 +28,7 @@ from Plot_EGG_adaptation import*
 #Baatery measurements
 #meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/RF readings miniPC desk animal facility/Battery Tests/Mode 1 new")
 # meas_path = pathlib.Path("C:/Users/CoenBerns/OneDrive - Mass General Brigham/Documents/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
-meas_path = pathlib.Path("/Users/coenberns/Documents_lab/Thesis/Measurements/Pig measurements/08282023 second - straight measurement mode 2")
+meas_path = pathlib.Path(r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/01042024_multiweek")
 
 # # List all the files in the selected folder
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
@@ -74,8 +64,6 @@ v_mean_0828, v_fulldat_0828, times_0828 =read_egg_v3_bursts(file_0828,
                                                 sleep_ping=1,
                                                 sleep_time=1.84,
                                                 t_deviation=0.2)
-
-
 
 #%%
 # v_fulldat2_0828 = v_fulldat_0828

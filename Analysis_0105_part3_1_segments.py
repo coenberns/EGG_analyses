@@ -9,24 +9,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as datetime
-from datetime import datetime, timedelta, time
 import pathlib 
 import seaborn as sns
-import timeit
-import time
-import cProfile
-import sklearn
-from sklearn.metrics import mean_squared_error as mse
-from sklearn.metrics import mean_absolute_error as mae
-
-from scipy.interpolate import UnivariateSpline as univsp
-from scipy import signal
 from functions_read_bursts import*
 import Old_Plot_EGG as oldEGG
 from Plot_EGG_adaptation import*
 
 #%% Dir selection
-meas_path = pathlib.Path(r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\01042024_multiweek")
+meas_path = pathlib.Path(r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/01042024_multiweek")
 # # Make list of available files in dir
 in_folder = [f for f in meas_path.iterdir() if f.is_file()]
 
@@ -52,7 +42,7 @@ file_0105 = in_folder[choice - 1]
 print(f"File selected: {file_0105.name}")
 #%%
 #For the general read-in of data file
-v_compact_0105, v_fulldat_0105, times_0105 =read_egg_v3_bursts(file_0105,
+v_mean_0105, v_fulldat_0105, times_0105 =read_egg_v3_bursts(file_0105,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=600,
@@ -65,35 +55,14 @@ if times_0105['t_cycle'] < 2 and times_0105['t_cycle'] > 1.9:
     print('Cycling time is okay')
 else:
     print('FUCK')
-
-#%%
-v_fulldat2_0105 = v_fulldat_0105
-burst_length = 6
-channels = [f'Channel {i}' for i in range(8)]
-
-# def nanmean(series):
-#     return np.nanmean(series)
-
-# Apply the custom function for averaging
-for channel in channels:
-    v_fulldat2_0105[channel] = v_fulldat2_0105.groupby('burst_group')[channel].transform('mean')
-
-# Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
-for col in ['elapsed_s', 'corrected_realtime']:
-    v_fulldat2_0105[col] = v_fulldat2_0105.groupby('burst_group')[col].transform('first')
-
-# Filtering for the first packet of each burst
-v_mean_0105 = v_fulldat2_0105[v_fulldat2_0105['packet_miss_idx'] % burst_length == 0]
-
-# v_mean_0104 = averaging_bursts(v_fulldat_0104,n_burst=5, sleep_ping=1)
-
 #%%
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
 #Does take a considerable amount of time....
 interp_mean_0105 = interpolate_data(v_mean_0105, cycle_time=times_0105['t_cycle'], pchip=True)
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
-savgol_mean_0105 = savgol_filt(interp_mean_0105)
+savgol_mean_0105 = interp_mean_0105
+# savgol_mean_0105 = savgol_filt(interp_mean_0105)
 
 #%% 
 sns.set_palette('tab10')
@@ -110,13 +79,16 @@ a,b,c_0105 = signalplot_hrs(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0
             figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
+#%% Signal plot focussing on smaller band-pass of MMC
+
+
 #%% Plotting its power density for low frequencies. Clear view of MMC 
 a1,b1,c2_0105 = egg_signalfreq(c_0105, rate=fs_0105, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
                                 figsize=(8,8))
 
 #%% Looking at dominant frequencies?
-oldEGG.egg_freq_heatplot_v2(savgol_mean_0105,rate=fs_0105,xlim=[0,36000], freq=[0.0001,0.01], seg_length=6000, 
-                        freqlim=[0.00001,0.1],time='timestamps', max_scale=.8, n=10, norm=True, skip_chan=[], figsize=(10,15))
+oldEGG.egg_freq_heatplot_v2(savgol_mean_0105,rate=fs_0105,xlim=[0,36000], freq=[0.0001,0.05], seg_length=6000, 
+                        freqlim=[0.00001,0.05],time='timestamps', max_scale=.8, n=10, norm=True, skip_chan=[], figsize=(10,15))
 #%%
 # egg_freq_heatplot_v2(savgol_mean_0105,rate=.5,xlim=[400,2000], freq=[0.02,0.2], seg_length=100, 
 #                         freqlim=[1,8],time='timestamps', max_scale=.8, n=5)

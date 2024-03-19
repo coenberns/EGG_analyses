@@ -764,48 +764,105 @@ def print_segment_info(segmented_data):
 #%% INTERPOLATION FUNCTIONS
 # Interpolation function where only gaps smaller than max_gap are CubicSpline() interpolated
 def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
+    start = time.time()
     df2 = df.copy()
-    
-    if rescale:
+    df2 = df2.reset_index(drop=True)
+    # Reset timestamps to start from zero if required
+    if rescale: 
         df2['timestamps'] -= df2['timestamps'].iloc[0]
-    
-    if time_ip:
-        df2['timestamps'] = df2['timestamps'].interpolate(method='linear')
 
-    # Preprocess 'Channel 0' to identify gaps applicable across all channels
-    df2['Channel 0'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
-    consec_nan_counts = df2['Channel 0'].isna().astype(int).groupby(df2['Channel 0'].notna().astype(int).cumsum()).sum()
-    gap_indices = consec_nan_counts[consec_nan_counts > 0].index
-    # Translate gap indices to start and end positions
-    gap_starts_ends = []
-    for idx in gap_indices:
-        gap_mask = df2['Channel 0'].notna().astype(int).cumsum() == idx
-        start, end = gap_mask.idxmax(), gap_mask[::-1].idxmax()
-        gap_starts_ends.append((start, end))
-    
-    max_nan_count = int(max_gap / cycle_time)
+    # Linearly interpolate timestamps if required (e.g., when downsampling)
+    if time_ip: 
+        df2['timestamps'] = df2['timestamps'].interpolate('linear')
 
+    # Define the maximum number of consecutive NaNs allowed based on cycle_time
+    max_consecutive_nans = int(max_gap / cycle_time)
+
+    df2['Channel 0_nans'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
+    nans = 'Channel 0_nans'
+    consec_nan_counts = df2[nans].isna().astype(int).groupby(df2[nans].notna().astype(int).cumsum()).sum()
+
+    # Interpolate each channel
     for channel in df2.columns:
-        if 'Channel' in channel:
+        if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
+            # Convert the column to numeric and count consecutive NaNs
+            df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
+            # Prepare for interpolation
             x = df2['timestamps'].values
-            y = pd.to_numeric(df2[channel], errors='coerce').values
+            y = df2[channel].values
             non_nan_mask = ~np.isnan(y)
             
-            for start, end in gap_starts_ends:
-                # Calculate gap_size based on timestamps to handle non-integer cycle times
-                gap_size = end - start
-                if gap_size <= max_nan_count:
-
-                    interp_func = CubicSpline(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
-                
+            # Interpolate with Cubic Spline or linear depending on the gap size
+            for group, count in consec_nan_counts.items():
+                if count <= max_consecutive_nans:
+                    # Cubic spline interpolation for small gaps
+                    cs = CubicSpline(x[non_nan_mask], y[non_nan_mask])
+                    df2.loc[non_nan_mask, channel] = cs(x[non_nan_mask])
                 else:
-                    if pchip: 
-                        interp_func = PchipInterpolator(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+                    if pchip == True:
+                        # PCHIP interpolation for larger gaps
+                        pchip_interp = PchipInterpolator(x[non_nan_mask], y[non_nan_mask])
+                        nan_indices = df2[channel].isna()
+                        df2.loc[nan_indices, channel] = pchip_interp(x[nan_indices])
+                    # Linear interpolation for larger gaps
                     else:
-                        interp_func = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate", bounds_error=False)
+                        linear_interp = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate")
+                        nan_indices = df2[channel].isna()
+                        df2.loc[nan_indices, channel] = linear_interp(x[nan_indices])
+    end=time.time()
+    print(f'The function took {end-start:.2f} seconds to run')
+    return df2            
+
+#Does not work for all data, I don't know why. Find out? 
+# def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
+#     df2 = df.copy()
+    
+#     if rescale:
+#         df2['timestamps'] -= df2['timestamps'].iloc[0]
+    
+#     if time_ip:
+#         df2['timestamps'] = df2['timestamps'].interpolate(method='linear')
+
+#     df2['Channel 0'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
+#     consec_nan_counts = df2['Channel 0'].isna().astype(int).groupby(df2['Channel 0'].notna().astype(int).cumsum()).sum()
+#     gap_indices = consec_nan_counts[consec_nan_counts > 0].index
+#     # Translate gap indices to start and end positions
+#     gap_starts_ends = []
+#     for idx in gap_indices:
+#         gap_mask = df2['Channel 0'].notna().astype(int).cumsum() == idx
+#         start, end = gap_mask.idxmax(), gap_mask[::-1].idxmax()
+#         gap_starts_ends.append((start, end))
+    
+#     max_nan_count = int(max_gap / cycle_time)
+
+#     for channel in df2.columns:
+#         if 'Channel' in channel:
+#             x = df2['timestamps'].values
+#             y = pd.to_numeric(df2[channel], errors='coerce').values
+#             non_nan_mask = ~np.isnan(y)
+            
+#             for start, end in gap_starts_ends:
+#                 # Calculate gap_size based on timestamps to handle non-integer cycle times
+#                 gap_size = end - start
+#                 if gap_size <= max_nan_count:
+
+#                     interp_func = CubicSpline(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
                 
-                df2.loc[start:end, channel] = interp_func(x[start:end+1])
-    return df2
+#                 else:
+#                     if pchip: 
+#                         interp_func = PchipInterpolator(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+#                     else:
+#                         interp_func = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate", bounds_error=False)
+                
+#                 gap_idxs = df2.loc[start:end].index
+#                 ip_values = interp_func(x[gap_idxs])
+#                 len1 = len(gap_idxs)
+#                 len2 = len(ip_values)
+#                 if len1 != len2:
+#                     print(f'Slice not the same length as interpolated area, difference = {(len2-len1)}')
+#                 else:
+#                     df2.loc[gap_idxs, channel] = ip_values
+#     return df2
 
 # Quick and dirty interpolation method
 def interpolate_egg_v3(df, method = 'cubicspline', order=3, rescale=False, time=False):
@@ -1721,9 +1778,9 @@ def calc_diff_resample(resamp, data, freq=True, warp_plot=True, window=25,fs_d=.
 #     df2 = df2[df2['packet_miss_idx'] % (n_burst+sleep_ping) == 0]
 #     return df2
 
-# OLD INTERPOLATION FUNCTIONS
+# Interpolation function 
 
-# def interpolate_data(df, cycle_time, max_gap=14, rescale=False, time_ip=False, pchip=True):
+# def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
 #     start = time.time()
 #     df2 = df.copy()
 #     # Reset timestamps to start from zero if required
@@ -1737,14 +1794,16 @@ def calc_diff_resample(resamp, data, freq=True, warp_plot=True, window=25,fs_d=.
 #     # Define the maximum number of consecutive NaNs allowed based on cycle_time
 #     max_consecutive_nans = int(max_gap / cycle_time)
 
+#     df2['Channel 0_nans'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
+#     nans = 'Channel 0_nans'
+#     consec_nan_counts = df2[nans].isna().astype(int).groupby(df2[nans].notna().astype(int).cumsum()).sum()
+#     df2 = df2.drop('Channel 0_nans', axis=1)
+
 #     # Interpolate each channel
 #     for channel in df2.columns:
 #         if 'Channel' in channel:  # Assuming channel data columns have 'Channel' in their names
 #             # Convert the column to numeric and count consecutive NaNs
 #             df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
-#             consec_nan_counts = df2[channel].isna().astype(int).groupby(df2[channel].notna().astype(int).cumsum()).sum()
-#             print(consec_nan_counts)
-
 #             # Prepare for interpolation
 #             x = df2['timestamps'].values
 #             y = df2[channel].values
