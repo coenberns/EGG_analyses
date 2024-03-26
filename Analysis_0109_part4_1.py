@@ -80,7 +80,26 @@ a,b,c_0109 = signalplot_hrs(savgol_mean_0109,xlim=(0,30),spacer=300,vline=[],fre
 a1,b1,c2_0109_mmc = egg_signalfreq(c_0109, rate=fs_0109, freqlim=[0.001*60,0.08*60], mode='power', vline=[0.25,.5,1.33],mmc=True,
                                 figsize=(8,8))
 
+mmc_df = pd.DataFrame(c2_0109_mmc.T, columns=['Freq', 'Channel 3','Channel 4','Channel 5','Channel 6','Channel 7'])
 
+d_freqs = {}
+
+# Iterate over channel columns
+for channel in ['Channel 3', 'Channel 4', 'Channel 5', 'Channel 6', 'Channel 7']:
+    # Find the index of the maximum magnitude for the current channel
+    max_magnitude_index = mmc_df[channel].idxmax()
+    
+    # Extract the frequency corresponding to this maximum magnitude
+    d_freq = mmc_df.loc[max_magnitude_index, 'Freq']
+    
+    d_freqs[channel] = d_freq
+
+avg_dfreq = sum(d_freqs.values()) / len(d_freqs)
+
+for channel, frequency in d_freqs.items():
+    print(f"{channel}: {frequency} cycles/hr")
+
+print(f"Average Dominant Frequency: {avg_dfreq} cycles/hr")
 
 #%%
 seg_vmean_0109 = {}

@@ -24,33 +24,9 @@ from functions_read_bursts import*
 from Plot_EGG_adaptation import*
 
 #%% Dir selection
-meas_path = pathlib.Path(r"C:\Users\CoenBerns\OneDrive - Mass General Brigham\Documents\Thesis\Measurements\Pig measurements\01042024_multiweek")
-# # Make list of available files in dir
-in_folder = [f for f in meas_path.iterdir() if f.is_file()]
-
-# Print list of available files in directory
-for i, f in enumerate(in_folder, start=1):
-    print(f"{i}. {f.name}")
-
-# Choice selection of file 
-while True:
-    try:
-        choice = int(input("Enter the number of the file you want to use (1,2, etc.): "))
-        if 1 <= choice <= len(in_folder):
-            break
-        else:
-            print("Invalid choice. Please enter a valid number.")
-    except ValueError:
-        print("Invalid input. Please enter a number.")
-
-# Assign the selected file to a variable
-file_0108 = in_folder[choice - 1]
-
-# Now you can work with the selected_file
-print(f"File selected: {file_0108.name}")
-#%%
+file_0108 = r"/Users/coenberns/Library/CloudStorage/OneDrive-MassGeneralBrigham/Documents/Thesis/Measurements/Pig measurements/01042024_multiweek/01082024_multiweek_part3_2.txt" 
 #For the general read-in of data file
-v_compact_0108, v_fulldat_0108, times_0108 =read_egg_v3_bursts(file_0108,
+v_mean_0108, v_fulldat_0108, times_0108 =read_egg_v3_bursts(file_0108,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=600,
@@ -58,22 +34,6 @@ v_compact_0108, v_fulldat_0108, times_0108 =read_egg_v3_bursts(file_0108,
                                                 sleep_ping=1,
                                                 sleep_time=1.84,
                                                 t_deviation=0.2)
-
-#%%
-v_fulldat2_0108 = v_fulldat_0108
-burst_length = 6
-channels = [f'Channel {i}' for i in range(8)]
-
-# Apply the custom function for averaging
-for channel in channels:
-    v_fulldat2_0108[channel] = v_fulldat2_0108.groupby('burst_group')[channel].transform('mean')
-
-# Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
-for col in ['elapsed_s', 'corrected_realtime']:
-    v_fulldat2_0108[col] = v_fulldat2_0108.groupby('burst_group')[col].transform('first')
-
-# Filtering for the first packet of each burst
-v_mean_0108 = v_fulldat2_0108[v_fulldat2_0108['packet_miss_idx'] % burst_length == 0]
 
 if times_0108['t_cycle'] < 2:
     print('Cycling time is okay')
@@ -96,11 +56,12 @@ signalplot(savgol_mean_0108,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
 
 #%% MMC Plot
 datcols = ['timestamps'] + [f'Channel {i}' for i in range(8)]
-a,b,c_0108 = signalplot_hrs(savgol_mean_0108,xlim=(0,30),spacer=200,vline=[],
-           freq=[0.0001,0.01],order=3, rate=fs_0108, title='',skip_chan=[0,1,6],
-            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+a,b,c_0108 = signalplot_hrs(savgol_mean_0108,xlim=(22,29),spacer=100,vline=[],
+           freq=[0.0001,0.01],order=3, rate=fs_0108, title='',skip_chan=[0,1,2,5,6],
+            figsize=(8,6),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
+#%%
 a1,b1,c2_0108 = egg_signalfreq(c_0108, rate=fs_0108, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
                                 figsize=(8,8))
 

@@ -58,33 +58,67 @@ else:
 #%%
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d
 #Does take a considerable amount of time....
-interp_mean_0105 = interpolate_data(v_mean_0105, cycle_time=times_0105['t_cycle'], pchip=True)
+interp_mean_0105 = interpolate_data_optimized(v_mean_0105, cycle_time=times_0105['t_cycle'], pchip=True)
 #For quick dirty interpolation:
 # interp_mean = interpolate_egg_v3(v_mean)
-savgol_mean_0105 = interp_mean_0105
-# savgol_mean_0105 = savgol_filt(interp_mean_0105)
+# savgol_mean_0105 = interp_mean_0105
+savgol_mean_0105 = savgol_filt(interp_mean_0105)
 
 #%% 
 sns.set_palette('tab10')
 
 fs_0105 = times_0105['effective_rate']
-signalplot(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0.02,0.2],order=3,
+a,b,c_0105_slow = signalplot(interp_mean_0105,xlim=(),spacer=250,vline=[],freq=[0.02,0.2],order=3,
             rate=fs_0105, title='',skip_chan=[],
             figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
-            output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={})
-
-#%% Signal plot for potential MMC recordings? Looks interesting
-a,b,c_0105 = signalplot_hrs(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0.0001,0.02],order=3,
-            rate=fs_0105, title='',skip_chan=[0,1,2],
-            figsize=(10,8),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
             output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
 
-#%% Signal plot focussing on smaller band-pass of MMC
+c_0105_slow.to_hdf('0105_all_slowwave.h5', key='0105')
 
+#%% Calculate dominant frequency per time segment, with 4 overlap
+domfreq_segs, smooth_domfreqs_segs = calculate_dominant_frequencies(c_0105_slow, fs_0105, seg_time=120,time='Synctime',n=4)
+domfreq_segs['DF_avg'] = domfreq_segs[[f'DF_Channel {i}' for i in range(8)]].mean(axis=1)
+smooth_domfreqs_segs['DF_avg'] = smooth_domfreqs_segs[[f'DF_Channel {i}' for i in range(8)]].mean(axis=1)
 
-#%% Plotting its power density for low frequencies. Clear view of MMC 
-a1,b1,c2_0105 = egg_signalfreq(c_0105, rate=fs_0105, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
-                                figsize=(8,8))
+domfreq_segs['SW_bool'] = (domfreq_segs['DF_avg']>= 3.2)&(domfreq_segs['DF_avg']<= 4.7)
+smooth_domfreqs_segs['SW_bool'] = (smooth_domfreqs_segs['DF_avg']>= 3.2)&(smooth_domfreqs_segs['DF_avg']<= 4.7)
+domfreq_segs['SW_bool'] = domfreq_segs['SW_bool'].astype(int)
+smooth_domfreqs_segs['SW_bool'] = smooth_domfreqs_segs['SW_bool'].astype(int)
+
+domfreq_segs.to_hdf('0105_DomFreq_segs_of120s.h5', key='0105')
+smooth_domfreqs_segs.to_hdf('0105_DomFreq_segs_of120s_sm_window_n4.h5', key='0105')
+
+#%% Signal plot for potential MMC recordings? Looks interesting
+a,b,c_0105_mmc = signalplot(savgol_mean_0105,xlim=(),spacer=200,vline=[],freq=[0.0001,0.01],order=3,
+            rate=fs_0105, title='',skip_chan=[],
+            figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',
+            output='PD',Normalize_channels=False,labels=[],color_dict={},name_dict={})
+
+#Plotting its power density for low frequencies. Clear view of MMC 
+a1,b1,c2_0105_mmc = egg_signalfreq(c_0105_mmc, rate=fs_0105, freqlim=[0.001*60,0.1*60], mode='power', vline=[0.25,1.33],mmc=True,
+                                figsize=(10,20))
+
+mmc_df = pd.DataFrame(c2_0105_mmc.T, columns=['Freq']+[f'Channel {i}' for i in range(8)])                
+
+d_freqs = {}
+
+# Iterate over channel columns
+for channel in [f'Channel {i}' for i in range(8)]:
+    # Find the index of the maximum magnitude for the current channel
+    max_magnitude_index = mmc_df[channel].idxmax()
+    
+    # Extract the frequency corresponding to this maximum magnitude
+    d_freq = mmc_df.loc[max_magnitude_index, 'Freq']
+    
+    d_freqs[channel] = d_freq
+
+avg_dfreq = sum(d_freqs.values()) / len(d_freqs)
+
+for channel, frequency in d_freqs.items():
+    print(f"{channel}: {frequency} cycles/hr")
+
+print(f"Average Dominant Frequency: {avg_dfreq} cycles/hr")
+
 
 #%% Looking at dominant frequencies?
 oldEGG.egg_freq_heatplot_v2(savgol_mean_0105,rate=fs_0105,xlim=[0,36000], freq=[0.0001,0.05], seg_length=6000, 

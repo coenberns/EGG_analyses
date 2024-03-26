@@ -50,7 +50,7 @@ file_0111 = in_folder[choice - 1]
 print(f"File selected: {file_0111.name}")
 #%%
 #For the general read-in of data file
-v_compact_0111, v_fulldat_0111, times_0111 =read_egg_v3_bursts(file_0111,
+v_mean_0111, v_fulldat_0111, times_0111 =read_egg_v3_bursts(file_0111,
                                                 header = None,
                                                 rate = 62.5,
                                                 scale=600,
@@ -58,23 +58,6 @@ v_compact_0111, v_fulldat_0111, times_0111 =read_egg_v3_bursts(file_0111,
                                                 sleep_ping=1,
                                                 sleep_time=1.84,
                                                 t_deviation=0.2)
-
-#%%
-v_fulldat2_0111 = v_fulldat_0111
-burst_length = 6
-channels = [f'Channel {i}' for i in range(8)]
-
-# Apply the custom function for averaging
-for channel in channels:
-    v_fulldat2_0111[channel] = v_fulldat2_0111.groupby('burst_group')[channel].transform('mean')
-
-# Replicating the first 'elapsed_s' and 'corrected_realtime' across the group
-for col in ['elapsed_s', 'corrected_realtime']:
-    v_fulldat2_0111[col] = v_fulldat2_0111.groupby('burst_group')[col].transform('first')
-
-# Filtering for the first packet of each burst
-v_mean_0111 = v_fulldat2_0111[v_fulldat2_0111['packet_miss_idx'] % burst_length == 0]
-# v_mean_0111 = averaging_bursts(v_fulldat_0111,n_burst=5, sleep_ping=1)
 
 #%% PROBABLY THIS RECORDING IS QUITE USELESS SINCE IT WAS DURING MOVING OF THE PIG
 #Custom interpolation function that does not interpolate large gaps using cubic spline but with pchip or with linear interp1d

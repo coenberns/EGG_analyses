@@ -698,7 +698,7 @@ def filter_segment(segment, window, min_frac, window_frac):
 
     return segment
 
-def segment_data(df, gap_size=14, seg_length=1500, window=100, min_frac=0.8, window_frac=0.2, rescale=False):
+def segment_data(df, gap_size=14, seg_length=1500, window=100, min_frac=0.8, window_frac=0.2, rescale=False, split=False):
     segments = {}
     start_index=0 
     segment_id=0
@@ -723,7 +723,7 @@ def segment_data(df, gap_size=14, seg_length=1500, window=100, min_frac=0.8, win
                         segment_id += 1
                     else:
                         # If segment is too long and invalid, split it and process each half again
-                        if len(segment) >= 2 * seg_length:
+                        if split and (len(segment) >= 2 * seg_length):
                             middle = (start_index + i - nan_count) // 2
                             segments.update(segment_data(df, gap_size, seg_length, window, min_frac, start_index, segment_id))
                             segments.update(segment_data(df, gap_size, seg_length, window, min_frac, middle, segment_id))
@@ -781,6 +781,7 @@ def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False,
     df2['Channel 0_nans'] = pd.to_numeric(df2['Channel 0'], errors='coerce')
     nans = 'Channel 0_nans'
     consec_nan_counts = df2[nans].isna().astype(int).groupby(df2[nans].notna().astype(int).cumsum()).sum()
+    df2 = df2.drop(columns='Channel 0_nans', axis=1)
 
     # Interpolate each channel
     for channel in df2.columns:
@@ -796,7 +797,7 @@ def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False,
             for group, count in consec_nan_counts.items():
                 if count <= max_consecutive_nans:
                     # Cubic spline interpolation for small gaps
-                    cs = CubicSpline(x[non_nan_mask], y[non_nan_mask])
+                    cs = CubicSpline(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
                     df2.loc[non_nan_mask, channel] = cs(x[non_nan_mask])
                 else:
                     if pchip == True:
@@ -812,6 +813,55 @@ def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False,
     end=time.time()
     print(f'The function took {end-start:.2f} seconds to run')
     return df2            
+
+# Faster function, definitely working? 
+def interpolate_data_optimized(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
+    start = time.time()
+    
+    df2 = df.copy()
+    df2 = df2.reset_index(drop=True)
+    
+    if rescale: 
+        df2['timestamps'] -= df2['timestamps'].iloc[0]
+
+    if time_ip: 
+        df2['timestamps'] = np.linspace(df2['timestamps'].iloc[0], df2['timestamps'].iloc[-1], len(df2))
+
+    max_consecutive_nans = int(max_gap / cycle_time)
+
+    for channel in df2.columns:
+        if 'Channel' in channel:
+            df2[channel] = pd.to_numeric(df2[channel], errors='coerce')
+            x = df2['timestamps'].values
+            y = df2[channel].values
+            non_nan_mask = ~np.isnan(y)
+
+            # New logic to identify and handle gaps individually
+            nan_groups = np.isnan(y).astype(int)
+            diff = np.diff(nan_groups)
+            starts = np.where(diff == 1)[0] + 1
+            ends = np.where(diff == -1)[0] + 1
+            
+            if nan_groups[0] == 1:
+                starts = np.insert(starts, 0, 0)
+            if nan_groups[-1] == 1:
+                ends = np.append(ends, len(y))
+            
+            for start, end in zip(starts, ends):
+                gap_size = end - start
+                if gap_size <= max_consecutive_nans:
+                    interpolator = CubicSpline(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+                elif pchip:
+                    interpolator = PchipInterpolator(x[non_nan_mask], y[non_nan_mask], extrapolate=True)
+                else:
+                    interpolator = interp1d(x[non_nan_mask], y[non_nan_mask], kind='linear', fill_value="extrapolate")
+                y[start:end] = interpolator(x[start:end])
+
+            df2[channel] = y
+    
+    end = time.time()
+    print(f'The function took {end-start:.2f} seconds to run')
+    return df2
 
 #Does not work for all data, I don't know why. Find out? 
 # def interpolate_data(df, cycle_time=2, max_gap=14, rescale=False, time_ip=False, pchip=True):
@@ -1200,6 +1250,59 @@ def signalplot_hrs(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 
     else: 
         outarray=outarray.T
     return fig_an,ax_an,outarray
+
+def heatplot_hrs(dat, xlim=(0, 0, 0), spacer=0, vline=[], freq=1, order=3, rate=62.5, title='', skip_chan=[], figsize=(10, 10), textsize=16, vrange=[0, 0, 0], interpolation='bilinear', norm=True):
+    plt.rcParams['font.size'] = textsize
+    fig_an, ax_an = plt.subplots(figsize=figsize)
+    x = dat.timestamps.to_numpy()/3600
+    arraylist = []
+    
+    # Added to this function, initialize active channels
+    active_channels = []
+    
+    if len(xlim) == 2:
+        ax_an.set_xlim(xlim[0], np.min([xlim[1], x.max()]))
+    else:
+        ax_an.set_xlim([x.min(), x.max()])
+        xlim = [x.min(), x.max()]
+        
+    for i, column in enumerate(dat.columns):
+        if column.startswith('Channel') and not(int(column[-2:]) in skip_chan):
+            y = dat[column].to_numpy()
+            if freq == 1:
+                xf, yf = egg_interpolate(np.array([x, y]), rate=rate)
+            else:
+                d = np.array([x, y])
+                mod = egg_filter(d, freq=freq, rate=rate, order=order)
+                xf = mod[0, :]
+                yf = mod[1, :]
+            arraylist.append(yf)
+            
+            # Add active channel number to list
+            active_channels.append(int(column[-2:]))
+            
+    datlist = np.array(arraylist)
+    if len(xlim) == 2:
+        loc2 = np.logical_and(xf > xlim[0], xf < xlim[1])
+        datlist = datlist[:, loc2]
+    if norm:
+        datlist = np.absolute(datlist)
+        
+    if len(vrange) == 2:
+        colors = ax_an.imshow(np.flip(datlist, axis=0), aspect='auto', extent=[xlim[0], xlim[1], -0.5, len(active_channels)-0.5], cmap='jet', vmin=vrange[0], vmax=vrange[1], interpolation=interpolation)
+    else:
+        colors = ax_an.imshow(np.flip(datlist, axis=0), aspect='auto', extent=[xlim[0], xlim[1], -0.5, len(active_channels)-0.5], cmap='jet', interpolation=interpolation)  
+    
+    # Set the y-ticks and y-tick labels
+    ax_an.set_yticks(range(len(active_channels)))
+    ax_an.set_yticklabels(active_channels)
+    
+    ax_an.set_xlabel('Time (hrs)')
+    ax_an.set_ylabel('Channel Number')
+    
+    cbar = fig_an.colorbar(colors, ax=ax_an)
+    cbar.set_label('Electrical Activity (mV)', labelpad=10)
+    return fig_an, ax_an, datlist
 
 #%% GAP SIZE DISTRIBUTION, INSERTING GAPS ETC. FOR INTERPOLATION VALIDATION
 def get_gap_sizes(df, sec_gap):
@@ -1663,9 +1766,9 @@ def plot_signal_comparison(resampled, data, fs_c=62.5, fs_d=0.5, xlim=None, scal
             for ax in axs[-1,:]:
                 for label in ax.get_xticklabels():
                     label.set_fontsize(size)
-            for ax in axs.flatten():  # Flatten the array to iterate over all subplots
+            for ax in axs.flatten():
                 for label in ax.get_yticklabels():
-                    label.set_fontsize(size)  # Set the y-tick label sizes to match the x-tick label sizes
+                    label.set_fontsize(size) 
             
             axs[i,2].set_yticklabels([])
             axs[i,2].set_yticks([])
@@ -1739,6 +1842,54 @@ def calc_diff_resample(resamp, data, freq=True, warp_plot=True, window=25,fs_d=.
 
     return diffs, chan_abs_avg, statz
 
+def calculate_dominant_frequencies(df, fs, seg_time=60,time='Synctime',n=4):
+    """
+    Calculate the dominant frequency for each channel within each time segment,
+    as well as the average dominant frequency across all channels.
+
+    Parameters:
+    - df: DataFrame containing the time series data.
+    - time_seg: The duration of each segment in seconds.
+    - fs: The sampling frequency.
+
+    Returns:
+    - DataFrame with the dominant frequencies and their average for each time segment.
+    """
+    # Determine segment boundaries
+    segment_starts = np.arange(0, df[time].iloc[-1], seg_time)
+    
+    # Initialize a list to hold the results
+    results = []
+
+    for start in segment_starts:
+        # Find the end of the current segment
+        end = start + seg_time
+        # Filter the DataFrame to the current segment
+        segment = df[(df[time] >= start) & (df[time] < end)]
+        
+        # Placeholder for dominant frequencies in this segment
+        dominant_freqs = []
+        
+        # Iterate over channels to calculate dominant frequency
+        for channel in [f'Channel {i}' for i in range(8)]:
+            f, Pxx = sig.periodogram(segment[channel], fs)
+            dominant_freq = f[np.argmax(Pxx)]*60 # conversion to CPM
+            dominant_freqs.append(dominant_freq)
+        
+        # Append the results (repeating values for each timestamp in the segment)
+        for timestamp in segment[time]:
+            results.append([timestamp, *dominant_freqs])
+    
+    # Create a DataFrame from the results
+    columns = [time] + [f'DF_Channel {i}' for i in range(8)]
+    results_df = pd.DataFrame(results, columns=columns)
+
+    for col in results_df.columns:
+        smooth_df = results_df.copy()
+        if col.startswith('DF'):
+            smooth_df[col] = smooth_df[col].rolling(window=int(seg_time/(fs*n)), center=True, min_periods=1).mean()
+
+    return results_df, smooth_df
 #%% MISC OLD FUNCTIONS 
 # MOVING AVERAGE SMOOTHENING FUNCTION 
 # def smooth_signal_moving_average(df, window_size=5):

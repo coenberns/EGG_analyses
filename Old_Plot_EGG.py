@@ -458,7 +458,7 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],freq=1,order=3,rate=62.5, titl
                 if dat[column].name in name_dict:
                     ax_an.text(ax_an.get_xlim()[0]-xsize/40,space,name_dict[dat[column].name],ha='right')
                 else:
-                    ax_an.text(ax_an.get_xlim()[0]-xsize/40,space,dat[column].name,ha='right')
+                    ax_an.text(ax_an.get_xlim()[0]-xsize/40,space,dat[column].name,ha='right',rotation=45)
             space+=spacer
 #            print(space)
     if len(vline) != 0:

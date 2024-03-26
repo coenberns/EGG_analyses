@@ -49,7 +49,7 @@ def read_behavior_data(folder, start_date, end_date, header=0, rate=14.93, scale
 folder_path_all=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/all_boris_48hrs_rec"
 folder_path_part1=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/observations_part1_rec"
 folder_path_part2=r"/Users/coenberns/Documents_lab/Thesis/Boris/Boris observations/observations_part2_rec"
-files=glob.glob(os.path.join(folder_path_part2,'*'))
+files=glob.glob(os.path.join(folder_path_part1,'*'))
 print(files)
 behavior = read_behavior_data(files, start_date='2023-08-28', end_date='2023-08-30')
 # %%
@@ -108,7 +108,9 @@ eths = get_ethograms(behavior)
 #         return new
 #     else:
 #         return current
-egg_data_part2 = pd.read_hdf('08292023_part2_filtered_wdatetime.h5', key='part2')
+# egg_data_part2 = pd.read_hdf('08292023_part2_filtered_wdatetime.h5', key='part2')
+egg_sw_mmc = pd.read_hdf('egg_sw_mmc_0828.h5', key='0828')
+
 #%%
 def update_category(current, behavior, new_category):
     if pd.isna(behavior):
@@ -185,11 +187,21 @@ def mergeDataAndEthograms(egg_data, behavior_df):
 
     return egg_data, beh_code_map, cat_code_map
 
-egg_beh_data_part2, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_data_part2, eths)
+egg_sw_mmc_beh, beh_code_map, cat_code_map = mergeDataAndEthograms(egg_sw_mmc, eths)
 
 
 # %%
-behavior_codes_1D = egg_beh_data['beh_code']
-cat_codes_1D = egg_beh_data['cat_code']
+behavior_codes_1D = egg_sw_mmc_beh['beh_code']
+cat_codes_1D = egg_sw_mmc_beh['cat_code']
+
+# %%
+beh_ohe = pd.get_dummies(egg_sw_mmc_beh['beh_code'], prefix='Beh')
+cat_ohe = pd.get_dummies(egg_sw_mmc_beh['cat_code'], prefix='Cat')
+cat_ohe = cat_ohe.drop(columns= 'Cat_-1', axis=1)
+
+beh_ohe.to_hdf('OHE_behaviors_0828.h5', key='0828')
+cat_ohe.to_hdf('OHE_categories_0828.h5', key = '0828')
+# %%
+len(beh_ohe) == len(egg_sw_mmc_beh)
 
 # %%

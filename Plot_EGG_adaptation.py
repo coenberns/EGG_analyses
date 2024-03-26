@@ -362,7 +362,10 @@ def migut_burst_interpolate(migut_data,rate=62.5):
     return new_data
 
 #%%    
-def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'dashed'],freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',Normalize_channels=False,labels=[],color_dict={},name_dict={}):
+def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'dashed'],
+               freq=1,order=3,rate=62.5, title='',skip_chan=[],figsize=(10,20),textsize=16,
+               hline=[],ncomb=0,hide_y=False,points=False,time='timestamps',output='np',
+               Normalize_channels=False,labels=[],color_dict={},name_dict={}, x_rotation=0):
     """
     Function to plot all channels in dataframe following data import using read_egg_v3
 
@@ -484,7 +487,9 @@ def signalplot(dat,xlim=(0,0,0),spacer=0,vline=[],line_params= ['black', 5, 'das
     if not Normalize_channels: #Only show voltage if everything is not rescaled
         ax_an.vlines(xlim[0],ymin=0-3*spacer/4,ymax=0-spacer/2,linewidth=10,color='black')
         ax_an.text(xlim[0]+xsize/40,0-5/8*spacer,str(np.round(spacer*1/4,decimals=2))+' mV',ha='left') 
-        
+
+    plt.xticks(rotation=x_rotation, ha='center')
+
 #    add_scalebar(ax_an,hidex=False,matchy=True)
     outarray=np.array(outarray)
     loc_out=np.logical_and(outarray[0,:]>xlim[0],outarray[0,:]< xlim[1])
@@ -629,7 +634,7 @@ def egg_signalfreq(dat,rate=62.5,freqlim=[1,10],ylim=0,mode='power',ylog=False,x
             x, pdat=sig.periodogram(dat[:,i],fs=rate, nfft=len(dat)*2)
             dlist.append(pdat)
         if mmc:
-            x=x*3600
+            x=x*3600 #Conversion to samples/minute for ease of use with slow waves
         else:    
             x=x*60 #Conversion to samples/minute for ease of use with slow waves
 
